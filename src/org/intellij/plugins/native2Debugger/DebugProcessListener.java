@@ -19,6 +19,8 @@ package org.intellij.plugins.native2Debugger;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.project.Project;
+import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
+import org.intellij.plugins.native2Debugger.rt.engine.DebuggerStoppedException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,33 +39,37 @@ class DebugProcessListener extends ProcessAdapter {
 
   @Override
   public void startNotified(@NotNull ProcessEvent event) {
-    //final DebuggerConnector connector = new DebuggerConnector(myProject, event.getProcessHandler(), myPort, myAccessToken);
-    //ApplicationManager.getApplication().executeOnPooledThread(connector);
+//    final DebuggerConnector connector = new DebuggerConnector(myProject, event.getProcessHandler(), myPort, myAccessToken);
+//    ApplicationManager.getApplication().executeOnPooledThread(connector);
+    // FIXME
+    final Native2DebugProcess dbgp = Native2DebugProcess.getInstance(event.getProcessHandler());
+    assert dbgp != null;
+    dbgp.init(null);
   }
 
   @Override
   public void processWillTerminate(@NotNull ProcessEvent event, boolean willBeDestroyed) {
-//    try {
-//      final Native2DebuggerSession session = Native2DebuggerSession.getInstance(event.getProcessHandler());
-//      if (session != null) {
-//        session.stop();
-//      }
-//    } catch (VMPausedException e) {
-//      // VM is paused, no way for a "clean" shutdown
-//    } catch (DebuggerStoppedException e) {
-//      // OK
-//    }
-//
-//    super.processWillTerminate(event, willBeDestroyed);
+    try {
+      final Native2DebuggerSession session = Native2DebuggerSession.getInstance(event.getProcessHandler());
+      if (session != null) {
+        session.stop();
+      }
+    } catch (VMPausedException e) {
+      // VM is paused, no way for a "clean" shutdown
+    } catch (DebuggerStoppedException e) {
+      // OK
+    }
+
+    super.processWillTerminate(event, willBeDestroyed);
   }
 
   @Override
   public void processTerminated(@NotNull ProcessEvent event) {
-//    super.processTerminated(event);
-//
-//    final Native2DebuggerSession session = Native2DebuggerSession.getInstance(event.getProcessHandler());
-//    if (session != null) {
-//      session.close();
-//    }
+    super.processTerminated(event);
+
+    final Native2DebuggerSession session = Native2DebuggerSession.getInstance(event.getProcessHandler());
+    if (session != null) {
+      session.close();
+    }
   }
 }

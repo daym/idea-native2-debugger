@@ -20,7 +20,9 @@
   <extensions defaultExtensionNs="com.intellij">
     <xdebugger.breakpointType implementation="org.intellij.plugins.native2Debugger.Native2BreakpointType"/>
 
+    <!-- TODO xdebugger.localAttachDebuggerProvider implementation="" -->
     <programRunner implementation="org.intellij.plugins.native2Debugger.Native2DebuggerRunner"/>
+    <configurationType implementation="org.intellij.plugins.native2Debugger.Native2DebuggerConfigurationType"/>
   </extensions>
 
 <!--

@@ -63,7 +63,9 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     return myBreakpointManager;
   }
 
+  // FIXME: Call in a runnable DebuggerConnector, by DebugProcessListener
   public void init(Debugger client) {
+    System.err.println("Native2DebugProcess init");
     myDebuggerSession = Native2DebuggerSession.getInstance(myProcessHandler);
 
     myDebuggerSession.addListener(new Native2DebuggerSession.Listener() {
@@ -83,19 +85,20 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
       }
     });
 
-    final BreakpointManager mgr = client.getBreakpointManager();
-    if (myBreakpointManager != mgr) {
+//    final BreakpointManager mgr = client.getBreakpointManager();
+//    if (myBreakpointManager != mgr) {
       final List<Breakpoint> breakpoints = myBreakpointManager.getBreakpoints();
       for (Breakpoint breakpoint : breakpoints) {
-        final Breakpoint bp = mgr.setBreakpoint(breakpoint.getUri(), breakpoint.getLine());
-        bp.setEnabled(breakpoint.isEnabled());
-        bp.setLogMessage(breakpoint.getLogMessage());
-        bp.setTraceMessage(breakpoint.getTraceMessage());
-        bp.setCondition(breakpoint.getCondition());
-        bp.setSuspend(breakpoint.isSuspend());
+//        final Breakpoint bp = mgr.setBreakpoint(breakpoint.getUri(), breakpoint.getLine());
+//        bp.setEnabled(breakpoint.isEnabled());
+//        bp.setLogMessage(breakpoint.getLogMessage());
+//        bp.setTraceMessage(breakpoint.getTraceMessage());
+//        bp.setCondition(breakpoint.getCondition());
+//        bp.setSuspend(breakpoint.isSuspend());
+        System.err.println("Breakpoint: " + breakpoint);
       }
-      myBreakpointManager = mgr;
-    }
+      //myBreakpointManager = mgr;
+    //}
   }
 
   @Nullable
@@ -144,14 +147,9 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
   @Override
   public boolean checkCanPerformCommands() {
-    if (myDebuggerSession == null) return super.checkCanPerformCommands();
-
-    try {
-      return myDebuggerSession.getClient().ping();
-    } catch (VMPausedException e) {
-      getSession().reportMessage(Native2DebuggerBundle.message("dialog.message.target.vm.not.responding"), MessageType.WARNING);
-      return false;
-    }
+    if (myDebuggerSession == null)
+        return super.checkCanPerformCommands();
+    return true;
   }
 
   @Override

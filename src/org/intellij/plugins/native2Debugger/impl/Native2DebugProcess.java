@@ -1,8 +1,10 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.intellij.plugins.native2Debugger.impl;
 
+import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.MessageType;
@@ -18,10 +20,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import org.intellij.plugins.native2Debugger.Native2BreakpointType;
-import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.Native2DebuggerSession;
-import org.intellij.plugins.native2Debugger.VMPausedException;
+import org.intellij.plugins.native2Debugger.*;
 import org.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
 import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
@@ -29,6 +28,9 @@ import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class Native2DebugProcess extends XDebugProcess implements Disposable {
@@ -45,13 +47,25 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
   };
   private Native2DebuggerSession myDebuggerSession;
 
-  public Native2DebugProcess(XDebugSession session, ExecutionResult executionResult) {
+  public Native2DebugProcess(Native2DebuggerRunProfileState runProfileState, ExecutionEnvironment environment, Native2DebuggerRunner runner, XDebugSession session) throws IOException, ExecutionException {
     super(session);
+    final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
     myProcessHandler = executionResult.getProcessHandler();
     myProcessHandler.putUserData(KEY, this);
     myExecutionConsole = executionResult.getExecutionConsole();
     myEditorsProvider = new Native2DebuggerEditorsProvider();
     Disposer.register(myExecutionConsole, this);
+    @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
+    childIn.write("-file-exec-and-symbols /home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder\n".getBytes(StandardCharsets.UTF_8));
+    childIn.write("-exec-run\n".getBytes(StandardCharsets.UTF_8));
+    childIn.flush();
+  }
+
+  public void handleGdbMiLine(String line) {
+    if (line.startsWith("*") || line.startsWith("=") || line.startsWith("^")) { // async, async, sync
+      System.err.println("QUARTER WRITTEN " + line);
+
+    }
   }
 
   @Override

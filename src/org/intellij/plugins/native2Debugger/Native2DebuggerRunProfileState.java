@@ -5,8 +5,12 @@ import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.filters.Filter;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
+import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.process.OSProcessHandler;
@@ -14,14 +18,30 @@ import com.intellij.openapi.util.Key;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import java.util.List;
+import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.DefaultExecutionResult;
 
 public class Native2DebuggerRunProfileState extends CommandLineState {
     public static final Key<Native2DebuggerRunProfileState> STATE = Key.create("STATE");
     private final Native2DebuggerConfiguration myConfiguration;
+    private final TextConsoleBuilder myBuilder;
 
-    public Native2DebuggerRunProfileState(Native2DebuggerConfiguration configuration, ExecutionEnvironment environment) {
+    public Native2DebuggerRunProfileState(Native2DebuggerConfiguration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
-        this.myConfiguration = configuration;
+        myConfiguration = configuration;
+        myBuilder = builder;
+    }
+
+    @Override
+    @NotNull
+    public ExecutionResult execute(@NotNull final Executor executor, @NotNull final ProgramRunner<?> runner) throws ExecutionException {
+        final ProcessHandler processHandler = startProcess();
+        final ConsoleView console = createConsole(executor); // keep this AFTER the startProcess call.
+        if (console != null) {
+            console.attachToProcess(processHandler);
+        }
+        return new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
     }
 
     @NotNull
@@ -36,12 +56,17 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         // -tty=/dev/tty0
         commandLine.addParameter("--interpreter=mi3");
         //commandLine.addParameter("--args");
+        //commandLine.addParameter("./target/debug/amd-host-image-builder"); // FIXME
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
         //final OSProcessHandler processHandler = creator.fun(commandLine);
 
         final OSProcessHandler osProcessHandler = new OSProcessHandler(commandLine);
         osProcessHandler.putUserData(STATE, this);
+
+        // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
+        myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler));
+        this.setConsoleBuilder(myBuilder);
 
         // FIXME: osProcessHandler.addProcessListener(new MyProcessAdapter());
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh

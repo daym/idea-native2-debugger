@@ -4,6 +4,8 @@ import com.intellij.debugger.impl.GenericDebuggerRunnerSettings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.*;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.RunConfigurationWithSuppressedDefaultRunAction;
 import com.intellij.openapi.module.Module;
@@ -48,6 +50,7 @@ public class Native2DebuggerConfiguration extends LocatableConfigurationBase
             debuggerSettings.setDebugPort(USE_SOCKET_TRANSPORT ? PORT : SHMEM_ADDRESS);
             debuggerSettings.setTransport(USE_SOCKET_TRANSPORT ? DebuggerSettings.SOCKET_TRANSPORT : DebuggerSettings.SHMEM_TRANSPORT);
         }*/
-        return new Native2DebuggerRunProfileState(this, env);
+        final TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(getProject());
+        return new Native2DebuggerRunProfileState(this, env, builder);
     }
 }

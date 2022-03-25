@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.intellij.plugins.native2Debugger;
 
-import com.intellij.debugger.impl.GenericDebuggerRunner;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.ExecutionResult;
@@ -12,7 +11,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
@@ -23,6 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.configurations.RunnerSettings;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
@@ -68,10 +69,11 @@ public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
                         ACTIVE.set(Boolean.TRUE);
                         try {
                             final Native2DebuggerRunProfileState c = (Native2DebuggerRunProfileState)runProfileState;
-                            final ExecutionResult result = runProfileState.execute(environment.getExecutor(), Native2DebuggerRunner.this);
-                            return new Native2DebugProcess(session, result); // FIXME: , c.getExtensionData().getUserData(XsltDebuggerExtension.VERSION));
-                        }
-                        finally {
+                            return new Native2DebugProcess(c, environment, Native2DebuggerRunner.this, session);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            throw new ExecutionException(e);
+                        } finally {
                             ACTIVE.remove();
                         }
                     }
@@ -86,32 +88,4 @@ public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
             return createContentDescriptor(state, environment);
         });
     }
-
-    /*
-     public void execute(@NotNull ExecutionEnvironment environment) throws ExecutionException {
-        if (environment == null) {
-            $$$reportNull$$$0(2);
-        }
-
-        RunProfileState state = environment.getState();
-        if (state != null) {
-            ExecutionManager executionManager = ExecutionManager.getInstance(environment.getProject());
-            RunProfile runProfile = environment.getRunProfile();
-            if (runProfile instanceof TargetEnvironmentAwareRunProfile && state instanceof TargetEnvironmentAwareRunProfileState) {
-                executionManager.startRunProfileWithPromise(environment, state, (ignored) -> {
-                    return this.doExecuteAsync((TargetEnvironmentAwareRunProfileState)state, environment);
-                });
-            } else {
-                executionManager.startRunProfile(environment, state, (state1) -> {
-                    return (RunContentDescriptor)SlowOperations.allowSlowOperations(() -> {
-                        return this.doExecute(state, environment);
-                    });
-                });
-            }
-
-        }
-    }
-     */
-
-
 }

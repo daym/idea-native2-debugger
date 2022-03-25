@@ -1,0 +1,33 @@
+<idea-plugin url="https://confluence.jetbrains.com/display/CONTEST/NATIVE2-Debugger">
+  <name>NATIVE2 Debugger</name>
+  <id>NATIVE2-Debugger</id>
+  <category>C, C++, Go, Rust</category>
+
+  <description><![CDATA[
+    Allows interactive debugging of native executables using gdb.
+  ]]></description>
+
+  <vendor>Friendly Machines</vendor>
+
+  <!-- suppress depends two times -->
+  <!-- com.intellij.modules.xml -->
+
+  <!-- suppress PluginXmlValidity -->
+  <change-notes>
+    TODO
+  </change-notes>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <xdebugger.breakpointType implementation="org.intellij.plugins.native2Debugger.Native2BreakpointType"/>
+
+    <programRunner implementation="org.intellij.plugins.native2Debugger.Native2DebuggerRunner"/>
+  </extensions>
+
+<!--
+  <extensions defaultExtensionNs="XPathView">
+    <native2RunnerExtension implementation="org.intellij.plugins.native2Debugger.Native2DebuggerExtension"/>
+  </extensions>
+-->
+
+  <resource-bundle>messages.Native2DebuggerBundle</resource-bundle>
+</idea-plugin>

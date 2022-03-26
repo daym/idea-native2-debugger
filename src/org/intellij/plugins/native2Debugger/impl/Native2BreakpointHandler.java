@@ -150,30 +150,30 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
 //    return -1;
   }
 
-  @Nullable
-  public static PsiElement findContextElement(Project project, @Nullable XSourcePosition position) {
-    if (position == null) {
-      return null;
-    }
-
-    final PsiFile file = PsiManager.getInstance(project).findFile(position.getFile());
-    if (file == null) {
-      return null;
-    }
-
-    int offset = -1;
-    final Document document = PsiDocumentManager.getInstance(project).getDocument(file);
-    if (document != null && document.getLineCount() > position.getLine() && position.getLine() >= 0) {
-      offset = document.getLineStartOffset(position.getLine());
-    }
-    if (offset < 0) {
-      offset = position.getOffset();
-    }
-
-    PsiElement contextElement = file.findElementAt(offset);
-    while (contextElement != null && !(contextElement instanceof XmlElement)) {
-      contextElement = PsiTreeUtil.nextLeaf(contextElement);
-    }
-    return contextElement;
-  }
+//  @Nullable
+//  public static PsiElement findContextElement(Project project, @Nullable XSourcePosition position) {
+//    if (position == null) {
+//      return null;
+//    }
+//
+//    final PsiFile file = PsiManager.getInstance(project).findFile(position.getFile());
+//    if (file == null) {
+//      return null;
+//    }
+//
+//    int offset = -1;
+//    final Document document = PsiDocumentManager.getInstance(project).getDocument(file);
+//    if (document != null && document.getLineCount() > position.getLine() && position.getLine() >= 0) {
+//      offset = document.getLineStartOffset(position.getLine());
+//    }
+//    if (offset < 0) {
+//      offset = position.getOffset();
+//    }
+//
+//    PsiElement contextElement = file.findElementAt(offset);
+//    while (contextElement != null && !(contextElement instanceof XmlElement)) {
+//      contextElement = PsiTreeUtil.nextLeaf(contextElement);
+//    }
+//    return contextElement;
+//  }
 }

@@ -29,8 +29,8 @@ public class Native2StackFrame extends XStackFrame {
 
   @Nullable
   public static XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
-    String file = (String) gdbFrame.get("fullname"); // TODO: or fullname
-    // FIXME
+    String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
+    // FIXME PsiFile
     VirtualFile p = VfsUtil.findFile(Path.of(file), false);
     String line = (String) gdbFrame.get("line");
     System.err.println("SOURCE POSITION FROM FRAME: " + p + ":" + line);

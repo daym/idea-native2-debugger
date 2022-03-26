@@ -26,7 +26,7 @@ public interface BreakpointManager {
 
   Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line);
 
-  void removeBreakpoint(Breakpoint bp);
+//  void removeBreakpoint(Breakpoint bp);
 
   void removeBreakpoint(String uri, int line);
 

@@ -22,11 +22,16 @@ class BreakpointImpl implements Breakpoint {
   private final String myUri;
   private final int myLine;
   private boolean myEnabled;
-  private String myCondition;
-  private String myLogMsg;
-  private String myTraceMsg;
-  private boolean mySuspend;
   private XBreakpoint myXBreakpoint;
+
+  public void setEnabled(boolean value) {
+    myEnabled = value;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return myEnabled;
+  }
 
   BreakpointImpl(XBreakpoint xBreakpoint, String uri, int line) {
     myUri = uri;
@@ -35,59 +40,10 @@ class BreakpointImpl implements Breakpoint {
     myXBreakpoint = xBreakpoint;
   }
 
-  public void setEnabled(boolean b) {
-    myEnabled = b;
-  }
-
-  public void setCondition(String expr) {
-    myCondition = expr;
-  }
-
-  public void setLogMessage(String expr) {
-    myLogMsg = expr;
-  }
-
-  public String getTraceMessage() {
-    return myTraceMsg;
-  }
-
-  public void setTraceMessage(String expr) {
-    myTraceMsg = expr;
-  }
-
-  public boolean isSuspend() {
-    return mySuspend;
-  }
-
-  public void setSuspend(boolean suspend) {
-    mySuspend = suspend;
-  }
-
   @Override
   public XBreakpoint getXBreakpoint() {
     return myXBreakpoint;
   }
-
-  public String getCondition() {
-    return myCondition;
-  }
-
-  public String getLogMessage() {
-    return myLogMsg;
-  }
-
-  public String getUri() {
-    return myUri;
-  }
-
-  public int getLine() {
-    return myLine;
-  }
-
-  public boolean isEnabled() {
-    return myEnabled;
-  }
-
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;

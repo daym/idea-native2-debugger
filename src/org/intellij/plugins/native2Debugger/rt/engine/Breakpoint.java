@@ -19,29 +19,8 @@ package org.intellij.plugins.native2Debugger.rt.engine;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
 public interface Breakpoint {
-  String getUri();
-
-  int getLine();
-
-  boolean isEnabled();
-
-  void setEnabled(boolean enabled);
-
-  String getCondition();
-
-  void setCondition(String expr);
-
-  String getLogMessage();
-
-  void setLogMessage(String expr);
-
-  String getTraceMessage();
-
-  void setTraceMessage(String expr);
-
-  boolean isSuspend();
-
-  void setSuspend(boolean suspend);
 
   XBreakpoint getXBreakpoint();
+  void setEnabled(boolean value);
+  boolean isEnabled();
 }

@@ -50,10 +50,10 @@ public final class BreakpointManagerImpl implements BreakpointManager {
     return breakpoints;
   }
 
-  @Override
-  public void removeBreakpoint(Breakpoint bp) {
-    removeBreakpoint(bp.getUri(), bp.getLine());
-  }
+//  @Override
+//  public void removeBreakpoint(Breakpoint bp) {
+//    removeBreakpoint(bp.getUri(), bp.getLine());
+//  }
 
   @Override
   public synchronized Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line) {

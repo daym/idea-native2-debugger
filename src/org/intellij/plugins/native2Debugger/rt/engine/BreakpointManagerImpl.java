@@ -15,6 +15,8 @@
  */
 package org.intellij.plugins.native2Debugger.rt.engine;
 
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,8 +29,8 @@ public final class BreakpointManagerImpl implements BreakpointManager {
   private final Map<Integer, Map<String, Breakpoint>> myBreakpoints = new HashMap<Integer, Map<String, Breakpoint>>();
 
   @Override
-  public Breakpoint setBreakpoint(File file, int line) {
-    return setBreakpoint(file.toURI().toASCIIString(), line);
+  public Breakpoint setBreakpoint(XBreakpoint xBreakpoint, File file, int line) {
+    return setBreakpoint(xBreakpoint, file.toURI().toASCIIString(), line);
   }
 
   @Override
@@ -54,12 +56,12 @@ public final class BreakpointManagerImpl implements BreakpointManager {
   }
 
   @Override
-  public synchronized Breakpoint setBreakpoint(String uri, int line) {
+  public synchronized Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line) {
     assert line > 0 : "No line number for breakpoint in file " + uri;
 
     uri = normalizeUri(uri);
     final Map<String, Breakpoint> s = myBreakpoints.get(line);
-    final BreakpointImpl bp = new BreakpointImpl(uri, line);
+    final BreakpointImpl bp = new BreakpointImpl(xBreakpoint, uri, line);
     if (s == null) {
       final HashMap<String, Breakpoint> map = new HashMap<String, Breakpoint>();
       map.put(uri, bp);

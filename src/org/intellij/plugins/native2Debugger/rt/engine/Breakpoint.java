@@ -16,6 +16,8 @@
 
 package org.intellij.plugins.native2Debugger.rt.engine;
 
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
+
 public interface Breakpoint {
   String getUri();
 
@@ -40,4 +42,6 @@ public interface Breakpoint {
   boolean isSuspend();
 
   void setSuspend(boolean suspend);
+
+  XBreakpoint getXBreakpoint();
 }

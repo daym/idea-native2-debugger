@@ -23,7 +23,6 @@ import org.intellij.plugins.native2Debugger.Native2BreakpointType;
 import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
 import org.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
 import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
-import org.intellij.plugins.native2Debugger.rt.engine.DebuggerStoppedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +61,7 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     if ((bp = manager.getBreakpoint(fileURL, lineNumber)) != null) {
       bp.setEnabled(true);
     } else {
-      manager.setBreakpoint(fileURL, lineNumber);
+      manager.setBreakpoint(breakpoint, fileURL, lineNumber);
     }
     System.err.println("REGISTER BREAKPOINT 4");
 //      final XDebugSession session = myNative2DebugProcess.getSession();

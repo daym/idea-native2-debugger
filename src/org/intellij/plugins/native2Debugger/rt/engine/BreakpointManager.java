@@ -16,13 +16,15 @@
 
 package org.intellij.plugins.native2Debugger.rt.engine;
 
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
+
 import java.io.File;
 import java.util.List;
 
 public interface BreakpointManager {
-  Breakpoint setBreakpoint(File file, int line);
+  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, File file, int line);
 
-  Breakpoint setBreakpoint(String uri, int line);
+  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line);
 
   void removeBreakpoint(Breakpoint bp);
 

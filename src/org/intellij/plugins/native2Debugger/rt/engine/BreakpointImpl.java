@@ -16,6 +16,8 @@
 
 package org.intellij.plugins.native2Debugger.rt.engine;
 
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
+
 class BreakpointImpl implements Breakpoint {
   private final String myUri;
   private final int myLine;
@@ -24,11 +26,13 @@ class BreakpointImpl implements Breakpoint {
   private String myLogMsg;
   private String myTraceMsg;
   private boolean mySuspend;
+  private XBreakpoint myXBreakpoint;
 
-  BreakpointImpl(String uri, int line) {
+  BreakpointImpl(XBreakpoint xBreakpoint, String uri, int line) {
     myUri = uri;
     myLine = line;
     myEnabled = true;
+    myXBreakpoint = xBreakpoint;
   }
 
   public void setEnabled(boolean b) {
@@ -57,6 +61,11 @@ class BreakpointImpl implements Breakpoint {
 
   public void setSuspend(boolean suspend) {
     mySuspend = suspend;
+  }
+
+  @Override
+  public XBreakpoint getXBreakpoint() {
+    return myXBreakpoint;
   }
 
   public String getCondition() {

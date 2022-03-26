@@ -6,20 +6,19 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.PlatformIcons;
+import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.*;
 import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
 import org.intellij.plugins.native2Debugger.Native2DebuggerSession;
-import org.intellij.plugins.native2Debugger.VMPausedException;
-import org.intellij.plugins.native2Debugger.rt.engine.DebuggerStoppedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
-import org.intellij.plugins.native2Debugger.rt.engine.Value;
 
 import javax.swing.*;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,10 +27,18 @@ public class Native2StackFrame extends XStackFrame {
   private final Native2DebuggerSession myDebuggerSession;
   private final XSourcePosition myPosition;
 
+  @Nullable
+  public static XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
+    String file = (String) gdbFrame.get("file"); // TODO: or fullname
+    VirtualFile p = VfsUtil.findFile(Path.of(file), false);
+    String line = (String) gdbFrame.get("line");
+    return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
+  }
+
   public Native2StackFrame(HashMap<String, Object> gdbFrame, Native2DebuggerSession debuggerSession) {
     myFrame = gdbFrame;
     myDebuggerSession = debuggerSession;
-    myPosition = Native2SourcePosition.createFromFrame(gdbFrame);
+    myPosition = createSourcePositionFromFrame(gdbFrame);
   }
 
   @Override

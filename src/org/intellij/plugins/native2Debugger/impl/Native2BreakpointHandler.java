@@ -57,7 +57,7 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     }
     System.err.println("REGISTER BREAKPOINT 2");
 
-    myNative2DebugProcess.send("-break-insert", myNative2DebugProcess.fileLineReference(sourcePosition));
+    myNative2DebugProcess.send("-break-insert", new String[] { myNative2DebugProcess.fileLineReference(sourcePosition) }, new String[0]);
     try {
       final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
       Breakpoint bp;

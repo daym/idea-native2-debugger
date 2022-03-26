@@ -32,7 +32,12 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
+
+import static javax.swing.text.html.HTML.Attribute.MULTIPLE;
 
 // TODO: -break-insert, -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -dprintf-insert (!), -break-passcount, -break-watch, -catch-load
 // TODO: -environment-cd, -environment-directory, -environment-pwd
@@ -62,12 +67,41 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
   };
   private Native2DebuggerSession myDebuggerSession;
 
-  void send(String operation, String... options) {
+  public void handleGdbMiStateOutput(char mode, String klass, HashMap<String, Object> attributes) {
+     // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
+
+    if (mode == '=' && klass.equals("breakpoint-modified") && attributes.containsKey("bkpt")) {
+      try {
+        HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
+        String number = (String) bkpt.get("number");
+        String times = (String) bkpt.get("times");
+        String originalLocation = (String) bkpt.get("original-location");
+        String type_ = (String) bkpt.get("breakpoint");
+        // String addr
+        String disp = (String) bkpt.get("disp");
+        String enabled = (String) bkpt.get("enabled");
+        ArrayList<Object> locations = (ArrayList<Object>) bkpt.get("locations");
+        System.err.println("breakpoint " + originalLocation + " " + enabled);
+      } catch (ClassCastException e) {
+        System.err.println("handleGdbMiStateOutput failed... " + attributes);
+        e.printStackTrace();
+      }
+    }
+  }
+
+  void send(String operation, String[] options, String[] parameters) {
     try {
       myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
       for (String option: options) {
         myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
         myChildIn.write(option.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
+      }
+      if (parameters.length > 0) {
+        myChildIn.write(" --".getBytes(StandardCharsets.UTF_8));
+        for (String parameter: parameters) {
+          myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
+          myChildIn.write(parameter.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
+        }
       }
       myChildIn.write("\n".getBytes(StandardCharsets.UTF_8));
       myChildIn.flush();
@@ -92,7 +126,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     Disposer.register(myExecutionConsole, this);
     @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
     myChildIn = childIn;
-    send("-file-exec-and-symbols", "/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder");
+    send("-file-exec-and-symbols", new String[] {"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
     myDebuggerSession = new Native2DebuggerSession(this);
 
     // too early. session.initBreakpoints();
@@ -102,39 +136,6 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
   }
 
-  public void handleGdbMiLine(String line) {
-    if (line.startsWith("*") || line.startsWith("=") || line.startsWith("^")) { // async, async, sync
-      System.err.println("QUARTER WRITTEN " + line);
-      if (line.startsWith("*stopped,")) {
-        String[] parts = line.split(",");
-        String xfile = null;
-        String xline = null;
-        for (String part : parts) {
-          String[] kvs = part.split("=");
-          if (kvs.length == 2) {
-            String k = kvs[0];
-            String v = kvs[1];
-            if (v.startsWith("\"")) {
-              v = v.substring(1, v.length() - 1);
-            }
-
-            if (k.equals("line")) {
-              xline = v;
-            } else if (k.equals("file")) { // or "fullname"
-              xfile = v;
-            }
-
-          }
-        }
-        if (xfile != null && xline != null) {
-          // FIXME getSession().positionReached(new MySuspendContext(myDebuggerSession, c.getCurrentFrame(), c.getSourceFrame()));
-          System.err.println("xfile: " + xfile);
-          System.err.println("xline: " + xline);
-        }
-      }
-    }
-  }
-
   // We'll call initBreakpoints() at the right time on our own.
   @Override
   public boolean checkCanInitBreakpoints() {
@@ -142,7 +143,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     ApplicationManager.getApplication().invokeLater(() -> {
       //getSession().initBreakpoints();
       System.err.println("EXEC RUN");
-      send("-exec-run");
+      send("-exec-run", new String[0], new String[0]);
     });
 
     return true;
@@ -180,29 +181,29 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
   @Override
   public void startStepOver(@Nullable XSuspendContext context) {
-    send("-exec-next");
+    send("-exec-next", new String[0], new String[0]);
   }
 
   @Override
   public void startStepInto(@Nullable XSuspendContext context) {
-    send("-exec-step");
+    send("-exec-step", new String[0], new String[0]);
   }
 
   @Override
   public void startStepOut(@Nullable XSuspendContext context) {
-    send("-exec-finish");
+    send("-exec-finish", new String[0], new String[0]);
   }
 
   @Override
   public void startPausing() {
-    send("-exec-interrupt");
+    send("-exec-interrupt", new String[0], new String[0]);
     //getSession().pause();
   }
   @Override
   public void stop() {
     // Note: IDEA usually calls this AFTER the process was already terminated.
     if (!myProcessHandler.isProcessTerminated()) {
-      send("-gdb-exit");
+      send("-gdb-exit", new String[0], new String[0]);
     }
   }
 
@@ -215,7 +216,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
   @Override
   public void resume(@Nullable XSuspendContext context) {
-    send("-exec-continue");
+    send("-exec-continue", new String[0], new String[0]);
   }
 
   @Override
@@ -225,7 +226,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
   @Override
   public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
     try {
-      send("-exec-until", fileLineReference(position));
+      send("-exec-until", new String[] { fileLineReference(position) }, new String[0]);
     } catch (RuntimeException e) {
       e.printStackTrace();
       final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());

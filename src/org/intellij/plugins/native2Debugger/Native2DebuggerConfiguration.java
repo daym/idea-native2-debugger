@@ -20,8 +20,6 @@ import java.util.Collection;
 
 //import javax.swing.*;
 
-// FIXME: not Java, not RemoteConfigurable
-
 public class Native2DebuggerConfiguration extends LocatableConfigurationBase
         implements RunConfigurationWithSuppressedDefaultRunAction, RemoteRunProfile {
 

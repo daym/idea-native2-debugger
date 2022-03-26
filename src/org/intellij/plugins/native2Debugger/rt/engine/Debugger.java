@@ -15,85 +15,35 @@
  */
 package org.intellij.plugins.native2Debugger.rt.engine;
 
-import org.intellij.plugins.native2Debugger.rt.engine.Value;
 import java.util.List;
 
-public interface Debugger extends Watchable {
+public interface Debugger {
   enum State {
     CREATED, RUNNING, SUSPENDED, STOPPED
   }
 
   State getState();
+//
+//  boolean start();
+//
+//  void stop(boolean force);
+//
+//  void step();
+//
+//  void stepInto();
+//
+//  void resume();
+//
+//  void pause();
+//
+//  boolean isStopped();
+//
+//  //List<Variable> getGlobalVariables();
+//
+//  BreakpointManager getBreakpointManager();
+//
+//  boolean waitForDebuggee();
+//
+//  State waitForStateChange(State state);
 
-  boolean start();
-
-  void stop(boolean force);
-
-  void step();
-
-  void stepInto();
-
-  void resume();
-
-  void pause();
-
-  boolean isStopped();
-
-  StyleFrame getCurrentFrame();
-
-  SourceFrame getSourceFrame();
-
-  Value eval(String expr) throws EvaluationException;
-
-  List<Variable> getGlobalVariables();
-
-  BreakpointManager getBreakpointManager();
-
-  OutputEventQueue getEventQueue();
-
-  boolean waitForDebuggee();
-
-  State waitForStateChange(State state);
-
-  interface Locatable {
-    String getURI();
-
-    int getLineNumber();
-  }
-
-  interface Frame<T extends Frame> extends Locatable {
-    T getNext();
-
-    T getPrevious();
-  }
-
-  interface StyleFrame extends Frame<StyleFrame> {
-    String getInstruction();
-
-    Value eval(String expr) throws EvaluationException;
-
-    List<Variable> getVariables();
-  }
-
-  interface SourceFrame extends Frame<SourceFrame> {
-    String getXPath();
-  }
-
-  interface Variable extends Locatable {
-    enum Kind {VARIABLE, PARAMETER, EXPRESSION}
-
-    boolean isGlobal();
-
-    Kind getKind();
-
-    String getName();
-
-    Value getValue();
-  }
-
-  class EvaluationException extends Exception {
-    public EvaluationException(String message) {
-      super(message);
-    }
-  }
 }

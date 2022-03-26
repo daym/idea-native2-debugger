@@ -86,6 +86,31 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         System.err.println("handleGdbMiStateOutput failed... " + attributes);
         e.printStackTrace();
       }
+    } else if (mode == '*' && klass.equals("stopped")) {
+      //*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
+      // FIXME: The point here is to change the IDEA debugger state to paused or something
+      try {
+//        String reason = (String) attributes.get("reason");
+//        String disp = (String) attributes.get("disp");
+//        String bkptno = (String) attributes.get("bkptno");
+//        String threadId = (String) attributes.get("thread-id");
+//        String stoppedThreads = (String) attributes.get("stopped-threads");
+//        String core = (String) attributes.get("core");
+        if (attributes.containsKey("frame")) {
+          HashMap<String, Object> frame = (HashMap<String, Object>) attributes.get("frame");
+          getSession().positionReached(new MySuspendContext(this.myDebuggerSession, frame));
+          String addr = (String) frame.get("addr");
+          String func = (String) frame.get("func");
+          String args = (String) frame.get("args");
+          String file = (String) frame.get("file");
+          String fullname = (String) frame.get("fullname");
+          String line = (String) frame.get("line");
+          String arch = (String) frame.get("arch");
+        }
+      } catch (ClassCastException e) {
+        System.err.println("handleGdbMiStateOutput failed... " + attributes);
+        e.printStackTrace();
+      }
     }
   }
 
@@ -240,22 +265,20 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
   private static class MySuspendContext extends XSuspendContext {
     private final Native2DebuggerSession myDebuggerSession;
-    private final Debugger.StyleFrame myStyleFrame;
-    private final Debugger.SourceFrame mySourceFrame;
+    private final HashMap<String, Object> myGdbExecutionFrame;
 
-    MySuspendContext(Native2DebuggerSession debuggerSession, Debugger.StyleFrame styleFrame, Debugger.SourceFrame sourceFrame) {
+    MySuspendContext(Native2DebuggerSession debuggerSession, HashMap<String, Object> gdbExecutionFrame) {
       myDebuggerSession = debuggerSession;
-      myStyleFrame = styleFrame;
-      mySourceFrame = sourceFrame;
+      myGdbExecutionFrame = gdbExecutionFrame;
     }
 
     @Override
     public XExecutionStack getActiveExecutionStack() {
-      return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myStyleFrame, myDebuggerSession);
+      return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionFrame, myDebuggerSession);
     }
 
     public XExecutionStack getSourceStack() {
-      return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.source.frames"), mySourceFrame, myDebuggerSession);
+      return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.source.frames"), myGdbExecutionFrame, myDebuggerSession); // FIXME
     }
 
     @Override

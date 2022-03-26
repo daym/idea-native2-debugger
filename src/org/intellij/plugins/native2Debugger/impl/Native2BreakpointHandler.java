@@ -21,7 +21,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.intellij.plugins.native2Debugger.Native2BreakpointType;
 import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.VMPausedException;
 import org.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
 import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.intellij.plugins.native2Debugger.rt.engine.DebuggerStoppedException;
@@ -58,22 +57,17 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     System.err.println("REGISTER BREAKPOINT 2");
 
     myNative2DebugProcess.send("-break-insert", new String[] { myNative2DebugProcess.fileLineReference(sourcePosition) }, new String[0]);
-    try {
-      final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
-      Breakpoint bp;
-      if ((bp = manager.getBreakpoint(fileURL, lineNumber)) != null) {
-        bp.setEnabled(true);
-      } else {
-        manager.setBreakpoint(fileURL, lineNumber);
-      }
-      System.err.println("REGISTER BREAKPOINT 4");
-    } catch (DebuggerStoppedException ignore) {
-    } catch (VMPausedException e) {
-      final XDebugSession session = myNative2DebugProcess.getSession();
-      session.reportMessage(Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.set"), MessageType.ERROR);
-      session.setBreakpointInvalid(breakpoint, "Target VM is not responding. Breakpoint can not be set");
+    final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
+    Breakpoint bp;
+    if ((bp = manager.getBreakpoint(fileURL, lineNumber)) != null) {
+      bp.setEnabled(true);
+    } else {
+      manager.setBreakpoint(fileURL, lineNumber);
     }
-    System.err.println("REGISTER BREAKPOINT 3");
+    System.err.println("REGISTER BREAKPOINT 4");
+//      final XDebugSession session = myNative2DebugProcess.getSession();
+//      session.reportMessage(Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.set"), MessageType.ERROR);
+//      session.setBreakpointInvalid(breakpoint, "Target VM is not responding. Breakpoint can not be set");
   }
 
   public static String getFileURL(VirtualFile file) {
@@ -93,21 +87,17 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     final String fileURL = getFileURL(file);
     final int lineNumber = getActualLineNumber(breakpoint, project);
 
-    try {
-      final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
-      if (temporary) {
-        final Breakpoint bp = manager.getBreakpoint(fileURL, lineNumber);
-        if (bp != null) {
-          bp.setEnabled(false);
-        }
-      } else {
-        manager.removeBreakpoint(fileURL, lineNumber);
+    final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
+    if (temporary) {
+      final Breakpoint bp = manager.getBreakpoint(fileURL, lineNumber);
+      if (bp != null) {
+        bp.setEnabled(false);
       }
-    } catch (DebuggerStoppedException ignore) {
-    } catch (VMPausedException e) {
-      myNative2DebugProcess.getSession().reportMessage(
-        Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.removed"), MessageType.ERROR);
+    } else {
+      manager.removeBreakpoint(fileURL, lineNumber);
     }
+//    myNative2DebugProcess.getSession().reportMessage(
+//            Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.removed"), MessageType.ERROR);
   }
 
   public static int getActualLineNumber(XLineBreakpoint breakpoint, Project project) {

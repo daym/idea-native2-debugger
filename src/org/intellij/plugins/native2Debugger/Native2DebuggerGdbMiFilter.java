@@ -155,9 +155,9 @@ public class Native2DebuggerGdbMiFilter implements Filter {
         } // TODO: else "(gdb)" maybe?
     }
 
-    // Called for each LINE. FIXME: What's I ?
+    // Called for each LINE.
     @Override
-    public @Nullable Result applyFilter(@NotNull String line, int i) {
+    public @Nullable Result applyFilter(@NotNull String line, int entireLength) {
         if (line.endsWith("\n"))
             line = line.substring(0, line.length() - 1);
         if (line.endsWith("\r"))

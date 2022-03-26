@@ -38,21 +38,26 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
 
   @Override
   public void registerBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+    System.err.println("REGISTER BREAKPOINT");
     final XSourcePosition sourcePosition = breakpoint.getSourcePosition();
     if (sourcePosition == null || !sourcePosition.getFile().exists() || !sourcePosition.getFile().isValid()) {
       // ???
       return;
     }
+    System.err.println("REGISTER BREAKPOINT 0");
 
     final VirtualFile file = sourcePosition.getFile();
     final Project project = myNative2DebugProcess.getSession().getProject();
     final String fileURL = getFileURL(file);
     final int lineNumber = getActualLineNumber(breakpoint, project);
+    System.err.println("REGISTER BREAKPOINT 7"); // ok
     if (lineNumber == -1) {
       myNative2DebugProcess.getSession().setBreakpointInvalid(breakpoint, "Unsupported breakpoint position");
       return;
     }
+    System.err.println("REGISTER BREAKPOINT 2");
 
+    myNative2DebugProcess.send("-break-insert", myNative2DebugProcess.fileLineReference(sourcePosition));
     try {
       final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
       Breakpoint bp;
@@ -61,12 +66,14 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
       } else {
         manager.setBreakpoint(fileURL, lineNumber);
       }
+      System.err.println("REGISTER BREAKPOINT 4");
     } catch (DebuggerStoppedException ignore) {
     } catch (VMPausedException e) {
       final XDebugSession session = myNative2DebugProcess.getSession();
       session.reportMessage(Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.set"), MessageType.ERROR);
       session.setBreakpointInvalid(breakpoint, "Target VM is not responding. Breakpoint can not be set");
     }
+    System.err.println("REGISTER BREAKPOINT 3");
   }
 
   public static String getFileURL(VirtualFile file) {
@@ -111,46 +118,47 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     if (position == null) {
       return -1;
     }
-    final PsiElement element = findContextElement(project, position);
-    if (element == null) {
-      return -1;
-    }
-
-    if (element instanceof XmlToken) {
-      final IElementType tokenType = ((XmlToken)element).getTokenType();
-      if (tokenType == XmlTokenType.XML_START_TAG_START || tokenType == XmlTokenType.XML_NAME) {
-        final PsiManager psiManager = PsiManager.getInstance(project);
-        final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
-        final PsiFile psiFile = psiManager.findFile(position.getFile());
-        if (psiFile == null) {
-          return -1;
-        }
-
-        final Document document = documentManager.getDocument(psiFile);
-        if (document == null) {
-          return -1;
-        }
-
-        if (document.getLineNumber(element.getTextRange().getStartOffset()) == position.getLine()) {
-          final XmlTag tag = PsiTreeUtil.getParentOfType(element, XmlTag.class, false);
-          if (tag != null) {
-            final ASTNode node = tag.getNode();
-            assert node != null;
-            // TODO: re-check if/when Xalan is supported
-            final ASTNode end = XmlChildRole.START_TAG_END_FINDER.findChild(node);
-            if (end != null) {
-              return document.getLineNumber(end.getTextRange().getEndOffset()) + 1;
-            } else {
-              final ASTNode end2 = XmlChildRole.EMPTY_TAG_END_FINDER.findChild(node);
-              if (end2 != null) {
-                return document.getLineNumber(end2.getTextRange().getEndOffset()) + 1;
-              }
-            }
-          }
-        }
-      }
-    }
-    return -1;
+    return position.getLine();
+//    final PsiElement element = findContextElement(project, position);
+//    if (element == null) {
+//      return -1;
+//    }
+//
+//    if (element instanceof XmlToken) {
+//      final IElementType tokenType = ((XmlToken)element).getTokenType();
+//      if (tokenType == XmlTokenType.XML_START_TAG_START || tokenType == XmlTokenType.XML_NAME) {
+//        final PsiManager psiManager = PsiManager.getInstance(project);
+//        final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+//        final PsiFile psiFile = psiManager.findFile(position.getFile());
+//        if (psiFile == null) {
+//          return -1;
+//        }
+//
+//        final Document document = documentManager.getDocument(psiFile);
+//        if (document == null) {
+//          return -1;
+//        }
+//
+//        if (document.getLineNumber(element.getTextRange().getStartOffset()) == position.getLine()) {
+//          final XmlTag tag = PsiTreeUtil.getParentOfType(element, XmlTag.class, false);
+//          if (tag != null) {
+//            final ASTNode node = tag.getNode();
+//            assert node != null;
+//            // TODO: re-check if/when Xalan is supported
+//            final ASTNode end = XmlChildRole.START_TAG_END_FINDER.findChild(node);
+//            if (end != null) {
+//              return document.getLineNumber(end.getTextRange().getEndOffset()) + 1;
+//            } else {
+//              final ASTNode end2 = XmlChildRole.EMPTY_TAG_END_FINDER.findChild(node);
+//              if (end2 != null) {
+//                return document.getLineNumber(end2.getTextRange().getEndOffset()) + 1;
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
+//    return -1;
   }
 
   @Nullable

@@ -26,6 +26,7 @@ public class Native2StackFrame extends XStackFrame {
   private final HashMap<String, Object> myFrame;
   private final Native2DebugProcess myDebuggerSession;
   private final XSourcePosition myPosition;
+  private final String myThreadId;
 
   @Nullable
   public static XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
@@ -37,7 +38,8 @@ public class Native2StackFrame extends XStackFrame {
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }
 
-  public Native2StackFrame(HashMap<String, Object> gdbFrame, Native2DebugProcess debuggerSession) {
+  public Native2StackFrame(String threadId, HashMap<String, Object> gdbFrame, Native2DebugProcess debuggerSession) {
+    myThreadId = threadId;
     myFrame = gdbFrame;
     myDebuggerSession = debuggerSession;
     myPosition = createSourcePositionFromFrame(gdbFrame);
@@ -79,7 +81,8 @@ public class Native2StackFrame extends XStackFrame {
   public void computeChildren(@NotNull XCompositeNode node) {
     try {
       String level = (String) myFrame.get("level");
-      List<String> variables = myDebuggerSession.getVariables(level); // FIXME: thread
+      List<String> variables = myDebuggerSession.getVariables(myThreadId, level);
+      // FIXME: handle result
     } catch (ClassCastException e) {
       e.printStackTrace();
     }

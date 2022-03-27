@@ -158,7 +158,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                         String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
                         HashMap<String, Object> topFrame = (HashMap<String, Object>) thread.get("frame");
                         //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
-                        Native2ExecutionStack stack = new Native2ExecutionStack(name, topFrame, this); // one per thread
+                        Native2ExecutionStack stack = new Native2ExecutionStack(name, id, topFrame, this); // one per thread
                         stacks.add(stack);
                         if (currentThreadId.equals(id)) {
                             activeStackId = stacks.size() - 1;
@@ -201,9 +201,14 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public List<String> getVariables(String frame) { // FIXME: thread
-        send("-stack-list-variables", new String[] { "--frame", frame, "--all-values" }, new String[] {  });
+    public List<String> getVariables(String threadId, String frameId) {
+        send("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
         return new ArrayList<String>(); // FIXME
+    }
+
+    public void getFrames(String threadId) {
+        send("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
+        // TODO: result?
     }
 
     String fileLineReference(XSourcePosition position) {
@@ -339,5 +344,4 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             // FIXME getSession().positionReached(new MySuspendContext(myDebuggerSession, c.getCurrentFrame(), c.getSourceFrame()));
         }
     }
-
 }

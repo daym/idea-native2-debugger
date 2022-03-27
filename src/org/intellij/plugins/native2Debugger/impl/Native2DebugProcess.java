@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -113,7 +114,9 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 //          String line = (String) frame.get("line");
 //          String arch = (String) frame.get("arch");
 
-                send("-stack-list-frames", new String[]{}, new String[0]);
+                //send("-stack-list-frames", new String[]{}, new String[0]);
+                send("-thread-info", new String[] {}, new String[0]);
+
                 // TODO: Later on: -stack-list-variables --thread 1 --frame 0 --all-values
 
             } catch (ClassCastException e) {
@@ -131,15 +134,43 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                 // TODO: send "-break-disable <breakpoint id> [...]"
                 // TODO: send "-break-enable <breakpoint id> [...]"
                 // TODO: send "-break-info <breakpoint id>"
-                if (attributes.containsKey("stack")) {
-                    List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
-                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stack);
+//                if (attributes.containsKey("stack")) { // breakpoint... -stack-list-frames
+//                    send("-thread-info", new String[] {}, new String[0]);
+//                }
+//                    List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
+//                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks, activeStackId);
+//                    //if (reason != null && reason.equals("breakpoint-hit")) {
+//                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
+//                    getSession().breakpointReached(breakpoint, "fancy message", context);
+//                    //}
+//                    getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
+//                    send("-thread-info", new String[] {}, new String[0]);
+//                }
+                if (attributes.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
+                    List<Object> threads = (List<Object>) attributes.get("threads");
+                    String currentThreadId = (String) attributes.get("current-thread-id");
+                    ArrayList<Native2ExecutionStack> stacks = new ArrayList<>();
+                    int activeStackId = -1;
+
+                    for (Object thread1: threads) {
+                        HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
+                        String id = (String) thread.get("id");
+                        String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
+                        HashMap<String, Object> topFrame = (HashMap<String, Object>) thread.get("frame");
+                        //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
+                        Native2ExecutionStack stack = new Native2ExecutionStack(name, topFrame, this); // one per thread
+                        stacks.add(stack);
+                        if (currentThreadId.equals(id)) {
+                            activeStackId = stacks.size() - 1;
+                        }
+                    }
+
+                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks.toArray(new Native2ExecutionStack[0]), activeStackId);
                     //if (reason != null && reason.equals("breakpoint-hit")) {
                     XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
                     getSession().breakpointReached(breakpoint, "fancy message", context);
                     //}
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
-                    send("-thread-info", new String[] {}, new String[0]);
                 }
             } catch (ClassCastException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);

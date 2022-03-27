@@ -10,25 +10,27 @@ import java.util.Map;
 
 public class Native2DebuggerSuspendContext extends XSuspendContext {
     private final Native2DebugProcess myDebuggerSession;
-    private final List<Map.Entry<String, Object>> myGdbExecutionStack;
+    private final Native2ExecutionStack[] myExecutionStacks;
+    private final int myActiveStackId;
 
-    public Native2DebuggerSuspendContext(Native2DebugProcess debuggerSession, List<Map.Entry<String, Object>> gdbExecutionStack) {
+    public Native2DebuggerSuspendContext(Native2DebugProcess debuggerSession, Native2ExecutionStack[] executionStacks, int activeStackId) {
         myDebuggerSession = debuggerSession;
-        myGdbExecutionStack = gdbExecutionStack;
+        myExecutionStacks = executionStacks;
+        myActiveStackId = activeStackId;
     }
 
     @Override
     public XExecutionStack getActiveExecutionStack() {
-        // TODO: find execution stack of current thread
-        return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionStack, myDebuggerSession);
+        if (myActiveStackId >= 0 && myActiveStackId < myExecutionStacks.length) {
+            return myExecutionStacks[myActiveStackId];
+        } else {
+            return null;
+        }
     }
 
     @Override
     public XExecutionStack /*@NotNull*/[] getExecutionStacks() {
         // TODO: print execution stacks of all threads
-        return new XExecutionStack[]{
-                getActiveExecutionStack(),
-        };
+        return myExecutionStacks;
     }
-
 }

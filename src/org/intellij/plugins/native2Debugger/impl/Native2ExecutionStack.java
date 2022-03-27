@@ -16,14 +16,15 @@ public class Native2ExecutionStack extends XExecutionStack {
   private final Native2DebugProcess myDebuggerSession;
   private final List<Native2StackFrame> myFrames = new ArrayList<>();
 
-  public Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
+  public Native2ExecutionStack(@NlsContexts.ListItem String name, HashMap<String, Object> topFrame, Native2DebugProcess debuggerSession) {
     super(name);
     myDebuggerSession = debuggerSession;
-    for (Map.Entry<String, Object> frame : frames) {
-      if ("frame".equals(frame.getKey())) {
-        myFrames.add(new Native2StackFrame((HashMap<String, Object>) frame.getValue(), myDebuggerSession));
-      }
-    }
+//    for (Map.Entry<String, Object> frame : frames) {
+//      if ("frame".equals(frame.getKey())) {
+//        myFrames.add(new Native2StackFrame((HashMap<String, Object>) frame.getValue(), myDebuggerSession));
+//      }
+//    }
+    myFrames.add(new Native2StackFrame((HashMap<String, Object>) topFrame, myDebuggerSession));
   }
 
   @Override

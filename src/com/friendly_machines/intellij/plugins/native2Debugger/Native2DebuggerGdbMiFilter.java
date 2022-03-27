@@ -207,6 +207,7 @@ public class Native2DebuggerGdbMiFilter implements Filter {
         scanner.useDelimiter(""); // character by character mode
         Optional<String> token = parseToken(scanner);
         if (scanner.hasNext("[*+=^]")) {
+            StatusBar.Info.set(line, myProject, "Debugger");
             // "+": contains on-going status information about the progress of a slow operation.
             // "*": contains asynchronous state change on the target (stopped, started, disappeared)
             // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
@@ -231,7 +232,10 @@ public class Native2DebuggerGdbMiFilter implements Filter {
             String text = parseCString(scanner);
             if (mode == '&') {
                 StatusBar.Info.set(text, myProject, "Debugger");
-            } // else: Ignore for now
+            } else {
+                // TODO: Find a better place for these
+                StatusBar.Info.set(text, myProject, "Stream");
+            }
         } // TODO: else "(gdb)" maybe?
     }
 

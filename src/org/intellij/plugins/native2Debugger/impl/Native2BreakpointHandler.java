@@ -26,6 +26,8 @@ import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+
 public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> {
   private final Native2DebugProcess myNative2DebugProcess;
 
@@ -55,7 +57,27 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     }
     System.err.println("REGISTER BREAKPOINT 2");
 
-    myNative2DebugProcess.send("-break-insert", new String[] { myNative2DebugProcess.fileLineReference(sourcePosition) }, new String[0]);
+    ArrayList<String> options = new ArrayList<>();
+    // TODO: "-h" for hardware breakpoint
+    // TODO: "-f" for creating a pending breakpoint if necessary
+    // TODO: "-a" for a tracepoint (see GDB page 193)
+    // TODO: "-c condition" for condition
+    // TODO: "-i ignore-count"
+    // TODO: "-p thread-id"
+    // TODO: -break-watch [-r|-a] <variable>
+    // TODO: -break-passcount <tracepoint-id> <passcount>
+    if (breakpoint.isTemporary())
+      options.add("-t");
+    if (!breakpoint.isEnabled())
+      options.add("-d");
+    // TODO: breakpoint.isLogStack()
+    options.add(myNative2DebugProcess.fileLineReference(sourcePosition));
+    if (breakpoint.isLogMessage()) {
+      options.add("Breakpointhit"); // TODO: what is the message?
+      myNative2DebugProcess.send("-dprintf-insert", options.toArray(new String[0]), new String[0]);
+    } else {
+      myNative2DebugProcess.send("-break-insert", options.toArray(new String[0]), new String[0]);
+    }
     final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
     Breakpoint bp;
     if ((bp = manager.getBreakpoint(fileURL, lineNumber)) != null) {

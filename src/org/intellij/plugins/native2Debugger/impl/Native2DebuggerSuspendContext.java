@@ -19,11 +19,13 @@ public class Native2DebuggerSuspendContext extends XSuspendContext {
 
     @Override
     public XExecutionStack getActiveExecutionStack() {
+        // TODO: find execution stack of current thread
         return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionStack, myDebuggerSession);
     }
 
     @Override
     public XExecutionStack /*@NotNull*/[] getExecutionStacks() {
+        // TODO: print execution stacks of all threads
         return new XExecutionStack[]{
                 getActiveExecutionStack(),
         };

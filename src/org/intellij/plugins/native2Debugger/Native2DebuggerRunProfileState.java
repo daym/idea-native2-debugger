@@ -48,7 +48,9 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("gdb"));
+        commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
+        commandLine.addParameter("-return-child-result");
         // -d <sourcedir>
         // -s <symbols>
         // -cd=<dir>
@@ -65,7 +67,7 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         osProcessHandler.putUserData(STATE, this);
 
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
-        myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler));
+        myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
         this.setConsoleBuilder(myBuilder);
 
         // FIXME: osProcessHandler.addProcessListener(new MyProcessAdapter());

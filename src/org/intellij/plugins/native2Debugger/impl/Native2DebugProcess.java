@@ -35,7 +35,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-// TODO: -break-insert, -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -dprintf-insert (!), -break-passcount, -break-watch, -catch-load
+// TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
 // TODO: -environment-cd, -environment-directory, -environment-pwd
 // TODO: -thread-info, -thread-list-ids, -thread-select
 // TODO: -stack-info-frame, -stack-list-arguments, -stack-list-frames, -stack-list-locals, -stack-list-variables, -stack-select-frame,
@@ -45,6 +45,8 @@ import java.util.*;
 // TODO: registerAdditionalActions(DefaultActionGroup leftToolbar, DefaultActionGroup topToolbar, DefaultActionGroup settings) ?
 // TODO: public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remote it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
 
+// TODO: exec-jump fileline
+// TODO: -exec-next-instruction
 // ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
@@ -65,7 +67,8 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     public void handleGdbMiStateOutput(char mode, String klass, HashMap<String, Object> attributes) {
         // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
 
-        if (mode == '=' && klass.equals("breakpoint-modified") && attributes.containsKey("bkpt")) {
+        if (mode == '=' && (klass.equals("breakpoint-modified") || klass.equals("breakpoint-created")) && attributes.containsKey("bkpt")) { // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
+            // TODO: thread-group-added (id), thread-group-removed (id), thread-group-started (id, pid), thread-group-exited (id, exit-code), thread-created (id, group-id), thread-exited (id, group-id), thread-selected (id, frame), "library-loaded"
             try {
                 HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
@@ -82,6 +85,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                 e.printStackTrace();
             }
         } else if (mode == '*' && klass.equals("stopped")) {
+            // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             //*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
             // FIXME: The point here is to change the IDEA debugger state to paused or something
             try {
@@ -118,7 +122,15 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             }
         } else if (mode == '^' && klass.equals("done")) { // this should be connected to the request--but isn't right now.
             // Implicit: -stack-list-frames response
+            // TODO: -thread-info response (with "threads" and "current-thread-id")
             try {
+                // TODO: if bkpt (so -break-insert, most likely), add it to our list and so on
+                // TODO: send "-break-after <breakpoint id> <count>"
+                // TODO: send "-break-condition <breakpoint id> <condition>"
+                // TODO: send "-break-delete <breakpoint id> [...]"
+                // TODO: send "-break-disable <breakpoint id> [...]"
+                // TODO: send "-break-enable <breakpoint id> [...]"
+                // TODO: send "-break-info <breakpoint id>"
                 if (attributes.containsKey("stack")) {
                     List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
                     Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stack);
@@ -127,6 +139,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                     getSession().breakpointReached(breakpoint, "fancy message", context);
                     //}
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
+                    send("-thread-info", new String[] {}, new String[0]);
                 }
             } catch (ClassCastException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);
@@ -158,7 +171,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public List<String> getVariables(String frame) { // FIXME: thread
-        send("-stack-list-variables", new String[] {}, new String[] { "--frame", frame, "--all-values" });
+        send("-stack-list-variables", new String[] { "--frame", frame, "--all-values" }, new String[] {  });
         return new ArrayList<String>(); // FIXME
     }
 
@@ -178,7 +191,11 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         Disposer.register(myExecutionConsole, this);
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         myChildIn = childIn;
+        send("-gdb-set", new String[] { "mi-async", "on" }, new String[0]);
+        send("-enable-frame-filters", new String[] {}, new String[0]);
+
         send("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
+        // TODO: -exec-arguments args
         //myDebuggerSession = new Native2DebuggerSession(this);
 
         // too early. session.initBreakpoints();

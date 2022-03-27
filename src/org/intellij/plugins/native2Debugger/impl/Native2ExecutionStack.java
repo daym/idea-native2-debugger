@@ -10,6 +10,7 @@ import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 
 import java.util.*;
 
+// Per thread
 public class Native2ExecutionStack extends XExecutionStack {
   //private final Native2StackFrame myTopFrame;
   private final Native2DebugProcess myDebuggerSession;

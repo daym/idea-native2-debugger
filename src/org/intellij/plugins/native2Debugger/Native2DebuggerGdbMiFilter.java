@@ -2,6 +2,8 @@ package org.intellij.plugins.native2Debugger;
 
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.StatusBar;
 import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,9 +12,11 @@ import java.util.*;
 
 public class Native2DebuggerGdbMiFilter implements Filter {
     private final OSProcessHandler myOsProcessHandler;
+    private final Project myProject;
 
-    public Native2DebuggerGdbMiFilter(OSProcessHandler osProcessHandler) {
+    public Native2DebuggerGdbMiFilter(OSProcessHandler osProcessHandler, @NotNull Project project) {
         myOsProcessHandler =  osProcessHandler;
+        myProject = project;
     }
 
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to async-find the corresponding items. Maybe use those. (but async outputs, so those starting with one of "*+=", will not have them.
@@ -28,17 +32,90 @@ public class Native2DebuggerGdbMiFilter implements Filter {
             return Optional.empty();
     }
 
+    static String digits = "0123456789abcdef";
+    private static String parseDigitsIntoCode(Scanner scanner, int radix, int maxLength) {
+        int result = 0;
+        for (; maxLength > 0; --maxLength) {
+            char c = scanner.next().charAt(0);
+            int digit = digits.indexOf(c);
+            if (digit == -1 || digit >= radix) { // error
+                return "";
+            }
+            result *= radix;
+            result += digit;
+        }
+        return Character.toString(result);
+    }
     private static String parseCString(Scanner scanner) {
         String result = "";
         scanner.next("\"");
+        boolean escape = false;
         while (scanner.hasNext()) {
-            if (scanner.hasNext("\"")) {
-                break;
+            if (escape) {
+                char c = scanner.next().charAt(0);
+                switch (c) {
+                    case 'a':
+                        result += (char) 0x7;
+                        break;
+                    case 'b':
+                        result += (char) 0x8;
+                        break;
+                    case 'f':
+                        result += (char) 0xc;
+                        break;
+                    case 'n':
+                        result += (char) 0xa;
+                        break;
+                    case 'r':
+                        result += (char) 0xd;
+                        break;
+                    case 't':
+                        result += (char) 0x9;
+                        break;
+                    case 'v':
+                        result += (char) 0xb;
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                        result += parseDigitsIntoCode(scanner,8, 3);
+                        break;
+                    case 'x':
+                        scanner.next();
+                        result += parseDigitsIntoCode(scanner,16, 2);
+                        break;
+                    case 'u':
+                        scanner.next();
+                        result += parseDigitsIntoCode(scanner,16, 4);
+                        break;
+                    case 'U':
+                        scanner.next();
+                        result += parseDigitsIntoCode(scanner,16, 8);
+                        break;
+                    default:
+                        result += c;
+                        break;
+                }
+                escape = false;
+                continue;
             }
-            char c = scanner.next().charAt(0);
-            // FIXME: backslash escape
-            result += c;
+            if (scanner.hasNext("[\\x5C]")) {
+                escape = true;
+            } else if (scanner.hasNext("\"")) {
+                break;
+            } else {
+                char c = scanner.next().charAt(0);
+                result += c;
+            }
         }
+//        if (escape) {
+//
+//        }
         scanner.next("\"");
         return result;
     }
@@ -125,7 +202,7 @@ public class Native2DebuggerGdbMiFilter implements Filter {
         }
     }
 
-    static void parseLine(String line, Native2DebugProcess process) {
+    void parseLine(String line, Native2DebugProcess process) {
         Scanner scanner = new Scanner(line);
         scanner.useDelimiter(""); // character by character mode
         Optional<String> token = parseToken(scanner);
@@ -152,7 +229,9 @@ public class Native2DebuggerGdbMiFilter implements Filter {
         } else if (scanner.hasNext("[~@&]")) { // streams
             char mode = scanner.next().charAt(0);
             String text = parseCString(scanner);
-            // Ignore for now
+            if (mode == '&') {
+                StatusBar.Info.set(text, myProject, "Debugger");
+            } // else: Ignore for now
         } // TODO: else "(gdb)" maybe?
     }
 

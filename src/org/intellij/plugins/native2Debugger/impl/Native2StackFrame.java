@@ -61,9 +61,18 @@ public class Native2StackFrame extends XStackFrame {
 
   @Override
   public void customizePresentation(@NotNull ColoredTextContainer component) {
-    component.append("hello", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-    component.append(myFrame.toString(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-    // TODO
+    try {
+      String file = (String) myFrame.get("file");
+      String line = (String) myFrame.get("line");
+      String func = myFrame.containsKey("func") ? (String) myFrame.get("func") : "";
+      component.append(func, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      component.append(file + ":" + line, SimpleTextAttributes.LINK_ATTRIBUTES);
+      // component.setIcon ?
+      // TODO
+    } catch (ClassCastException e) {
+      component.append("failed to parse " + myFrame.toString(), SimpleTextAttributes.ERROR_ATTRIBUTES);
+    }
   }
 
   @Override

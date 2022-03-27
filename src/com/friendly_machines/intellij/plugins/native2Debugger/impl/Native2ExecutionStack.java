@@ -1,12 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
-import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
-import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 
 import java.util.*;
 

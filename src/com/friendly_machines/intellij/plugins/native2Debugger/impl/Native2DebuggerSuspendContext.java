@@ -1,12 +1,7 @@
-package org.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
-
-import java.util.List;
-import java.util.Map;
 
 public class Native2DebuggerSuspendContext extends XSuspendContext {
     private final Native2DebugProcess myDebuggerSession;

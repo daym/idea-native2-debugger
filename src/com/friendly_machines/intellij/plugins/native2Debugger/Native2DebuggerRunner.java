@@ -1,9 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
-import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunProfileState;
@@ -15,15 +15,12 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.configurations.RunnerSettings;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {

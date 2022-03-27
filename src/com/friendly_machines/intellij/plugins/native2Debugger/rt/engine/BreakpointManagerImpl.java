@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.intellij.plugins.native2Debugger.rt.engine;
+package com.friendly_machines.intellij.plugins.native2Debugger.rt.engine;
 
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 

@@ -1,23 +1,17 @@
-package org.intellij.plugins.native2Debugger;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.util.Key;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
-import java.util.List;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.DefaultExecutionResult;

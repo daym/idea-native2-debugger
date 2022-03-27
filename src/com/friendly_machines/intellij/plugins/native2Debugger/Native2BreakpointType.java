@@ -1,10 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
-import com.intellij.ide.highlighter.XmlFileType;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerEditorsProvider;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -15,7 +14,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
-import org.intellij.plugins.native2Debugger.impl.Native2DebuggerEditorsProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class Native2BreakpointType extends XLineBreakpointType<XBreakpointProperties> {

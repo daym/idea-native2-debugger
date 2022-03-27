@@ -13,37 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.intellij.plugins.native2Debugger.rt.engine;
 
-import java.util.List;
+package com.friendly_machines.intellij.plugins.native2Debugger.rt.engine;
 
-public interface Debugger {
-  enum State {
-    CREATED, RUNNING, SUSPENDED, STOPPED
-  }
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
-  State getState();
-//
-//  boolean start();
-//
-//  void stop(boolean force);
-//
-//  void step();
-//
-//  void stepInto();
-//
-//  void resume();
-//
-//  void pause();
-//
-//  boolean isStopped();
-//
-//  //List<Variable> getGlobalVariables();
-//
-//  BreakpointManager getBreakpointManager();
-//
-//  boolean waitForDebuggee();
-//
-//  State waitForStateChange(State state);
+public interface Breakpoint {
 
+  XBreakpoint getXBreakpoint();
+  void setEnabled(boolean value);
+  boolean isEnabled();
 }

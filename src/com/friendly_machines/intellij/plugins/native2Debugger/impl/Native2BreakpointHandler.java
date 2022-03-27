@@ -1,28 +1,16 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.editor.Document;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.*;
-import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
-import org.intellij.plugins.native2Debugger.Native2BreakpointType;
-import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
-import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
+import com.friendly_machines.intellij.plugins.native2Debugger.Native2BreakpointType;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

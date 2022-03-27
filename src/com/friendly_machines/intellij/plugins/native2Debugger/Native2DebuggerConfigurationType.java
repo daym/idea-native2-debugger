@@ -1,4 +1,4 @@
-package org.intellij.plugins.native2Debugger;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
 // See ./java/execution/impl/src/com/intellij/execution/remote/RemoteConfigurationType.java
 

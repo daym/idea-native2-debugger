@@ -1,10 +1,10 @@
-package org.intellij.plugins.native2Debugger;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

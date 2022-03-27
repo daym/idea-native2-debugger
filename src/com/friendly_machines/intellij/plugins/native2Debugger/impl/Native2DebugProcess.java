@@ -1,6 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerBundle;
+import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerRunProfileState;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
@@ -8,10 +11,8 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -21,13 +22,11 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
-import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import org.intellij.plugins.native2Debugger.*;
-import org.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
-import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
-import org.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
-import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
+import com.friendly_machines.intellij.plugins.native2Debugger.*;
+import com.friendly_machines.intellij.plugins.native2Debugger.Native2BreakpointType;
+import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerRunner;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

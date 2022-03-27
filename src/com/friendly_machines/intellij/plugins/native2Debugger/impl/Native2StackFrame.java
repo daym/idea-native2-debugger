@@ -1,23 +1,17 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.PlatformIcons;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.*;
-import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 
-import javax.swing.*;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;

@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package org.intellij.plugins.native2Debugger.rt.engine;
+package com.friendly_machines.intellij.plugins.native2Debugger.rt.engine;
 
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
-public interface Breakpoint {
+import java.io.File;
+import java.util.List;
 
-  XBreakpoint getXBreakpoint();
-  void setEnabled(boolean value);
-  boolean isEnabled();
+public interface BreakpointManager {
+  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, File file, int line);
+
+  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line);
+
+//  void removeBreakpoint(Breakpoint bp);
+
+  void removeBreakpoint(String uri, int line);
+
+  List<Breakpoint> getBreakpoints();
+
+  Breakpoint getBreakpoint(String uri, int lineNumber);
 }

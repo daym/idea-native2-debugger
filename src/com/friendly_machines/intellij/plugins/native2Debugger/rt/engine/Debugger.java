@@ -13,24 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.friendly_machines.intellij.plugins.native2Debugger.rt.engine;
 
-package org.intellij.plugins.native2Debugger.rt.engine;
-
-import com.intellij.xdebugger.breakpoints.XBreakpoint;
-
-import java.io.File;
 import java.util.List;
 
-public interface BreakpointManager {
-  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, File file, int line);
+public interface Debugger {
+  enum State {
+    CREATED, RUNNING, SUSPENDED, STOPPED
+  }
 
-  Breakpoint setBreakpoint(XBreakpoint xBreakpoint, String uri, int line);
+  State getState();
+//
+//  boolean start();
+//
+//  void stop(boolean force);
+//
+//  void step();
+//
+//  void stepInto();
+//
+//  void resume();
+//
+//  void pause();
+//
+//  boolean isStopped();
+//
+//  //List<Variable> getGlobalVariables();
+//
+//  BreakpointManager getBreakpointManager();
+//
+//  boolean waitForDebuggee();
+//
+//  State waitForStateChange(State state);
 
-//  void removeBreakpoint(Breakpoint bp);
-
-  void removeBreakpoint(String uri, int line);
-
-  List<Breakpoint> getBreakpoints();
-
-  Breakpoint getBreakpoint(String uri, int lineNumber);
 }

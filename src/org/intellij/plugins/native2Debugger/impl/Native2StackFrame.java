@@ -61,6 +61,8 @@ public class Native2StackFrame extends XStackFrame {
 
   @Override
   public void customizePresentation(@NotNull ColoredTextContainer component) {
+    component.append("hello", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+    component.append(myFrame.toString(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
     // TODO
   }
 

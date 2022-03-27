@@ -8,37 +8,41 @@ import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
 import org.intellij.plugins.native2Debugger.Native2DebuggerSession;
 import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Native2ExecutionStack extends XExecutionStack {
-  private final Native2StackFrame myTopFrame;
+  //private final Native2StackFrame myTopFrame;
   private final Native2DebuggerSession myDebuggerSession;
+  private final List<Native2StackFrame> myFrames = new ArrayList<>();
 
-  public Native2ExecutionStack(@NlsContexts.ListItem String name, HashMap<String, Object> topFrame, Native2DebuggerSession debuggerSession) {
+  public Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebuggerSession debuggerSession) {
     super(name);
     myDebuggerSession = debuggerSession;
-    myTopFrame = new Native2StackFrame(topFrame, myDebuggerSession);
+    for (Map.Entry<String, Object> frame : frames) {
+      if ("frame".equals(frame.getKey())) {
+        myFrames.add(new Native2StackFrame((HashMap<String, Object>) frame.getValue(), myDebuggerSession));
+      }
+    }
   }
 
   @Override
   public XStackFrame getTopFrame() {
-    return myTopFrame;
+    return myFrames.isEmpty() ? null : myFrames.get(0);
   }
 
   @Override
   public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
-    if (myDebuggerSession.getCurrentState() == Debugger.State.SUSPENDED) {
-      final List<XStackFrame> frames = new ArrayList<>();
-      frames.add(myTopFrame);
-      // TODO: add the other frames!
+    // TODO: be more lazy and compute them only here...
+
+//    if (myDebuggerSession.getCurrentState() == Debugger.State.SUSPENDED) {
+//      final List<XStackFrame> frames = new ArrayList<>();
+//      frames.add(myTopFrame);
+      List<Native2StackFrame> frames = myFrames;
       if (firstFrameIndex <= frames.size()) {
         container.addStackFrames(frames.subList(firstFrameIndex, frames.size()), true);
       } else {
         container.addStackFrames(Collections.emptyList(), true);
       }
-    }
+//    }
   }
 }

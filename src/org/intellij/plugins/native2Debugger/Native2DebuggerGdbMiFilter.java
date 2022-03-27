@@ -92,11 +92,12 @@ public class Native2DebuggerGdbMiFilter implements Filter {
                 scanner.next("\\]");
                 return new String[0];
             } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
-                HashMap<String, Object> result = new HashMap<String, Object>();
+                List<Map.Entry<String, Object>> result = new ArrayList<>();
                 while (scanner.hasNext() && !scanner.hasNext("\\]")) {
                     String name = parseString(scanner);
                     scanner.next("=");
                     Object value = parseValue(scanner);
+                    result.add(new java.util.AbstractMap.SimpleEntry<>(name, value));
                     if (scanner.hasNext(",")) {
                         scanner.next();
                     } else {

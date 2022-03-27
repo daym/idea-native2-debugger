@@ -33,10 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 // TODO: -break-insert, -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -dprintf-insert (!), -break-passcount, -break-watch, -catch-load
 // TODO: -environment-cd, -environment-directory, -environment-pwd
@@ -95,16 +92,16 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 //        String threadId = (String) attributes.get("thread-id");
 //        String stoppedThreads = (String) attributes.get("stopped-threads");
 //        String core = (String) attributes.get("core");
-                if (attributes.containsKey("frame")) {
-                    HashMap<String, Object> frame = (HashMap<String, Object>) attributes.get("frame");
-                    MySuspendContext context = new MySuspendContext(this.myDebuggerSession, frame);
-                    if (reason != null && reason.equals("breakpoint-hit")) {
-                        XBreakpoint<?> breakpoint =  myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-                        getSession().breakpointReached(breakpoint, "fancy message", context);
-                    }
-                //} else { // run to
-                    getSession().positionReached(context);
-                }
+//                if (attributes.containsKey("frame")) {
+//                    HashMap<String, Object> frame = (HashMap<String, Object>) attributes.get("frame");
+//                    MySuspendContext context = new MySuspendContext(this.myDebuggerSession, frame);
+//                    if (reason != null && reason.equals("breakpoint-hit")) {
+//                        XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
+//                        getSession().breakpointReached(breakpoint, "fancy message", context);
+//                    }
+//                    //} else { // run to
+//                    getSession().positionReached(context);
+//                }
 //          String addr = (String) frame.get("addr");
 //          String func = (String) frame.get("func");
 //          String args = (String) frame.get("args");
@@ -112,12 +109,32 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 //          String fullname = (String) frame.get("fullname");
 //          String line = (String) frame.get("line");
 //          String arch = (String) frame.get("arch");
-        } catch(ClassCastException e){
-            System.err.println("handleGdbMiStateOutput failed... " + attributes);
-            e.printStackTrace();
+
+                send("-stack-list-frames", new String[]{}, new String[0]);
+                // TODO: Later on: -stack-list-variables --thread 1 --frame 0 --all-values
+
+            } catch (ClassCastException e) {
+                System.err.println("handleGdbMiStateOutput failed... " + attributes);
+                e.printStackTrace();
+            }
+        } else if (mode == '^' && klass.equals("done")) { // this should be connected to the request--but isn't right now.
+            // Implicit: -stack-list-frames response
+            try {
+                if (attributes.containsKey("stack")) {
+                    List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
+                    MySuspendContext context = new MySuspendContext(this.myDebuggerSession, stack);
+                    //if (reason != null && reason.equals("breakpoint-hit")) {
+                        XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
+                        getSession().breakpointReached(breakpoint, "fancy message", context);
+                    //}
+                    getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
+                }
+            } catch (ClassCastException e) {
+                System.err.println("handleGdbMiStateOutput failed... " + attributes);
+                e.printStackTrace();
+            }
         }
     }
-}
 
     void send(String operation, String[] options, String[] parameters) {
         try {
@@ -273,27 +290,22 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
 private static class MySuspendContext extends XSuspendContext {
     private final Native2DebuggerSession myDebuggerSession;
-    private final HashMap<String, Object> myGdbExecutionFrame;
+    private final List<Map.Entry<String, Object>> myGdbExecutionStack;
 
-    MySuspendContext(Native2DebuggerSession debuggerSession, HashMap<String, Object> gdbExecutionFrame) {
+    MySuspendContext(Native2DebuggerSession debuggerSession, List<Map.Entry<String, Object>> gdbExecutionStack) {
         myDebuggerSession = debuggerSession;
-        myGdbExecutionFrame = gdbExecutionFrame;
+        myGdbExecutionStack = gdbExecutionStack;
     }
 
     @Override
     public XExecutionStack getActiveExecutionStack() {
-        return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionFrame, myDebuggerSession);
-    }
-
-    public XExecutionStack getSourceStack() {
-        return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.source.frames"), myGdbExecutionFrame, myDebuggerSession); // FIXME
+        return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionStack, myDebuggerSession);
     }
 
     @Override
     public XExecutionStack /*@NotNull*/[] getExecutionStacks() {
         return new XExecutionStack[]{
                 getActiveExecutionStack(),
-                getSourceStack()
         };
     }
 }

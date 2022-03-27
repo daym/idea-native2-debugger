@@ -156,6 +156,10 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                         HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
                         String id = (String) thread.get("id");
                         String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
+                        String state = thread.containsKey("state") ? (String) thread.get("state") : "";
+                        if (state.length() > 0) {
+                            name = name + ": " + state;
+                        }
                         HashMap<String, Object> topFrame = (HashMap<String, Object>) thread.get("frame");
                         //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
                         Native2ExecutionStack stack = new Native2ExecutionStack(name, id, topFrame, this); // one per thread

@@ -11,7 +11,7 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.*;
 import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.Native2DebuggerSession;
+import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class Native2StackFrame extends XStackFrame {
   private final HashMap<String, Object> myFrame;
-  private final Native2DebuggerSession myDebuggerSession;
+  private final Native2DebugProcess myDebuggerSession;
   private final XSourcePosition myPosition;
 
   @Nullable
@@ -37,7 +37,7 @@ public class Native2StackFrame extends XStackFrame {
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }
 
-  public Native2StackFrame(HashMap<String, Object> gdbFrame, Native2DebuggerSession debuggerSession) {
+  public Native2StackFrame(HashMap<String, Object> gdbFrame, Native2DebugProcess debuggerSession) {
     myFrame = gdbFrame;
     myDebuggerSession = debuggerSession;
     myPosition = createSourcePositionFromFrame(gdbFrame);
@@ -77,6 +77,12 @@ public class Native2StackFrame extends XStackFrame {
 
   @Override
   public void computeChildren(@NotNull XCompositeNode node) {
+    try {
+      String level = (String) myFrame.get("level");
+      List<String> variables = myDebuggerSession.getVariables(level); // FIXME: thread
+    } catch (ClassCastException e) {
+      e.printStackTrace();
+    }
     // FIXME
 //    try {
 //      if (myFrame instanceof Debugger.StyleFrame) {

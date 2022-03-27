@@ -61,7 +61,6 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new Native2BreakpointHandler(this, Native2BreakpointType.class),
     };
-    private Native2DebuggerSession myDebuggerSession;
 
     public void handleGdbMiStateOutput(char mode, String klass, HashMap<String, Object> attributes) {
         // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
@@ -122,10 +121,10 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             try {
                 if (attributes.containsKey("stack")) {
                     List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
-                    MySuspendContext context = new MySuspendContext(this.myDebuggerSession, stack);
+                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stack);
                     //if (reason != null && reason.equals("breakpoint-hit")) {
-                        XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-                        getSession().breakpointReached(breakpoint, "fancy message", context);
+                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
+                    getSession().breakpointReached(breakpoint, "fancy message", context);
                     //}
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
                 }
@@ -136,7 +135,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    void send(String operation, String[] options, String[] parameters) {
+    public void send(String operation, String[] options, String[] parameters) {
         try {
             myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
             for (String option : options) {
@@ -150,12 +149,17 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                     myChildIn.write(parameter.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
                 }
             }
-            myChildIn.write("\n".getBytes(StandardCharsets.UTF_8));
+            myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    public List<String> getVariables(String frame) { // FIXME: thread
+        send("-stack-list-variables", new String[] {}, new String[] { "--frame", frame, "--all-values" });
+        return new ArrayList<String>(); // FIXME
     }
 
     String fileLineReference(XSourcePosition position) {
@@ -175,7 +179,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         myChildIn = childIn;
         send("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
-        myDebuggerSession = new Native2DebuggerSession(this);
+        //myDebuggerSession = new Native2DebuggerSession(this);
 
         // too early. session.initBreakpoints();
         // after initBreakpoints; send("-exec-run");
@@ -259,8 +263,8 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
     @Override
     public boolean checkCanPerformCommands() {
-        if (myDebuggerSession == null)
-            return super.checkCanPerformCommands();
+        //if (myDebuggerSession == null)
+//            return super.checkCanPerformCommands();
         return true;
     }
 
@@ -288,25 +292,4 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-private static class MySuspendContext extends XSuspendContext {
-    private final Native2DebuggerSession myDebuggerSession;
-    private final List<Map.Entry<String, Object>> myGdbExecutionStack;
-
-    MySuspendContext(Native2DebuggerSession debuggerSession, List<Map.Entry<String, Object>> gdbExecutionStack) {
-        myDebuggerSession = debuggerSession;
-        myGdbExecutionStack = gdbExecutionStack;
-    }
-
-    @Override
-    public XExecutionStack getActiveExecutionStack() {
-        return new Native2ExecutionStack(Native2DebuggerBundle.message("list.item.native2.frames"), myGdbExecutionStack, myDebuggerSession);
-    }
-
-    @Override
-    public XExecutionStack /*@NotNull*/[] getExecutionStacks() {
-        return new XExecutionStack[]{
-                getActiveExecutionStack(),
-        };
-    }
-}
 }

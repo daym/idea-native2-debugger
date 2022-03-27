@@ -5,17 +5,17 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import org.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import org.intellij.plugins.native2Debugger.Native2DebuggerSession;
+import org.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import org.intellij.plugins.native2Debugger.rt.engine.Debugger;
 
 import java.util.*;
 
 public class Native2ExecutionStack extends XExecutionStack {
   //private final Native2StackFrame myTopFrame;
-  private final Native2DebuggerSession myDebuggerSession;
+  private final Native2DebugProcess myDebuggerSession;
   private final List<Native2StackFrame> myFrames = new ArrayList<>();
 
-  public Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebuggerSession debuggerSession) {
+  public Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
     super(name);
     myDebuggerSession = debuggerSession;
     for (Map.Entry<String, Object> frame : frames) {

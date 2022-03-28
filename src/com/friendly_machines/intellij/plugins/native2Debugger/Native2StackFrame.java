@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.friendly_machines.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
@@ -28,7 +29,6 @@ public class Native2StackFrame extends XStackFrame {
     // FIXME PsiFile
     VirtualFile p = VfsUtil.findFile(Path.of(file), false);
     String line = (String) gdbFrame.get("line");
-    System.err.println("SOURCE POSITION FROM FRAME: " + p + ":" + line);
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }
 

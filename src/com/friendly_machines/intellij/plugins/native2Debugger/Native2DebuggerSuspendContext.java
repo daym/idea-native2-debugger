@@ -1,5 +1,6 @@
-package com.friendly_machines.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
 

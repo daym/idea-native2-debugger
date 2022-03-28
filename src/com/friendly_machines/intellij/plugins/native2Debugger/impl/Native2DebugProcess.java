@@ -1,8 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerBundle;
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerRunProfileState;
+import com.friendly_machines.intellij.plugins.native2Debugger.*;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -23,16 +22,12 @@ import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.friendly_machines.intellij.plugins.native2Debugger.*;
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2BreakpointType;
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerRunner;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 // TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
@@ -56,7 +51,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     private final Native2DebuggerEditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
-    private final OutputStream myChildIn;
+    //private final OutputStream myChildIn;
 
     private BreakpointManager myBreakpointManager = new BreakpointManagerImpl();
 
@@ -64,9 +59,21 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             new Native2BreakpointHandler(this, Native2BreakpointType.class),
     };
 
-    public void handleGdbMiStateOutput(char mode, String klass, HashMap<String, Object> attributes) {
-        // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
+    public Native2DebuggerGdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(Native2DebuggerRunProfileState.MI_FILTER);
+        return filter.gdbSend(operation, options, parameters);
+    }
 
+    private HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws Native2DebuggerGdbMiOperationException {
+        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(Native2DebuggerRunProfileState.MI_FILTER);
+        return filter.gdbCall(operation, options, parameters);
+    }
+
+    public void handleGdbMiStateOutput(Native2DebuggerGdbMiStateResponse response) {
+        // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
+        char mode = response.getMode();
+        String klass = response.getKlass();
+        HashMap<String, Object> attributes = response.getAttributes();
         if (mode == '=' && (klass.equals("breakpoint-modified") || klass.equals("breakpoint-created")) && attributes.containsKey("bkpt")) { // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             // TODO: thread-group-added (id), thread-group-removed (id), thread-group-started (id, pid), thread-group-exited (id, exit-code), thread-created (id, group-id), thread-exited (id, group-id), thread-selected (id, frame), "library-loaded"
             try {
@@ -114,103 +121,62 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 //          String arch = (String) frame.get("arch");
 
                 //send("-stack-list-frames", new String[]{}, new String[0]);
-                send("-thread-info", new String[] {}, new String[0]);
+
+                HashMap<String, Object> tresponse = gdbCall("-thread-info", new String[] {}, new String[0]);
+                System.err.println("tresponse " + tresponse);
+                if (tresponse.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
+                    List<Object> threads = (List<Object>) tresponse.get("threads");
+                    String currentThreadId = (String) tresponse.get("current-thread-id");
+
+                    Native2DebuggerSuspendContext context = generateSuspendContext(threads, currentThreadId);
+                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
+                    getSession().breakpointReached(breakpoint, "fancy message", context);
+                    getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
+                }
 
                 // TODO: Later on: -stack-list-variables --thread 1 --frame 0 --all-values
 
             } catch (ClassCastException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);
                 e.printStackTrace();
-            }
-        } else if (mode == '^' && klass.equals("done")) { // this should be connected to the request--but isn't right now.
-            // Implicit: -stack-list-frames response
-            // TODO: -thread-info response (with "threads" and "current-thread-id")
-            try {
-                // TODO: if bkpt (so -break-insert, most likely), add it to our list and so on
-                // TODO: send "-break-after <breakpoint id> <count>"
-                // TODO: send "-break-condition <breakpoint id> <condition>"
-                // TODO: send "-break-delete <breakpoint id> [...]"
-                // TODO: send "-break-disable <breakpoint id> [...]"
-                // TODO: send "-break-enable <breakpoint id> [...]"
-                // TODO: send "-break-info <breakpoint id>"
-//                if (attributes.containsKey("stack")) { // breakpoint... -stack-list-frames
-//                    send("-thread-info", new String[] {}, new String[0]);
-//                }
-//                    List<Map.Entry<String, Object>> stack = (List<Map.Entry<String, Object>>) attributes.get("stack");
-//                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks, activeStackId);
-//                    //if (reason != null && reason.equals("breakpoint-hit")) {
-//                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-//                    getSession().breakpointReached(breakpoint, "fancy message", context);
-//                    //}
-//                    getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
-//                    send("-thread-info", new String[] {}, new String[0]);
-//                }
-                if (attributes.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
-                    List<Object> threads = (List<Object>) attributes.get("threads");
-                    String currentThreadId = (String) attributes.get("current-thread-id");
-                    ArrayList<Native2ExecutionStack> stacks = new ArrayList<>();
-                    int activeStackId = -1;
-
-                    for (Object thread1: threads) {
-                        HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
-                        String id = (String) thread.get("id");
-                        String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
-                        String state = thread.containsKey("state") ? (String) thread.get("state") : "";
-                        if (state.length() > 0) {
-                            name = name + ": " + state;
-                        }
-                        HashMap<String, Object> topFrame = (HashMap<String, Object>) thread.get("frame");
-                        //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
-                        Native2ExecutionStack stack = new Native2ExecutionStack(name, id, topFrame, this); // one per thread
-                        stacks.add(stack);
-                        if (currentThreadId.equals(id)) {
-                            activeStackId = stacks.size() - 1;
-                        }
-                    }
-
-                    Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks.toArray(new Native2ExecutionStack[0]), activeStackId);
-                    //if (reason != null && reason.equals("breakpoint-hit")) {
-                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-                    getSession().breakpointReached(breakpoint, "fancy message", context);
-                    //}
-                    getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
-                }
-            } catch (ClassCastException e) {
+            } catch (Native2DebuggerGdbMiOperationException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);
                 e.printStackTrace();
             }
         }
     }
 
-    public void send(String operation, String[] options, String[] parameters) {
-        try {
-            myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
-            for (String option : options) {
-                myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                myChildIn.write(option.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
+    private Native2DebuggerSuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
+        ArrayList<Native2ExecutionStack> stacks = new ArrayList<>();
+        int activeStackId = -1;
+
+        for (Object thread1: threads) {
+            HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
+            String id = (String) thread.get("id");
+            String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
+            String state = thread.containsKey("state") ? (String) thread.get("state") : "";
+            if (state.length() > 0) {
+                name = name + ": " + state;
             }
-            if (parameters.length > 0) {
-                myChildIn.write(" --".getBytes(StandardCharsets.UTF_8));
-                for (String parameter : parameters) {
-                    myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                    myChildIn.write(parameter.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
-                }
+            HashMap<String, Object> topFrame = (HashMap<String, Object>) thread.get("frame");
+            //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
+            Native2ExecutionStack stack = new Native2ExecutionStack(name, id, topFrame, this); // one per thread
+            stacks.add(stack);
+            if (currentThreadId.equals(id)) {
+                activeStackId = stacks.size() - 1;
             }
-            myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
-            myChildIn.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
         }
+        Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks.toArray(new Native2ExecutionStack[0]), activeStackId);
+        return context;
     }
 
     public List<String> getVariables(String threadId, String frameId) {
-        send("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
+        gdbSend("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
         return new ArrayList<String>(); // FIXME
     }
 
     public void getFrames(String threadId) {
-        send("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
+        gdbSend("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
         // TODO: result?
     }
 
@@ -229,11 +195,12 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         myEditorsProvider = new Native2DebuggerEditorsProvider();
         Disposer.register(myExecutionConsole, this);
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
-        myChildIn = childIn;
-        send("-gdb-set", new String[] { "mi-async", "on" }, new String[0]);
-        send("-enable-frame-filters", new String[] {}, new String[0]);
+        //myChildIn = childIn;
+        gdbSend("-gdb-set", new String[] { "mi-async", "on" }, new String[0]);
+        gdbSend("-gdb-set", new String[] { "interactive-mode", "on" }, new String[0]); // just in case we use a pipe for communicating with gdb: force pty-like communication
+        gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
 
-        send("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
+        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args
         //myDebuggerSession = new Native2DebuggerSession(this);
 
@@ -251,7 +218,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         ApplicationManager.getApplication().invokeLater(() -> {
             //getSession().initBreakpoints();
             System.err.println("EXEC RUN");
-            send("-exec-run", new String[0], new String[0]);
+            gdbSend("-exec-run", new String[0], new String[0]);
         });
 
         return true;
@@ -290,22 +257,22 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        send("-exec-next", new String[0], new String[0]);
+        gdbSend("-exec-next", new String[0], new String[0]);
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        send("-exec-step", new String[0], new String[0]);
+        gdbSend("-exec-step", new String[0], new String[0]);
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        send("-exec-finish", new String[0], new String[0]);
+        gdbSend("-exec-finish", new String[0], new String[0]);
     }
 
     @Override
     public void startPausing() {
-        send("-exec-interrupt", new String[0], new String[0]);
+        gdbSend("-exec-interrupt", new String[0], new String[0]);
         //getSession().pause();
     }
 
@@ -313,7 +280,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     public void stop() {
         // Note: IDEA usually calls this AFTER the process was already terminated.
         if (!myProcessHandler.isProcessTerminated()) {
-            send("-gdb-exit", new String[0], new String[0]);
+            gdbSend("-gdb-exit", new String[0], new String[0]);
         }
     }
 
@@ -326,7 +293,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        send("-exec-continue", new String[0], new String[0]);
+        gdbSend("-exec-continue", new String[0], new String[0]);
     }
 
     @Override
@@ -336,7 +303,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
         try {
-            send("-exec-until", new String[]{fileLineReference(position)}, new String[0]);
+            gdbSend("-exec-until", new String[]{fileLineReference(position)}, new String[0]);
         } catch (RuntimeException e) {
             e.printStackTrace();
             final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());

@@ -1,4 +1,4 @@
-package com.friendly_machines.intellij.plugins.native2Debugger.impl;
+package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileType;

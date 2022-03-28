@@ -1,10 +1,13 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiFilter;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import org.jetbrains.annotations.NotNull;
@@ -15,11 +18,16 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.DefaultExecutionResult;
+import com.pty4j.unix.Pty;
+
+import java.io.IOException;
 
 public class Native2DebuggerRunProfileState extends CommandLineState {
     public static final Key<Native2DebuggerRunProfileState> STATE = Key.create("STATE");
+    public static final Key<Native2DebuggerGdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
     private final Native2DebuggerConfiguration myConfiguration;
     private final TextConsoleBuilder myBuilder;
+    private Pty myPty;
 
     public Native2DebuggerRunProfileState(Native2DebuggerConfiguration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
@@ -41,6 +49,15 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
     @NotNull
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
+        try {
+            myPty = new Pty(true, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionException(e);
+        }
+        String slaveName = myPty.getSlaveName();
+        System.err.println("PTY SLAVE " + slaveName);
+        // myPty.getMasterFD()
         GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("gdb"));
         commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
@@ -50,7 +67,9 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         // -cd=<dir>
         // -f (stack frame special format)
         // -tty=/dev/tty0
-        commandLine.addParameter("--interpreter=mi3");
+        //commandLine.addParameter("--interpreter=mi3");
+        commandLine.addParameter("-ex");
+        commandLine.addParameter("new-ui mi3 " + slaveName);
         //commandLine.addParameter("--args");
         //commandLine.addParameter("./target/debug/amd-host-image-builder"); // FIXME
         //commandLine.setWorkDirectory(workingDirectory);
@@ -58,56 +77,36 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         //final OSProcessHandler processHandler = creator.fun(commandLine);
 
         final OSProcessHandler osProcessHandler = new OSProcessHandler(commandLine);
+        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject(), myPty.getInputStream(), myPty.getOutputStream());
+        osProcessHandler.putUserData(MI_FILTER, filter);
         osProcessHandler.putUserData(STATE, this);
+        // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
+        osProcessHandler.addProcessListener(new ProcessListener() {
+                @Override
+                public void startNotified(@NotNull ProcessEvent processEvent) {
+                }
 
+                @Override
+                public void processTerminated(@NotNull ProcessEvent processEvent) {
+                    try {
+                        // TODO: Read everything from myPtr (for MacOS)
+                        myPty.close();
+                        osProcessHandler.putUserData(MI_FILTER, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
+
+                }
+        });
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
-        myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
+        //myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
         this.setConsoleBuilder(myBuilder);
 
-        // FIXME: osProcessHandler.addProcessListener(new MyProcessAdapter());
-        // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
-
-        /* FIXME final List<XsltRunnerExtension> extensions = XsltRunnerExtension.getExtensions(myXsltRunConfiguration, myIsDebugger);
-        for (XsltRunnerExtension extension : extensions) {
-            osProcessHandler.addProcessListener(extension.createProcessListener(myXsltRunConfiguration.getProject(), myExtensionData));
-        }
-    processHandler.addProcessListener(new ProcessAdapter() {
-      @Override
-      public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
-        if (outputTypeFilter.value(outputType)) {
-          final String text = event.getText();
-          outputBuilder.append(text);
-          LOG.debug(text);
-        }
-      }
-    });
-    processHandler.startNotify();
-    if (!processHandler.waitFor(timeout)) {
-      throw new ExecutionException(IdeUtilIoBundle.message("script.execution.timeout", String.valueOf(timeout / 1000)));
-    }
-    return outputBuilder.toString();
-
-        */
         return osProcessHandler;
     }
-
-    /* ProcessTerminatedListener.attach(process);
-./python/src/com/jetbrains/pyqt/CompileQrcAction.java-      new RunContentExecutor(project, process)
-./python/src/com/jetbrains/pyqt/CompileQrcAction.java-        .withTitle(PyBundle.message("qt.run.tab.title.compile.qrc"))
-./python/src/com/jetbrains/pyqt/CompileQrcAction.java-        .run();
- */
-    /* ./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-  public static String getProcessOutput(@NotNull GeneralCommandLine commandLine, @NotNull Condition<? super Key> outputTypeFilter, long timeout)
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-    throws ExecutionException {
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java:    return getProcessOutput(new OSProcessHandler(commandLine), outputTypeFilter,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-                            timeout);
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-  }
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java:  public static OSProcessHandler execute(@NotNull String exePath,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-                                         @Nullable String workingDirectory,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-                                         @Nullable VirtualFile scriptFile,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-                                         String[] parameters,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java-                                         @Nullable Charset charset,
-./platform/platform-util-io/src/com/intellij/execution/process/ScriptRunnerUtil.java:                                         @NotNull ThrowableNotNullFunction<? super GeneralCommandLine, ? extends OSProcessHandler, ? extends ExecutionException> creator)
-
-*/
 
 }

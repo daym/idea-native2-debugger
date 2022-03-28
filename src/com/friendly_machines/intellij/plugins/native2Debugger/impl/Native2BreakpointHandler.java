@@ -58,9 +58,9 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     options.add(myNative2DebugProcess.fileLineReference(sourcePosition));
     if (breakpoint.isLogMessage()) {
       options.add("Breakpointhit"); // TODO: what is the message?
-      myNative2DebugProcess.send("-dprintf-insert", options.toArray(new String[0]), new String[0]);
+      myNative2DebugProcess.gdbSend("-dprintf-insert", options.toArray(new String[0]), new String[0]);
     } else {
-      myNative2DebugProcess.send("-break-insert", options.toArray(new String[0]), new String[0]);
+      myNative2DebugProcess.gdbSend("-break-insert", options.toArray(new String[0]), new String[0]);
     }
     final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
     Breakpoint bp;

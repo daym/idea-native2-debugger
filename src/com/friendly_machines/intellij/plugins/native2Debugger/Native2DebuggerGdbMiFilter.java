@@ -222,7 +222,7 @@ public class Native2DebuggerGdbMiFilter implements Filter {
                 Object value = parseValue(scanner);
                 result.put(name, value);
             }
-            System.err.println("STATE: " + mode + klass + result);
+            //System.err.println("STATE: " + mode + klass + result);
 
             // "*stopped"
             // "=breakpoint-modified"

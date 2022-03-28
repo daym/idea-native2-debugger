@@ -51,7 +51,6 @@ public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
     protected RunContentDescriptor createContentDescriptor(RunProfileState runProfileState, ExecutionEnvironment environment)
             throws ExecutionException {
         Executor executor = environment.getExecutor();
-        System.err.println("createContentDescriptor 1");
         // could check STATE's stuff (like getParameters() etc)
         //String debuggerPort = DebuggerUtils.getInstance().findAvailableDebugAddress(true);
         //String remotePort = JDWP + debuggerPort;

@@ -26,24 +26,20 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
 
   @Override
   public void registerBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
-    System.err.println("REGISTER BREAKPOINT");
     final XSourcePosition sourcePosition = breakpoint.getSourcePosition();
     if (sourcePosition == null || !sourcePosition.getFile().exists() || !sourcePosition.getFile().isValid()) {
       // ???
       return;
     }
-    System.err.println("REGISTER BREAKPOINT 0");
 
     final VirtualFile file = sourcePosition.getFile();
     final Project project = myNative2DebugProcess.getSession().getProject();
     final String fileURL = getFileURL(file);
     final int lineNumber = getActualLineNumber(breakpoint, project);
-    System.err.println("REGISTER BREAKPOINT 7"); // ok
     if (lineNumber == -1) {
       myNative2DebugProcess.getSession().setBreakpointInvalid(breakpoint, "Unsupported breakpoint position");
       return;
     }
-    System.err.println("REGISTER BREAKPOINT 2");
 
     ArrayList<String> options = new ArrayList<>();
     // TODO: "-h" for hardware breakpoint

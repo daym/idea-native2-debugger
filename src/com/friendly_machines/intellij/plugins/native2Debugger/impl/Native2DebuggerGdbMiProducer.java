@@ -6,6 +6,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.pty4j.unix.PTYInputStream;
+import com.pty4j.unix.Pty;
+import jtermios.JTermios;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +21,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * It fills the sync response into a blocking queue.
  */
 public class Native2DebuggerGdbMiProducer extends Thread {
-    private final InputStream myChildOut;
+    private final Pty myChildOut;
     private final Native2DebugProcess myProcess;
     private final BlockingQueue<Native2DebuggerGdbMiStateResponse> myQueue = new LinkedBlockingDeque<Native2DebuggerGdbMiStateResponse>(1);
 
@@ -253,28 +255,29 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         }
     }
 
-    private String readLine() throws IOException {
+    private String readLine() throws IOException, InterruptedException {
         StringBuilder buffer = new StringBuilder();
-        int c;
+        int fd = myChildOut.getMasterFD();
+        byte[] buf = new byte[1];
+        int count;
         // TODO: timeout
-        while ((c = myChildOut.read()) >= 0) {
+        while ((count = JTermios.read(fd, buf, buf.length)) > 0) {
+            int c = buf[0];
             buffer.append(Character.toString(c));
             if (c == 10) {
                 break;
             }
         }
+        //System.err.println("LINE " + buffer.toString());
+        if (count == -1) {
+            throw new InterruptedException();
+        }
         return buffer.toString();
     }
 
-    public Native2DebuggerGdbMiProducer(PTYInputStream childOut, Native2DebugProcess process) {
+    public Native2DebuggerGdbMiProducer(Pty childOut, Native2DebugProcess process) {
         myProcess = process;
-        myChildOut = new InputStream() { // FIXME: Use InputStreamReader wrapper to decode utf-8
-            @Override
-            public int read() throws IOException {
-                int result = childOut.read();
-                return result;
-            }
-        };
+        myChildOut = childOut;
     }
 
     @Override
@@ -287,7 +290,6 @@ public class Native2DebuggerGdbMiProducer extends Thread {
                 e.printStackTrace();
                 throw new RuntimeException(e); // FIXME?
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 break;
             }
 //            synchronized (this) {

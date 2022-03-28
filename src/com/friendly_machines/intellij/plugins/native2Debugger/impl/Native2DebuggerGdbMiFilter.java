@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.pty4j.unix.PTYInputStream;
 import com.pty4j.unix.PTYOutputStream;
+import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -18,7 +19,7 @@ public class Native2DebuggerGdbMiFilter {
     //private final InputStream myChildOut;
     private final Native2DebuggerGdbMiProducer myReaderThread;
 
-    public Native2DebuggerGdbMiFilter(Native2DebugProcess process, @NotNull Project project, PTYInputStream childOut, PTYOutputStream childIn) {
+    public Native2DebuggerGdbMiFilter(Native2DebugProcess process, @NotNull Project project, Pty childOut, PTYOutputStream childIn) {
         myProcess =  process;
         myProject = project;
         //myChildOut = childOut;

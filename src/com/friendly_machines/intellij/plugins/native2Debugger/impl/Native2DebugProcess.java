@@ -235,7 +235,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         Pty myPty = myProcessHandler.getUserData(Native2DebuggerRunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new Native2DebuggerEditorsProvider();
-        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(this, environment.getProject(), myPty.getInputStream(), myPty.getOutputStream());
+        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(this, environment.getProject(), myPty, myPty.getOutputStream());
         myProcessHandler.putUserData(MI_FILTER, filter);
         myProcessHandler.addProcessListener(new ProcessListener() {
             @Override

@@ -60,12 +60,18 @@ public class Native2StackFrame extends XStackFrame {
   @Override
   public void customizePresentation(@NotNull ColoredTextContainer component) {
     try {
-      String file = (String) myFrame.get("file");
-      String line = (String) myFrame.get("line");
-      String func = myFrame.containsKey("func") ? (String) myFrame.get("func") : "";
-      component.append(func, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      if (myFrame.containsKey("func")) {
+        String func = (String) myFrame.get("func");
+        component.append(func, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      }
       component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      component.append(file + ":" + line, SimpleTextAttributes.LINK_ATTRIBUTES);
+      if (myFrame.containsKey("file")) {
+        String file = (String) myFrame.get("file");
+        String line = myFrame.containsKey("line") ? (String) myFrame.get("line") : "?";
+        component.append(file + ":" + line, SimpleTextAttributes.LINK_ATTRIBUTES);
+      } else if (myFrame.containsKey("addr")) {
+        component.append((String) myFrame.get("addr"), SimpleTextAttributes.GRAY_ATTRIBUTES);
+      }
       // component.setIcon ?
       // TODO
     } catch (ClassCastException e) {

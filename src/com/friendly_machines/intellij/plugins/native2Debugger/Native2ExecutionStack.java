@@ -16,7 +16,7 @@ public class Native2ExecutionStack extends XExecutionStack {
     private final Native2StackFrame myTopFrame;
     private final String myThreadId;
 
-    public Native2ExecutionStack(@NlsContexts.ListItem String name, String threadId, HashMap<String, Object> topFrame, Native2DebugProcess debuggerSession) {
+    public Native2ExecutionStack(@NlsContexts.ListItem String name, String threadId, Optional<HashMap<String, Object>> topFrame, Native2DebugProcess debuggerSession) {
         super(name);
         myDebuggerSession = debuggerSession;
         myThreadId = threadId;
@@ -25,7 +25,11 @@ public class Native2ExecutionStack extends XExecutionStack {
 //        myFrames.add(new Native2StackFrame((HashMap<String, Object>) frame.getValue(), myDebuggerSession));
 //      }
 //    }
-        myTopFrame = new Native2StackFrame(threadId, (HashMap<String, Object>) topFrame, myDebuggerSession);
+        if (topFrame.isPresent()) {
+            myTopFrame = new Native2StackFrame(threadId, topFrame.get(), myDebuggerSession);
+        } else {
+            myTopFrame = null;
+        }
     }
 
     @Override

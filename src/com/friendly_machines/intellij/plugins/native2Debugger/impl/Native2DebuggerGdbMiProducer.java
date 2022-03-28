@@ -207,7 +207,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
     }
 
     private void processLine(String line) throws InterruptedException {
-        if (line.strip() == "(gdb)") {
+        if ("(gdb)".equals(line.strip())) {
             return;
         }
 
@@ -221,14 +221,12 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         if (scanner.hasNext("[*+=^]")) {
             // FIXME StatusBar.Info.set(line, myProject, "Debugger");
             Native2DebuggerGdbMiStateResponse response = Native2DebuggerGdbMiStateResponse.decode(token, scanner);
-            System.err.println("STATE: " + response);
 
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
-                System.err.println("PUTTING INTO QUEUE: " + response);
+//                System.err.println("PUTTING INTO QUEUE: " + response);
                 if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
-                    System.err.println("IGNORING UNSOLICITED RESPONSE " + response);
                 } else {
                     myQueue.put(response); // note: Can block
                 }
@@ -247,9 +245,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
                 // FIXME StatusBar.Info.set(text, myProject, "Stream");
             }
         } else if (scanner.hasNext("-")) { // our echo
-        } else { // TODO: else "(gdb)" maybe?
-            System.err.println("THREAD: JUNK " + line);
-            System.err.flush();
+        } else {
         }
     }
 
@@ -272,8 +268,6 @@ public class Native2DebuggerGdbMiProducer extends Thread {
             @Override
             public int read() throws IOException {
                 int result = childOut.read();
-                System.err.print(Character.toString(result));
-                System.err.flush();
                 return result;
             }
         };
@@ -284,8 +278,6 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         while (true) {
             try {
                 final String line = readLine();
-                System.err.println("THREAD: GOT LINE " + line);
-                System.err.flush();
                 processLine(line);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -299,8 +291,6 @@ public class Native2DebuggerGdbMiProducer extends Thread {
 //                this.notify();
 //            }
         }
-        System.err.println("THREAD: AFTER RUNNING");
-        System.err.flush();
     }
 
     public Native2DebuggerGdbMiStateResponse readResponse() {

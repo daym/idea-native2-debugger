@@ -175,12 +175,12 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
     public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws Native2DebuggerGdbMiOperationException {
         ArrayList<HashMap<String, Object>> result = new ArrayList<>();
+        // TODO: --simple-values and find stuff yourself.
         HashMap<String, Object> q = gdbCall("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
         if (q.containsKey("variables")) {
             try {
                 List<? extends Object> variables = (List<? extends Object>) q.get("variables");
                 for (Object variable1 : variables) {
-                    System.err.println("GET VARIABLE " + variable1);
                     HashMap<String, Object> variable = (HashMap<String, Object>) variable1;
                     result.add(variable);
                 }

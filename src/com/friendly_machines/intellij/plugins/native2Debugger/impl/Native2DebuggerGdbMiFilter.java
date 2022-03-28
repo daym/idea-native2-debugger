@@ -65,7 +65,6 @@ public class Native2DebuggerGdbMiFilter {
 
     public Native2DebuggerGdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
         try {
-            System.err.println("SENDING " + operation);
             ++counter;
             myChildIn.write(Integer.toString(counter).getBytes(StandardCharsets.UTF_8));
             myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
@@ -82,11 +81,7 @@ public class Native2DebuggerGdbMiFilter {
             }
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
-            System.err.println("BEFORE RESPONSE READING");
-            System.err.flush();
             Native2DebuggerGdbMiStateResponse response = readResponse();
-            System.err.println("AFTER RESPONSE READING " + response);
-            System.err.flush();
             return response;
         } catch (IOException e) {
             e.printStackTrace();

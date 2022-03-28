@@ -2,6 +2,7 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiOperationException;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Native2StackFrame extends XStackFrame {
   private final HashMap<String, Object> myFrame;
@@ -75,30 +77,17 @@ public class Native2StackFrame extends XStackFrame {
   public void computeChildren(@NotNull XCompositeNode node) {
     try {
       String level = (String) myFrame.get("level");
-      List<String> variables = myDebuggerSession.getVariables(myThreadId, level);
-      // FIXME: handle result
-    } catch (ClassCastException e) {
+      List<HashMap<String, Object>> variables = myDebuggerSession.getVariables(myThreadId, level);
+      final XValueChildrenList list = new XValueChildrenList();
+      for (HashMap<String, Object> variable: variables) {
+        String name = (String) variable.get("name");
+        // TODO: optional
+        String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
+        list.add(name, new Native2Value(name, value, variable.containsKey("arg")));
+      }
+      node.addChildren(list, true);
+    } catch (ClassCastException | Native2DebuggerGdbMiOperationException e) {
       e.printStackTrace();
     }
-    // FIXME
-//    try {
-//      if (myFrame instanceof Debugger.StyleFrame) {
-//        final List<Debugger.Variable> variables = ((Debugger.StyleFrame)myFrame).getVariables();
-//        final XValueChildrenList list = new XValueChildrenList();
-//        for (final Debugger.Variable variable : variables) {
-//          list.add(variable.getName(), new MyValue(variable));
-//        }
-//        node.addChildren(list, true);
-//      } else {
-//        super.computeChildren(node);
-//      }
-//    } catch (VMPausedException ignored) {
-//      node.setErrorMessage(Native2DebuggerBundle.message("dialog.message.target.vm.not.responding"));
-//    }
   }
-
-  //public Debugger.Frame getFrame() {
-//    return myFrame;
-//  }
-
 }

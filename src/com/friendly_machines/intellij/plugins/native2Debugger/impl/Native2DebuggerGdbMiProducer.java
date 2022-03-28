@@ -171,7 +171,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
             scanner.next("\\[");
             if (scanner.hasNext("\\]")) {
                 scanner.next("\\]");
-                return new String[0];
+                return new ArrayList<Object>();
             } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
                 List<Map.Entry<String, Object>> result = new ArrayList<>();
                 while (scanner.hasNext() && !scanner.hasNext("\\]")) {
@@ -210,6 +210,11 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         if ("(gdb)".equals(line.strip())) {
             return;
         }
+        // FIXME: We come here way too often! Apparently, we don't block. It might be that pty read is "helpful" and prevents us from blocking.
+        if (line.strip().equals("")) {
+            return;
+        }
+        System.err.println("LINE: " + line);
 
         Scanner scanner = new Scanner(line);
         scanner.useDelimiter(""); // character by character mode
@@ -225,7 +230,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
-//                System.err.println("PUTTING INTO QUEUE: " + response);
+                System.err.println("PUTTING INTO QUEUE: " + response);
                 if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
                 } else {
                     myQueue.put(response); // note: Can block

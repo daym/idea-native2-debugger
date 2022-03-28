@@ -56,7 +56,6 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
             throw new ExecutionException(e);
         }
         String slaveName = myPty.getSlaveName();
-        System.err.println("PTY SLAVE " + slaveName);
         // myPty.getMasterFD()
         GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("gdb"));
         commandLine.addParameter("-nw"); // no window
@@ -76,7 +75,7 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         //charset = EncodingManager.getInstance().getDefaultCharset();
         //final OSProcessHandler processHandler = creator.fun(commandLine);
 
-        final OSProcessHandler osProcessHandler = new OSProcessHandler(commandLine);
+        final OSProcessHandler osProcessHandler = new OSProcessHandler.Silent(commandLine);
         osProcessHandler.putUserData(STATE, this);
         osProcessHandler.putUserData(PTY, myPty);
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh

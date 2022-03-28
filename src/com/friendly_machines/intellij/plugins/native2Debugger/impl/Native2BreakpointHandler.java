@@ -69,7 +69,6 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     } else {
       manager.setBreakpoint(breakpoint, fileURL, lineNumber);
     }
-    System.err.println("REGISTER BREAKPOINT 4");
 //      final XDebugSession session = myNative2DebugProcess.getSession();
 //      session.reportMessage(Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.set"), MessageType.ERROR);
 //      session.setBreakpointInvalid(breakpoint, "Target VM is not responding. Breakpoint can not be set");

@@ -2,6 +2,7 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiOperationException;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
@@ -34,12 +35,19 @@ public class Native2ExecutionStack extends XExecutionStack {
 
     @Override
     public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
-        // TODO: Compute the "other" frames here (using the Native2DebugProcess):
-        myDebuggerSession.getFrames(myThreadId);
-
 //    if (myDebuggerSession.getCurrentState() == Debugger.State.SUSPENDED) {
         final List<XStackFrame> frames = new ArrayList<>();
-        frames.add(myTopFrame);
+        try {
+            List<HashMap<String, Object>> gframes = myDebuggerSession.getFrames(myThreadId);
+            for (HashMap<String, Object> gframe : gframes) {
+                frames.add(new Native2StackFrame(myThreadId, gframe, myDebuggerSession));
+            }
+        } catch (Native2DebuggerGdbMiOperationException e) {
+            frames.add(myTopFrame);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
         if (firstFrameIndex <= frames.size()) {
             container.addStackFrames(frames.subList(firstFrameIndex, frames.size()), true);
         } else {

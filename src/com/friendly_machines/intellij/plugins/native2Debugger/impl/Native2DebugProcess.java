@@ -126,8 +126,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 
                 //send("-stack-list-frames", new String[]{}, new String[0]);
 
-                HashMap<String, Object> tresponse = gdbCall("-thread-info", new String[] {}, new String[0]);
-                System.err.println("tresponse " + tresponse);
+                HashMap<String, Object> tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
                     List<Object> threads = (List<Object>) tresponse.get("threads");
                     String currentThreadId = (String) tresponse.get("current-thread-id");
@@ -174,14 +173,49 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         return context;
     }
 
-    public List<String> getVariables(String threadId, String frameId) {
-        gdbSend("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
-        return new ArrayList<String>(); // FIXME
+    public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws Native2DebuggerGdbMiOperationException {
+        ArrayList<HashMap<String, Object>> result = new ArrayList<>();
+        HashMap<String, Object> q = gdbCall("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
+        if (q.containsKey("variables")) {
+            try {
+                List<? extends Object> variables = (List<? extends Object>) q.get("variables");
+                for (Object variable1 : variables) {
+                    System.err.println("GET VARIABLE " + variable1);
+                    HashMap<String, Object> variable = (HashMap<String, Object>) variable1;
+                    result.add(variable);
+                }
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
-    public void getFrames(String threadId) {
-        gdbSend("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
-        // TODO: result?
+    public List<HashMap<String, Object>> getFrames(String threadId) throws Native2DebuggerGdbMiOperationException {
+        List<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
+        HashMap<String, Object> q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
+        if (q.containsKey("stack")) {
+            try {
+                List<? extends Object> stack = (List<? extends Object>) q.get("stack");
+                for (Object frame1 : stack) {
+                    Map.Entry<String, Object> frame = (Map.Entry<String, Object>) frame1;
+                    if ("frame".equals(frame.getKey())) {
+                        result.add((HashMap<String, Object>) frame.getValue());
+                    }
+                }
+            } catch (ClassCastException e) {
+                // Note: This can be because it was a [] that was interpreted as List<String>
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("GET FRAMES " + result);
+        }
+        return result;
+    }
+
+    private HashMap<String, Object> getThreadInfo() throws Native2DebuggerGdbMiOperationException {
+        return gdbCall("-thread-info", new String[] {}, new String[0]);
     }
 
     String fileLineReference(XSourcePosition position) {
@@ -226,8 +260,13 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         Disposer.register(myExecutionConsole, this);
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         //myChildIn = childIn;
-        gdbSend("-gdb-set", new String[] { "mi-async", "on" }, new String[0]);
-        gdbSend("-gdb-set", new String[] { "interactive-mode", "on" }, new String[0]); // just in case we use a pipe for communicating with gdb: force pty-like communication
+        try {
+            gdbSet("mi-async", "on");
+        } catch (Native2DebuggerGdbMiOperationException e) {
+            e.printStackTrace();
+            //throw new RuntimeException(e);
+        }
+        //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
         gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
 
         gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
@@ -239,6 +278,10 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
 //      final List<Breakpoint> breakpoints = myBreakpointManager.getBreakpoints();
 
         // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
+    }
+
+    private void gdbSet(String key, String value) throws Native2DebuggerGdbMiOperationException {
+        gdbCall("-gdb-set", new String[] { key, value }, new String[0]);
     }
 
     // We'll call initBreakpoints() at the right time on our own.

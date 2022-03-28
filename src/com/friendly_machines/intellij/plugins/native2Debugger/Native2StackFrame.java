@@ -3,8 +3,13 @@ package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiOperationException;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
@@ -26,10 +31,26 @@ public class Native2StackFrame extends XStackFrame {
   private final String myThreadId;
 
   @Nullable
-  public static XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
-    String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
-    // FIXME PsiFile
-    VirtualFile p = VfsUtil.findFile(Path.of(file), false);
+  public XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
+    VirtualFile p = null;
+    if (gdbFrame.containsKey("fullname")) {
+      String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
+       p = VfsUtil.findFile(Path.of(file), false);
+    }
+//    if (p != null && gdbFrame.containsKey("file")) {
+//      //String file = (String) gdbFrame.get("file");
+//
+//      final Project project = myDebuggerSession.getSession().getProject();
+//      final PsiManager psiManager = PsiManager.getInstance(project);
+//      final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+//      final PsiFile psiFile = psiManager.findFile(p);
+//      if (psiFile != null) {
+//        Document psiDocument = documentManager.getDocument(psiFile);
+//        p = documentManager.getPsiFile(psiDocument).getVirtualFile();
+//        //p = psiFile.getVirtualFile();
+//        System.err.println("YES!!!!!!!!!!!!!!!");
+//      }
+//    }
     String line = (String) gdbFrame.get("line");
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }

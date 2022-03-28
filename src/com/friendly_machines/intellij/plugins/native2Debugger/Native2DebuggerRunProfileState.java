@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class Native2DebuggerRunProfileState extends CommandLineState {
     public static final Key<Native2DebuggerRunProfileState> STATE = Key.create("STATE");
-    public static final Key<Native2DebuggerGdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
+    public static final Key<Pty> PTY = Key.create("PTY");
     private final Native2DebuggerConfiguration myConfiguration;
     private final TextConsoleBuilder myBuilder;
     private Pty myPty;
@@ -77,31 +77,9 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         //final OSProcessHandler processHandler = creator.fun(commandLine);
 
         final OSProcessHandler osProcessHandler = new OSProcessHandler(commandLine);
-        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject(), myPty.getInputStream(), myPty.getOutputStream());
-        osProcessHandler.putUserData(MI_FILTER, filter);
         osProcessHandler.putUserData(STATE, this);
+        osProcessHandler.putUserData(PTY, myPty);
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
-        osProcessHandler.addProcessListener(new ProcessListener() {
-                @Override
-                public void startNotified(@NotNull ProcessEvent processEvent) {
-                }
-
-                @Override
-                public void processTerminated(@NotNull ProcessEvent processEvent) {
-                    try {
-                        // TODO: Read everything from myPtr (for MacOS)
-                        myPty.close();
-                        osProcessHandler.putUserData(MI_FILTER, null);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
-
-                }
-        });
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
         //myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
         this.setConsoleBuilder(myBuilder);

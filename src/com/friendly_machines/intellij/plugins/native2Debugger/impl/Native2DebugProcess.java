@@ -5,7 +5,9 @@ import com.friendly_machines.intellij.plugins.native2Debugger.*;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
+import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
@@ -23,6 +25,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
+import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +50,7 @@ import java.util.*;
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class Native2DebugProcess extends XDebugProcess implements Disposable {
     private static final Key<Native2DebugProcess> KEY = Key.create("PROCESS");
+    public static final Key<Native2DebuggerGdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
 
     private final Native2DebuggerEditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
@@ -60,12 +64,12 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     };
 
     public Native2DebuggerGdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
-        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(Native2DebuggerRunProfileState.MI_FILTER);
+        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbSend(operation, options, parameters);
     }
 
     private HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws Native2DebuggerGdbMiOperationException {
-        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(Native2DebuggerRunProfileState.MI_FILTER);
+        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbCall(operation, options, parameters);
     }
 
@@ -191,8 +195,34 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(KEY, this);
+        Pty myPty = myProcessHandler.getUserData(Native2DebuggerRunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new Native2DebuggerEditorsProvider();
+        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(this, environment.getProject(), myPty.getInputStream(), myPty.getOutputStream());
+        myProcessHandler.putUserData(MI_FILTER, filter);
+        myProcessHandler.addProcessListener(new ProcessListener() {
+            @Override
+            public void startNotified(@NotNull ProcessEvent processEvent) {
+            }
+
+            @Override
+            public void processTerminated(@NotNull ProcessEvent processEvent) {
+                try {
+                    // TODO: Read everything from myPtr (for MacOS)
+                    myPty.close();
+                    myProcessHandler.putUserData(MI_FILTER, null);
+                    myProcessHandler.putUserData(Native2DebuggerRunProfileState.PTY, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
+
+            }
+        });
+
         Disposer.register(myExecutionConsole, this);
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         //myChildIn = childIn;

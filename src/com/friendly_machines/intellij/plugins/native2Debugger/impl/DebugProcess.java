@@ -110,23 +110,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //        String threadId = (String) attributes.get("thread-id");
 //        String stoppedThreads = (String) attributes.get("stopped-threads");
 //        String core = (String) attributes.get("core");
-//                if (attributes.containsKey("frame")) {
-//                    HashMap<String, Object> frame = (HashMap<String, Object>) attributes.get("frame");
-//                    MySuspendContext context = new MySuspendContext(this.myDebuggerSession, frame);
-//                    if (reason != null && reason.equals("breakpoint-hit")) {
-//                        XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-//                        getSession().breakpointReached(breakpoint, "fancy message", context);
-//                    }
-//                    //} else { // run to
-//                    getSession().positionReached(context);
-//                }
-//          String addr = (String) frame.get("addr");
-//          String func = (String) frame.get("func");
-//          String args = (String) frame.get("args");
-//          String file = (String) frame.get("file");
-//          String fullname = (String) frame.get("fullname");
-//          String line = (String) frame.get("line");
-//          String arch = (String) frame.get("arch");
 
                 HashMap<String, Object> tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) { // response from -thread-info; FIXME: make that better.

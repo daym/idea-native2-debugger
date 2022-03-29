@@ -416,7 +416,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-break-disable", new String[] { number }, new String[] { });
     }
 
-    public void evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
-        gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
+    public HashMap<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
+        return gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
     }
 }

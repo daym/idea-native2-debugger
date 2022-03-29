@@ -277,24 +277,24 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
         gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
         ProjectSettingsState projectSettings = ProjectSettingsState.getInstance();
-//        try {
-//            gdbSet("sysroot", projectSettings.gdbSysRoot);
-//        } catch (GdbMiOperationException e) {
-//            // TODO: Maybe show dialog box
-//            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
-//        }
-//        try {
-//            gdbSet("arch", projectSettings.gdbArch);
-//        } catch (GdbMiOperationException e) {
-//            // TODO: Maybe show dialog box
-//            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
-//        }
-//        try {
-//            gdbSet("target", projectSettings.gdbArch);
-//        } catch (GdbMiOperationException e) {
-//            // TODO: Maybe show dialog box
-//            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
-//        }
+        try {
+            gdbSet("sysroot", projectSettings.gdbSysRoot);
+        } catch (GdbMiOperationException e) {
+            // TODO: Maybe show dialog box
+            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
+        }
+        try {
+            gdbSet("arch", projectSettings.gdbArch);
+        } catch (GdbMiOperationException e) {
+            // TODO: Maybe show dialog box
+            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
+        }
+        try {
+            gdbSet("target", projectSettings.gdbArch);
+        } catch (GdbMiOperationException e) {
+            // TODO: Maybe show dialog box
+            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
+        }
 
         gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args

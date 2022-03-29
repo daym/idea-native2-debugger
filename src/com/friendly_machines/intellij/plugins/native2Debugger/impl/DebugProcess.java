@@ -272,7 +272,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
         }
         try {
-            gdbSet("target", projectSettings.gdbArch);
+            gdbSet("target", projectSettings.gdbTarget);
         } catch (GdbMiOperationException e) {
             // TODO: Maybe show dialog box
             StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());

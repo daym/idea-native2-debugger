@@ -278,7 +278,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
         }
 
-        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
+//        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args
         //myDebuggerSession = new Native2DebuggerSession(this);
 
@@ -293,14 +293,22 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-gdb-set", new String[] { key, value }, new String[] {});
     }
 
+    private void execRun() throws GdbMiOperationException {
+        System.err.println("EXEC RUN");
+        gdbCall("-exec-run", new String[0], new String[0]);
+    }
+
     // We'll call initBreakpoints() at the right time on our own.
     @Override
     public boolean checkCanInitBreakpoints() {
         // FIXME: That is a hack
         ApplicationManager.getApplication().invokeLater(() -> {
             //getSession().initBreakpoints();
-            System.err.println("EXEC RUN");
-            gdbSend("-exec-run", new String[0], new String[0]);
+            try {
+                execRun();
+            } catch (GdbMiOperationException e) {
+                getSession().reportError((String) e.getDetails().getAttributes().get("msg"));
+            }
         });
 
         return true;

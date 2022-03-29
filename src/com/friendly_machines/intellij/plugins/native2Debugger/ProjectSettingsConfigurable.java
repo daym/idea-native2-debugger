@@ -32,6 +32,9 @@ public class ProjectSettingsConfigurable implements Configurable {
         ProjectSettingsState settings = ProjectSettingsState.getInstance();
         boolean modified = false;
         modified |= !mySettingsComponent.getGdbExecutableNameText().equals(settings.gdbExecutableName);
+        modified |= !mySettingsComponent.getGdbSysRootText().equals(settings.gdbSysRoot);
+        modified |= !mySettingsComponent.getGdbArchText().equals(settings.gdbArch);
+        modified |= !mySettingsComponent.getGdbTargetText().equals(settings.gdbTarget);
 //        modified |= mySettingsComponent.getIdeaUserStatus() != settings.ideaStatus;
         return modified;
     }
@@ -40,14 +43,18 @@ public class ProjectSettingsConfigurable implements Configurable {
     public void apply() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance();
         settings.gdbExecutableName = mySettingsComponent.getGdbExecutableNameText();
-//        settings.ideaStatus = mySettingsComponent.getIdeaUserStatus();
+        settings.gdbSysRoot = mySettingsComponent.getGdbSysRootText();
+        settings.gdbArch = mySettingsComponent.getGdbArchText();
+        settings.gdbTarget = mySettingsComponent.getGdbTargetText();
     }
 
     @Override
     public void reset() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance();
         mySettingsComponent.setGdbExecutableNameText(settings.gdbExecutableName);
-//        mySettingsComponent.setIdeaUserStatus(settings.ideaStatus);
+        mySettingsComponent.setGdbSysRootText(settings.gdbSysRoot);
+        mySettingsComponent.setGdbArchText(settings.gdbArch);
+        mySettingsComponent.setGdbTargetText(settings.gdbTarget);
     }
 
     @Override

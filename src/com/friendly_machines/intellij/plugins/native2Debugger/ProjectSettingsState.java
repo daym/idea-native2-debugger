@@ -13,8 +13,10 @@ import org.jetbrains.annotations.Nullable;
         storages = @Storage("Native2DebuggerPlugin.xml")
 )
 public class ProjectSettingsState implements PersistentStateComponent<ProjectSettingsState> {
-    // TODO: just add public fields here
-    public String gdbExecutableName;
+    public String gdbExecutableName = "gdb";
+    public String gdbSysRoot = "target:";
+    public String gdbArch = "auto";
+    public String gdbTarget = "native";
 
     public static ProjectSettingsState getInstance() {
         return ApplicationManager.getApplication().getService(ProjectSettingsState.class);

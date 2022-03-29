@@ -1,7 +1,7 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2StackFrame;
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2Value;
+import com.friendly_machines.intellij.plugins.native2Debugger.StackFrame;
+import com.friendly_machines.intellij.plugins.native2Debugger.Value;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 
 public class Evaluator extends XDebuggerEvaluator {
-    private final Native2StackFrame myFrame;
+    private final StackFrame myFrame;
     private final DebugProcess mySession;
 
     @Override
@@ -18,7 +18,7 @@ public class Evaluator extends XDebuggerEvaluator {
         try {
             HashMap<String, Object> result = mySession.evaluate(s, myFrame.getThreadId(), myFrame.getLevel());
             String value = (String) result.get("value");
-            xEvaluationCallback.evaluated(new Native2Value("eval", value, false));
+            xEvaluationCallback.evaluated(new Value("eval", value, false));
         } catch (GdbMiOperationException e) {
             xEvaluationCallback.errorOccurred(e.getDetails().getAttributes().toString());
         } catch (ClassCastException e) {
@@ -26,7 +26,7 @@ public class Evaluator extends XDebuggerEvaluator {
         }
     }
 
-    public Evaluator(DebugProcess session, Native2StackFrame frame) {
+    public Evaluator(DebugProcess session, StackFrame frame) {
         mySession = session;
         myFrame = frame;
     }

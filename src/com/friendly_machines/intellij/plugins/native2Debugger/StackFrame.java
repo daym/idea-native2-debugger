@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
-public class Native2StackFrame extends XStackFrame {
+public class StackFrame extends XStackFrame {
   private final HashMap<String, Object> myFrame;
   private final DebugProcess myDebuggerSession;
   private final XSourcePosition myPosition;
@@ -51,7 +51,7 @@ public class Native2StackFrame extends XStackFrame {
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }
 
-  public Native2StackFrame(String threadId, HashMap<String, Object> gdbFrame, DebugProcess debuggerSession) {
+  public StackFrame(String threadId, HashMap<String, Object> gdbFrame, DebugProcess debuggerSession) {
     myThreadId = threadId;
     myFrame = gdbFrame;
     myDebuggerSession = debuggerSession;
@@ -60,7 +60,7 @@ public class Native2StackFrame extends XStackFrame {
 
   @Override
   public Object getEqualityObject() {
-    return Native2StackFrame.class;
+    return StackFrame.class;
   }
 
   @Override
@@ -106,7 +106,7 @@ public class Native2StackFrame extends XStackFrame {
         String name = (String) variable.get("name");
         // TODO: optional
         String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
-        list.add(name, new Native2Value(name, value, variable.containsKey("arg")));
+        list.add(name, new Value(name, value, variable.containsKey("arg")));
       }
       node.addChildren(list, true);
     } catch (ClassCastException | GdbMiOperationException e) {

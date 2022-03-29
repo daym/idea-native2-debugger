@@ -10,13 +10,13 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import java.util.*;
 
 // Per thread
-public class Native2ExecutionStack extends XExecutionStack {
+public class ExecutionStack extends XExecutionStack {
     //private final Native2StackFrame myTopFrame;
     private final DebugProcess myDebuggerSession;
-    private final Native2StackFrame myTopFrame;
+    private final StackFrame myTopFrame;
     private final String myThreadId;
 
-    public Native2ExecutionStack(@NlsContexts.ListItem String name, String threadId, Optional<HashMap<String, Object>> topFrame, DebugProcess debuggerSession) {
+    public ExecutionStack(@NlsContexts.ListItem String name, String threadId, Optional<HashMap<String, Object>> topFrame, DebugProcess debuggerSession) {
         super(name);
         myDebuggerSession = debuggerSession;
         myThreadId = threadId;
@@ -26,7 +26,7 @@ public class Native2ExecutionStack extends XExecutionStack {
 //      }
 //    }
         if (topFrame.isPresent()) {
-            myTopFrame = new Native2StackFrame(threadId, topFrame.get(), myDebuggerSession);
+            myTopFrame = new StackFrame(threadId, topFrame.get(), myDebuggerSession);
         } else {
             myTopFrame = null;
         }
@@ -44,7 +44,7 @@ public class Native2ExecutionStack extends XExecutionStack {
         try {
             List<HashMap<String, Object>> gframes = myDebuggerSession.getFrames(myThreadId);
             for (HashMap<String, Object> gframe : gframes) {
-                frames.add(new Native2StackFrame(myThreadId, gframe, myDebuggerSession));
+                frames.add(new StackFrame(myThreadId, gframe, myDebuggerSession));
             }
         } catch (GdbMiOperationException e) {
             frames.add(myTopFrame);

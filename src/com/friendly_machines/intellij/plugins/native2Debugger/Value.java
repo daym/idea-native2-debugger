@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class Native2Value extends XValue {
+public class Value extends XValue {
     private String myName;
     private String myValue;
     private boolean myArg;
@@ -17,7 +17,7 @@ public class Native2Value extends XValue {
         Icon icon = myArg ? PlatformIcons.PARAMETER_ICON : PlatformIcons.VARIABLE_ICON; // TODO: or FIELD or PROPERTY
         node.setPresentation(icon, myName, myValue, false); // last one is HasChildren. TODO
     }
-    public Native2Value(String name, String value, boolean arg) {
+    public Value(String name, String value, boolean arg) {
         myName = name;
         myValue = value;
         myArg = arg;

@@ -116,7 +116,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                     List<Object> threads = (List<Object>) tresponse.get("threads");
                     String currentThreadId = (String) tresponse.get("current-thread-id");
 
-                    Native2DebuggerSuspendContext context = generateSuspendContext(threads, currentThreadId);
+                    SuspendContext context = generateSuspendContext(threads, currentThreadId);
                     if ("breakpoint-hit".equals(reason)) {
                         if (attributes.containsKey("bkptno")) {
                             String bkptno = (String) attributes.get("bkptno");
@@ -140,8 +140,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    private Native2DebuggerSuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
-        ArrayList<Native2ExecutionStack> stacks = new ArrayList<>();
+    private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
+        ArrayList<ExecutionStack> stacks = new ArrayList<>();
         int activeStackId = -1;
 
         for (Object thread1: threads) {
@@ -157,13 +157,13 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             }
             Optional<HashMap<String, Object>> topFrame = thread.containsKey("frame") ? Optional.of((HashMap<String, Object>) thread.get("frame")) : Optional.empty();
             //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
-            Native2ExecutionStack stack = new Native2ExecutionStack(name, id, topFrame, this); // one per thread
+            ExecutionStack stack = new ExecutionStack(name, id, topFrame, this); // one per thread
             stacks.add(stack);
             if (currentThreadId.equals(id)) {
                 activeStackId = stacks.size() - 1;
             }
         }
-        Native2DebuggerSuspendContext context = new Native2DebuggerSuspendContext(this, stacks.toArray(new Native2ExecutionStack[0]), activeStackId);
+        SuspendContext context = new SuspendContext(this, stacks.toArray(new ExecutionStack[0]), activeStackId);
         return context;
     }
 

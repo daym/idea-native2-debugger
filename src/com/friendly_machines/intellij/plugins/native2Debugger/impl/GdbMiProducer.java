@@ -206,10 +206,6 @@ public class GdbMiProducer extends Thread {
         if ("(gdb)".equals(line.strip())) {
             return;
         }
-        // FIXME: We come here way too often! Apparently, we don't block. It might be that pty read is "helpful" and prevents us from blocking.
-        if (line.strip().equals("")) {
-            return;
-        }
 
         Scanner scanner = new Scanner(line);
         scanner.useDelimiter(""); // character by character mode
@@ -225,7 +221,6 @@ public class GdbMiProducer extends Thread {
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
-                //System.err.println("PUTTING INTO QUEUE: " + response);
                 if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
                 } else {
                     myQueue.put(response); // note: Can block
@@ -262,7 +257,6 @@ public class GdbMiProducer extends Thread {
                 break;
             }
         }
-        //System.err.println("LINE " + buffer.toString());
         if (count == -1) {
             throw new InterruptedException();
         }

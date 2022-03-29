@@ -2,8 +2,8 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.*;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.Breakpoint;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
-import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessEvent;
@@ -21,7 +21,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XSourcePosition;
-import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
@@ -36,7 +35,7 @@ import java.util.*;
 // TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
 // TODO: -environment-cd, -environment-directory, -environment-pwd
 // TODO: -thread-info, -thread-list-ids, -thread-select
-// TODO: -stack-info-frame, -stack-list-arguments, -stack-list-frames, -stack-list-locals, -stack-list-variables, -stack-select-frame,
+// TODO: -stack-info-frame
 // TODO: fixed variable object, floating variable object, -var-create, -var-delete, -var-info-type, -var-info-expression, -var-info-path-expression, -var-show-attributes, -var-evaluate-expression, -var-assign, -var-update, -var-set-frozen, -var-set-update-range
 // TODO: -data-read-memory-bytes, -data-write-memory-bytes
 // TODO: tracepoints, -trace-find, -trace-define-variable, -trace-frame-collected, -trace-list-variables, -trace-start, -trace-save
@@ -57,7 +56,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     private final ExecutionConsole myExecutionConsole;
     //private final OutputStream myChildIn;
 
-    private BreakpointManager myBreakpointManager = new BreakpointManagerImpl();
+    private BreakpointManager myBreakpointManager = new BreakpointManager(this);
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new BreakpointHandler(this, BreakpointType.class),
@@ -83,16 +82,14 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             try {
                 HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
-                String times = (String) bkpt.get("times");
-                String originalLocation = (String) bkpt.get("original-location");
-                String type_ = (String) bkpt.get("breakpoint");
-                // String addr
-                String disp = (String) bkpt.get("disp");
-                String enabled = (String) bkpt.get("enabled");
-                ArrayList<Object> locations = (ArrayList<Object>) bkpt.get("locations");
-                System.err.println("breakpoint " + originalLocation + " " + enabled);
+                Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(number);
+                if (breakpointo.isPresent()) {
+                    // TODO: check hit count
+                    Breakpoint breakpoint = breakpointo.get();
+                    breakpoint.setFromGdbBkpt(bkpt);
+                }
             } catch (ClassCastException e) {
-                System.err.println("handleGdbMiStateOutput failed... " + attributes);
+                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
                 e.printStackTrace();
             }
         } else if (mode == '*' && klass.equals("stopped")) {
@@ -124,27 +121,32 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //          String line = (String) frame.get("line");
 //          String arch = (String) frame.get("arch");
 
-                //send("-stack-list-frames", new String[]{}, new String[0]);
-
                 HashMap<String, Object> tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
                     List<Object> threads = (List<Object>) tresponse.get("threads");
                     String currentThreadId = (String) tresponse.get("current-thread-id");
 
                     Native2DebuggerSuspendContext context = generateSuspendContext(threads, currentThreadId);
-                    XBreakpoint<?> breakpoint = myBreakpointManager.getBreakpoints().get(0).getXBreakpoint(); // FIXME
-                    getSession().breakpointReached(breakpoint, "fancy message", context);
+                    if ("breakpoint-hit".equals(reason)) {
+                        if (attributes.containsKey("bkptno")) {
+                            String bkptno = (String) attributes.get("bkptno");
+                            Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(bkptno);
+                            if (breakpointo.isPresent()) {
+                                Breakpoint breakpoint = breakpointo.get();
+                                getSession().breakpointReached(breakpoint.getXBreakpoint(), "fancy message", context);
+                            }
+                        } else {
+                            getSession().reportError("Unknown GDB breakpoint was hit");
+                        }
+                    }
+
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
                 }
-
-                // TODO: Later on: -stack-list-variables --thread 1 --frame 0 --all-values
-
             } catch (ClassCastException e) {
-                System.err.println("handleGdbMiStateOutput failed... " + attributes);
                 e.printStackTrace();
+                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
             } catch (GdbMiOperationException e) {
-                System.err.println("handleGdbMiStateOutput failed... " + attributes);
-                e.printStackTrace();
+                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
             }
         }
     }
@@ -212,7 +214,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 e.printStackTrace();
             }
         } else {
-            System.err.println("GET FRAMES " + result);
+            getSession().reportError("could not get stack frames of thread");
         }
         return result;
     }
@@ -221,9 +223,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-thread-info", new String[] {}, new String[0]);
     }
 
-    String fileLineReference(XSourcePosition position) {
-        return position.getFile().getPath() + ":" + (position.getLine() + 1);
-    }
 
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
@@ -272,24 +271,24 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
         gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
         ProjectSettingsState projectSettings = ProjectSettingsState.getInstance();
-        try {
-            gdbSet("sysroot", projectSettings.gdbSysRoot);
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
-        }
-        try {
-            gdbSet("arch", projectSettings.gdbArch);
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
-        }
-        try {
-            gdbSet("target", projectSettings.gdbArch);
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
-        }
+//        try {
+//            gdbSet("sysroot", projectSettings.gdbSysRoot);
+//        } catch (GdbMiOperationException e) {
+//            // TODO: Maybe show dialog box
+//            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
+//        }
+//        try {
+//            gdbSet("arch", projectSettings.gdbArch);
+//        } catch (GdbMiOperationException e) {
+//            // TODO: Maybe show dialog box
+//            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
+//        }
+//        try {
+//            gdbSet("target", projectSettings.gdbArch);
+//        } catch (GdbMiOperationException e) {
+//            // TODO: Maybe show dialog box
+//            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
+//        }
 
         gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args
@@ -398,7 +397,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
         try {
-            gdbSend("-exec-until", new String[]{fileLineReference(position)}, new String[0]);
+            gdbSend("-exec-until", new String[]{BreakpointManager.fileLineReference(position)}, new String[0]);
         } catch (RuntimeException e) {
             e.printStackTrace();
             final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());
@@ -408,5 +407,24 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             // TODO: Context: Stack Frames, Variable Table, Evaluated Expressions
             // FIXME getSession().positionReached(new MySuspendContext(myDebuggerSession, c.getCurrentFrame(), c.getSourceFrame()));
         }
+    }
+
+    public HashMap<String, Object> dprintfInsert(String[] options) throws GdbMiOperationException {
+        return gdbCall("-dprintf-insert", options, new String[0]);
+    }
+
+    public HashMap<String, Object> breakInsert(String[] options) throws GdbMiOperationException {
+        return gdbCall("-break-insert", options, new String[0]);
+    }
+
+    public void breakDelete(String number) throws GdbMiOperationException {
+        gdbCall("-break-delete", new String[] { number }, new String[0]);
+    }
+
+    public void breakEnable(String number) throws GdbMiOperationException {
+        gdbCall("-break-enable", new String[] { number }, new String[0]);
+    }
+    public void breakDisable(String number) throws GdbMiOperationException {
+        gdbCall("-break-disable", new String[] { number }, new String[0]);
     }
 }

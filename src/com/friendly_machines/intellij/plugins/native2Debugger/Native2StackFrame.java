@@ -10,7 +10,9 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
-import com.intellij.xdebugger.frame.*;
+import com.intellij.xdebugger.frame.XCompositeNode;
+import com.intellij.xdebugger.frame.XStackFrame;
+import com.intellij.xdebugger.frame.XValueChildrenList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +44,6 @@ public class Native2StackFrame extends XStackFrame {
 //        Document psiDocument = documentManager.getDocument(psiFile);
 //        p = documentManager.getPsiFile(psiDocument).getVirtualFile();
 //        //p = psiFile.getVirtualFile();
-//        System.err.println("YES!!!!!!!!!!!!!!!");
 //      }
 //    }
     String line = (String) gdbFrame.get("line");

@@ -63,7 +63,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             new BreakpointHandler(this, BreakpointType.class),
     };
 
-    public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+    private GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
         GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbSend(operation, options, parameters);
     }
@@ -254,8 +254,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         try {
             gdbSet("mi-async", "on");
         } catch (GdbMiOperationException e) {
-            e.printStackTrace();
-            //throw new RuntimeException(e);
+            getSession().reportError(e.getDetails().toString());
         }
         //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
         gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
@@ -291,7 +290,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     private void gdbSet(String key, String value) throws GdbMiOperationException {
-        gdbCall("-gdb-set", new String[] { key, value }, new String[0]);
+        gdbCall("-gdb-set", new String[] { key, value }, new String[] {});
     }
 
     // We'll call initBreakpoints() at the right time on our own.
@@ -398,22 +397,26 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public HashMap<String, Object> dprintfInsert(String[] options) throws GdbMiOperationException {
-        return gdbCall("-dprintf-insert", options, new String[0]);
+    public HashMap<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+        return gdbCall("-dprintf-insert", options, parameters);
     }
 
-    public HashMap<String, Object> breakInsert(String[] options) throws GdbMiOperationException {
-        return gdbCall("-break-insert", options, new String[0]);
+    public HashMap<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+        return gdbCall("-break-insert", options, parameters);
     }
 
     public void breakDelete(String number) throws GdbMiOperationException {
-        gdbCall("-break-delete", new String[] { number }, new String[0]);
+        gdbCall("-break-delete", new String[] { number }, new String[] { });
     }
 
     public void breakEnable(String number) throws GdbMiOperationException {
-        gdbCall("-break-enable", new String[] { number }, new String[0]);
+        gdbCall("-break-enable", new String[] { number }, new String[] {  });
     }
     public void breakDisable(String number) throws GdbMiOperationException {
-        gdbCall("-break-disable", new String[] { number }, new String[0]);
+        gdbCall("-break-disable", new String[] { number }, new String[] { });
+    }
+
+    public void evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
+        gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
     }
 }

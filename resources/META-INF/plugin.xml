@@ -1,6 +1,6 @@
 <idea-plugin url="https://confluence.jetbrains.com/display/CONTEST/NATIVE2-Debugger">
-  <name>NATIVE2 Debugger</name>
-  <id>NATIVE2-Debugger</id>
+  <name>Native2 Debugger</name>
+  <id>Native2-Debugger</id>
   <category>C, C++, Go, Rust</category>
 
   <description><![CDATA[

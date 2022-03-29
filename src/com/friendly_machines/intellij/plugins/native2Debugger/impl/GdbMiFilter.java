@@ -5,6 +5,7 @@ import com.pty4j.unix.PTYOutputStream;
 import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -61,6 +62,39 @@ public class GdbMiFilter {
 
     private int counter = 0;
 
+    private static byte digit(byte value) {
+        return (byte) (48 + value);
+    }
+    private static byte[] escape(byte[] text) {
+        boolean escaping_needed = false;
+        for (byte b: text) {
+            if (b <= 32 || b > 127 || b == 92) {
+                escaping_needed = true;
+                break;
+            }
+        }
+        if (escaping_needed) {
+            ByteArrayOutputStream s = new ByteArrayOutputStream();
+            s.write(34); // quote
+            for (byte b: text) {
+                if (b == 32) {
+                    s.write(32); // space
+                } else if (b < 32 || b > 127 || b == 92) {
+                    s.write(92); // backslash
+                    s.write(digit((byte) ((b >> 6) & 7)));
+                    s.write(digit((byte) ((b >> 3) & 7)));
+                    s.write(digit((byte) ((b >> 0) & 7)));
+                } else {
+                    s.write(b);
+                }
+            }
+            s.write(34); // quote
+            return s.toByteArray();
+        } else {
+            return text;
+        }
+    }
+
     public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
         try {
             ++counter;
@@ -68,13 +102,13 @@ public class GdbMiFilter {
             myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
             for (String option : options) {
                 myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                myChildIn.write(option.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
+                myChildIn.write(escape(option.getBytes(StandardCharsets.UTF_8)));
             }
             if (parameters.length > 0) {
                 myChildIn.write(" --".getBytes(StandardCharsets.UTF_8));
                 for (String parameter : parameters) {
                     myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                    myChildIn.write(parameter.getBytes(StandardCharsets.UTF_8));  // TODO: c string quote
+                    myChildIn.write(escape(parameter.getBytes(StandardCharsets.UTF_8)));
                 }
             }
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));

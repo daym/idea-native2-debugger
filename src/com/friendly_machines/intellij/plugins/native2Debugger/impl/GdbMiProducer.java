@@ -39,7 +39,7 @@ public class GdbMiProducer extends Thread {
             char c = scanner.next().charAt(0);
             int digit = digits.indexOf(c);
             if (digit == -1 || digit >= radix) { // error
-                return "";
+                break;
             }
             result *= radix;
             result += digit;
@@ -52,59 +52,51 @@ public class GdbMiProducer extends Thread {
         boolean escape = false;
         while (scanner.hasNext()) {
             if (escape) {
-                char c = scanner.next().charAt(0);
-                switch (c) {
-                    case 'a':
-                        result += (char) 0x7;
-                        break;
-                    case 'b':
-                        result += (char) 0x8;
-                        break;
-                    case 'f':
-                        result += (char) 0xc;
-                        break;
-                    case 'n':
-                        result += (char) 0xa;
-                        break;
-                    case 'r':
-                        result += (char) 0xd;
-                        break;
-                    case 't':
-                        result += (char) 0x9;
-                        break;
-                    case 'v':
-                        result += (char) 0xb;
-                        break;
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                        result += parseDigitsIntoCode(scanner,8, 3);
-                        break;
-                    case 'x':
-                        scanner.next();
-                        result += parseDigitsIntoCode(scanner,16, 2);
-                        break;
-                    case 'u':
-                        scanner.next();
-                        result += parseDigitsIntoCode(scanner,16, 4);
-                        break;
-                    case 'U':
-                        scanner.next();
-                        result += parseDigitsIntoCode(scanner,16, 8);
-                        break;
-                    default:
-                        result += c;
-                        break;
+                if (scanner.hasNext("[0-7]")) {
+                    result += parseDigitsIntoCode(scanner, 8, 3);
+                } else {
+                    char c = scanner.next().charAt(0);
+                    switch (c) {
+                        case 'a':
+                            result += (char) 0x7;
+                            break;
+                        case 'b':
+                            result += (char) 0x8;
+                            break;
+                        case 'f':
+                            result += (char) 0xc;
+                            break;
+                        case 'n':
+                            result += (char) 0xa;
+                            break;
+                        case 'r':
+                            result += (char) 0xd;
+                            break;
+                        case 't':
+                            result += (char) 0x9;
+                            break;
+                        case 'v':
+                            result += (char) 0xb;
+                            break;
+                        case 'x':
+                            result += parseDigitsIntoCode(scanner, 16, 2);
+                            break;
+                        case 'u':
+                            result += parseDigitsIntoCode(scanner, 16, 4);
+                            break;
+                        case 'U':
+                            result += parseDigitsIntoCode(scanner, 16, 8);
+                            break;
+                        default:
+                            result += c;
+                            break;
+                    }
                 }
                 escape = false;
                 continue;
             }
             if (scanner.hasNext("[\\x5C]")) {
+                scanner.next();
                 escape = true;
             } else if (scanner.hasNext("\"")) {
                 break;
@@ -221,6 +213,7 @@ public class GdbMiProducer extends Thread {
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
+                System.err.println("LINE OF SYNC RESPONSE: " + line);
                 if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
                 } else {
                     myQueue.put(response); // note: Can block

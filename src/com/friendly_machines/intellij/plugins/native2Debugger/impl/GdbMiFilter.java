@@ -5,9 +5,9 @@ import com.pty4j.unix.PTYOutputStream;
 import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
 
 public class GdbMiFilter {
     private final DebugProcess myProcess;
@@ -91,7 +91,7 @@ public class GdbMiFilter {
         GdbMiStateResponse response = gdbSend(operation, options, parameters);
         assert response.getMode() == '^';
         if (!"done".equals(response.getKlass())) {
-            throw new GdbMiOperationException();
+            throw new GdbMiOperationException(response);
         }
         return response.getAttributes();
     }

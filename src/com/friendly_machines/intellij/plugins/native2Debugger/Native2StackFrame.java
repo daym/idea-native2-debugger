@@ -2,6 +2,7 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.Evaluator;
 import com.friendly_machines.intellij.plugins.native2Debugger.impl.GdbMiOperationException;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -65,7 +66,7 @@ public class Native2StackFrame extends XStackFrame {
   @Override
   public XDebuggerEvaluator getEvaluator() {
     //return myFrame instanceof Debugger.StyleFrame ? new MyEvaluator((Debugger.StyleFrame)myFrame) : null;
-    return null;
+    return new Evaluator(myDebuggerSession, this);
   }
 
   @Override
@@ -111,5 +112,12 @@ public class Native2StackFrame extends XStackFrame {
     } catch (ClassCastException | GdbMiOperationException e) {
       e.printStackTrace();
     }
+  }
+
+  public String getThreadId() {
+    return myThreadId;
+  }
+  public String getLevel() {
+    return (String) myFrame.get("level");
   }
 }

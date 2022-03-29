@@ -73,15 +73,13 @@ public class BreakpointManager {
         if (!key.isEnabled())
             options.add("-d");
         // TODO: breakpoint.isLogStack()
-        options.add(fileLineReference(key.getSourcePosition()));
         Object response;
         try {
             HashMap<String, Object> gdbResponse;
             if (key.isLogMessage()) {
-                options.add("Breakpointhit"); // TODO: what is the message?
-                gdbResponse = myDebugProcess.dprintfInsert(options.toArray(new String[0]));
+                gdbResponse = myDebugProcess.dprintfInsert(options.toArray(new String[0]), new String[] { fileLineReference(key.getSourcePosition()), "Breakpointhit" });
             } else {
-                gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]));
+                gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]), new String[] { fileLineReference(key.getSourcePosition()) });
             }
             String number = (String) gdbResponse.get("number");
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, (HashMap<String, Object>) gdbResponse.get("bkpt")));
@@ -131,8 +129,10 @@ public class BreakpointManager {
                 myDebugProcess.getSession().reportError("Breakpoint could not be deleted in GDB");
                 return false;
             }
-        } else
+        } else {
+            myDebugProcess.getSession().reportError("Breakpoint to delete was not found");
             return false;
+        }
     }
 
     public boolean deleteBreakpoint1(String number) {

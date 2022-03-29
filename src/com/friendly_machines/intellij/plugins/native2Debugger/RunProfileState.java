@@ -67,7 +67,7 @@ public class RunProfileState extends CommandLineState {
         GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
         commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
-        commandLine.addParameter("-return-child-result");
+        //commandLine.addParameter("-return-child-result");
         // -d <sourcedir>
         // -s <symbols>
         // -cd=<dir>
@@ -76,8 +76,6 @@ public class RunProfileState extends CommandLineState {
         //commandLine.addParameter("--interpreter=mi3");
         commandLine.addParameter("-ex");
         commandLine.addParameter("new-ui mi3 " + slaveName);
-        //commandLine.addParameter("--args");
-        //commandLine.addParameter("./target/debug/amd-host-image-builder"); // FIXME
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
         //final OSProcessHandler processHandler = creator.fun(commandLine);

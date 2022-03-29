@@ -93,7 +93,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                     }
                 }
             } catch (ClassCastException e) {
-                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
+                reportError("handleGdbMiStateOutput failed with: " + response);
                 e.printStackTrace();
             }
         } else if (mode == '=') {
@@ -126,18 +126,37 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                                 getSession().breakpointReached(breakpoint.getXBreakpoint(), "fancy message", context);
                             }
                         } else {
-                            getSession().reportError("Unknown GDB breakpoint was hit");
+                            reportError("Unknown GDB breakpoint was hit");
                         }
                     }
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();
-                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
+                reportError("handleGdbMiStateOutput failed with: " + attributes);
             } catch (GdbMiOperationException e) {
-                getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
+                reportError("handleGdbMiStateOutput failed", e);
             }
         }
+    }
+
+    public void reportError(String s) {
+        getSession().reportError(s);
+    }
+
+    public void reportError(String s, GdbMiOperationException e) {
+        GdbMiStateResponse details = e.getDetails();
+        if (details != null) {
+            HashMap<String, Object> attributes = details.getAttributes();
+            if (attributes != null) {
+                Object msg = attributes.get("msg");
+                if (msg != null) {
+                    reportError(s + ": " + msg);
+                    return;
+                }
+            }
+        }
+        reportError(s + ":" + e.toString());
     }
 
     private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
@@ -203,7 +222,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 e.printStackTrace();
             }
         } else {
-            getSession().reportError("could not get stack frames of thread");
+            reportError("could not get stack frames of thread");
         }
         return result;
     }
@@ -212,6 +231,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-thread-info", new String[] {}, new String[0]);
     }
 
+    private void loadSymbols(String filename) throws GdbMiOperationException {
+        gdbCall("-file-symbol-file", new String[] { filename }, new String[0]);
+    }
 
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
@@ -254,7 +276,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         try {
             gdbSet("mi-async", "on");
         } catch (GdbMiOperationException e) {
-            getSession().reportError(e.getDetails().toString());
+            reportError("mi-async on failed", e);
         }
         //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
         gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
@@ -272,10 +294,26 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
         }
         try {
-            gdbSet("target", projectSettings.gdbTarget);
+            if (projectSettings.gdbTargetArg != null && !projectSettings.gdbTargetArg.isEmpty()) {
+                gdbTarget(projectSettings.gdbTargetType, projectSettings.gdbTargetArg);
+            } else {
+                gdbTarget("target", projectSettings.gdbTargetType);
+            }
         } catch (GdbMiOperationException e) {
             // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTarget, environment.getProject());
+            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTargetType + " " + projectSettings.gdbTargetArg, environment.getProject());
+        }
+
+        try {
+            if (projectSettings.symbolFile != null && !projectSettings.symbolFile.isEmpty()) {
+                loadSymbols(projectSettings.symbolFile);
+            } else {
+                if ("exec".equals(projectSettings.gdbTargetType)) {
+                    loadSymbols(projectSettings.gdbTargetArg);
+                }
+            }
+        } catch (GdbMiOperationException e) {
+            reportError("Loading symbols failed", e);
         }
 
 //        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
@@ -287,6 +325,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //      final List<Breakpoint> breakpoints = myBreakpointManager.getBreakpoints();
 
         // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
+    }
+
+    private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException {
+        gdbCall("-target-select", new String[] { gdbTargetType, gdbTargetArg }, new String[] {});
     }
 
     private void gdbSet(String key, String value) throws GdbMiOperationException {
@@ -307,7 +349,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             try {
                 execRun();
             } catch (GdbMiOperationException e) {
-                getSession().reportError((String) e.getDetails().getAttributes().get("msg"));
+                reportError("exec-run failed", e);
             }
         });
 

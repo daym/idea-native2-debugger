@@ -105,8 +105,7 @@ public class Breakpoint {
                 myGdbBkpt.put("enabled", "n");
             }
         } catch (GdbMiOperationException e) {
-            e.printStackTrace();
-            myDebugProcess.getSession().reportError("could not enable/disable breakpoint in GDB");
+            myDebugProcess.reportError("could not enable/disable breakpoint in GDB", e);
         }
     }
 

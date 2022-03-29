@@ -126,11 +126,11 @@ public class BreakpointManager {
                 myBreakpoints.remove(breakpoint);
                 return true;
             } catch (GdbMiOperationException e) {
-                myDebugProcess.getSession().reportError("Breakpoint could not be deleted in GDB");
+                myDebugProcess.reportError("Breakpoint could not be deleted in GDB", e);
                 return false;
             }
         } else {
-            myDebugProcess.getSession().reportError("Breakpoint to delete was not found");
+            myDebugProcess.reportError("Breakpoint to delete was not found");
             return false;
         }
     }

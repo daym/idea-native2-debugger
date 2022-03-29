@@ -34,7 +34,9 @@ public class ProjectSettingsConfigurable implements Configurable {
         modified |= !mySettingsComponent.getGdbExecutableNameText().equals(settings.gdbExecutableName);
         modified |= !mySettingsComponent.getGdbSysRootText().equals(settings.gdbSysRoot);
         modified |= !mySettingsComponent.getGdbArchText().equals(settings.gdbArch);
-        modified |= !mySettingsComponent.getGdbTargetText().equals(settings.gdbTarget);
+        modified |= !mySettingsComponent.getGdbTargetTypeText().equals(settings.gdbTargetType);
+        modified |= !mySettingsComponent.getGdbTargetArgText().equals(settings.gdbTargetArg);
+        modified |= !mySettingsComponent.getSymbolFile().equals(settings.symbolFile);
 //        modified |= mySettingsComponent.getIdeaUserStatus() != settings.ideaStatus;
         return modified;
     }
@@ -45,7 +47,9 @@ public class ProjectSettingsConfigurable implements Configurable {
         settings.gdbExecutableName = mySettingsComponent.getGdbExecutableNameText();
         settings.gdbSysRoot = mySettingsComponent.getGdbSysRootText();
         settings.gdbArch = mySettingsComponent.getGdbArchText();
-        settings.gdbTarget = mySettingsComponent.getGdbTargetText();
+        settings.gdbTargetType = mySettingsComponent.getGdbTargetTypeText();
+        settings.gdbTargetArg = mySettingsComponent.getGdbTargetArgText();
+        settings.symbolFile = mySettingsComponent.getSymbolFileText();
     }
 
     @Override
@@ -54,7 +58,9 @@ public class ProjectSettingsConfigurable implements Configurable {
         mySettingsComponent.setGdbExecutableNameText(settings.gdbExecutableName);
         mySettingsComponent.setGdbSysRootText(settings.gdbSysRoot);
         mySettingsComponent.setGdbArchText(settings.gdbArch);
-        mySettingsComponent.setGdbTargetText(settings.gdbTarget);
+        mySettingsComponent.setGdbTargetTypeText(settings.gdbTargetType);
+        mySettingsComponent.setGdbTargetArgText(settings.gdbTargetArg);
+        mySettingsComponent.setSymbolFileText(settings.symbolFile);
     }
 
     @Override

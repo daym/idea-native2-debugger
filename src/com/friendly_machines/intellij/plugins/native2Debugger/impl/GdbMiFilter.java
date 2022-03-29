@@ -124,7 +124,7 @@ public class GdbMiFilter {
     public HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
         GdbMiStateResponse response = gdbSend(operation, options, parameters);
         assert response.getMode() == '^';
-        if (!"done".equals(response.getKlass())) {
+        if (!"done".equals(response.getKlass()) && !"connected".equals(response.getKlass()) && !"running".equals(response.getKlass())) { // "connected" is returned by -target-select only; "running" is by exec-run
             throw new GdbMiOperationException(response);
         }
         return response.getAttributes();

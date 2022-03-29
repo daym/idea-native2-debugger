@@ -13,6 +13,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.wm.StatusBar;
@@ -77,21 +78,27 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         char mode = response.getMode();
         String klass = response.getKlass();
         HashMap<String, Object> attributes = response.getAttributes();
-        if (mode == '=' && (klass.equals("breakpoint-modified") || klass.equals("breakpoint-created")) && attributes.containsKey("bkpt")) { // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
-            // TODO: thread-group-added (id), thread-group-removed (id), thread-group-started (id, pid), thread-group-exited (id, exit-code), thread-created (id, group-id), thread-exited (id, group-id), thread-selected (id, frame), "library-loaded"
+        if (mode == '=' && (klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
+            // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             try {
                 HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
-                Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(number);
-                if (breakpointo.isPresent()) {
-                    // TODO: check hit count
-                    Breakpoint breakpoint = breakpointo.get();
-                    breakpoint.setFromGdbBkpt(bkpt);
+                if (klass.equals("breakpoint-deleted")) {
+                    myBreakpointManager.deleteBreakpoint1(number);
+                } else {
+                    Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(number);
+                    if (breakpointo.isPresent()) {
+                        Breakpoint breakpoint = breakpointo.get();
+                        breakpoint.setFromGdbBkpt(bkpt);
+                    }
                 }
             } catch (ClassCastException e) {
                 getSession().reportError("handleGdbMiStateOutput failed with: " + attributes);
                 e.printStackTrace();
             }
+        } else if (mode == '=') {
+            // TODO: thread-group-added (id), thread-group-removed (id), thread-group-started (id, pid), thread-group-exited (id, exit-code), thread-created (id, group-id), thread-exited (id, group-id), thread-selected (id, frame), "library-loaded"
+            getSession().reportMessage(klass + " " + attributes.toString(), MessageType.INFO);
         } else if (mode == '*' && klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             //*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
@@ -139,7 +146,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                             getSession().reportError("Unknown GDB breakpoint was hit");
                         }
                     }
-
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
                 }
             } catch (ClassCastException e) {

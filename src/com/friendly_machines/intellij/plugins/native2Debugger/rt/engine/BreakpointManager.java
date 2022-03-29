@@ -134,5 +134,15 @@ public class BreakpointManager {
         } else
             return false;
     }
-}
 
+    public boolean deleteBreakpoint1(String number) {
+        Optional<Breakpoint> breakpointo = getBreakpointByGdbNumber(number);
+        if (breakpointo.isPresent()) {
+            Breakpoint breakpoint = breakpointo.get();
+            // not myDebugProcess.breakDelete(number);
+            myBreakpoints.remove(breakpoint);
+            return true;
+        } else
+            return false;
+    }
+}

@@ -1,16 +1,10 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.StatusBar;
-import com.pty4j.unix.PTYInputStream;
 import com.pty4j.unix.Pty;
 import jtermios.JTermios;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;

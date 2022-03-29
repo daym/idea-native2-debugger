@@ -1,12 +1,11 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.DebugProcess;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.RunProfile;
-import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -23,11 +22,11 @@ import com.intellij.execution.configurations.RunnerSettings;
 import java.io.IOException;
 import java.util.Objects;
 
-public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
+public class Runner implements ProgramRunner<RunnerSettings> {
     private static final String RUNNER_ID = "Native2DebuggerRunner";
     static final ThreadLocal<Boolean> ACTIVE = new ThreadLocal<>();
 
-    public Native2DebuggerRunner() {
+    public Runner() {
         super();
     }
 
@@ -44,11 +43,11 @@ public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof Native2DebuggerConfiguration);
+        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof DebuggerConfiguration);
     }
 
     @Nullable
-    protected RunContentDescriptor createContentDescriptor(RunProfileState runProfileState, ExecutionEnvironment environment)
+    protected RunContentDescriptor createContentDescriptor(com.intellij.execution.configurations.RunProfileState runProfileState, ExecutionEnvironment environment)
             throws ExecutionException {
         Executor executor = environment.getExecutor();
         // could check STATE's stuff (like getParameters() etc)
@@ -64,8 +63,8 @@ public class Native2DebuggerRunner implements ProgramRunner<RunnerSettings> {
                     XDebugProcess start(final @NotNull XDebugSession session) throws ExecutionException {
                         ACTIVE.set(Boolean.TRUE);
                         try {
-                            final Native2DebuggerRunProfileState c = (Native2DebuggerRunProfileState)runProfileState;
-                            return new Native2DebugProcess(c, environment, Native2DebuggerRunner.this, session);
+                            final RunProfileState c = (RunProfileState)runProfileState;
+                            return new DebugProcess(c, environment, Runner.this, session);
                         } catch (IOException e) {
                             e.printStackTrace();
                             throw new ExecutionException(e);

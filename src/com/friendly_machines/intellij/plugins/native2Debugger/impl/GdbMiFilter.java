@@ -1,9 +1,6 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.StatusBar;
-import com.pty4j.unix.PTYInputStream;
 import com.pty4j.unix.PTYOutputStream;
 import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
@@ -12,20 +9,20 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class Native2DebuggerGdbMiFilter {
-    private final Native2DebugProcess myProcess;
+public class GdbMiFilter {
+    private final DebugProcess myProcess;
     private final Project myProject;
     private final PTYOutputStream myChildIn;
     //private final InputStream myChildOut;
-    private final Native2DebuggerGdbMiProducer myReaderThread;
+    private final GdbMiProducer myReaderThread;
 
-    public Native2DebuggerGdbMiFilter(Native2DebugProcess process, @NotNull Project project, Pty childOut, PTYOutputStream childIn) {
+    public GdbMiFilter(DebugProcess process, @NotNull Project project, Pty childOut, PTYOutputStream childIn) {
         myProcess =  process;
         myProject = project;
         //myChildOut = childOut;
         // TODO: InputStreamReader ?
         //Native2DebugProcess process = Native2DebugProcess.getInstance(myOsProcessHandler);
-        myReaderThread = new Native2DebuggerGdbMiProducer(childOut, process);
+        myReaderThread = new GdbMiProducer(childOut, process);
         myChildIn = childIn;
 
         myReaderThread.start();
@@ -57,14 +54,14 @@ public class Native2DebuggerGdbMiFilter {
 //    }
 
     /// Read the sync response from gdb. If there are async responses, those are handled as a side-effect.
-    private Native2DebuggerGdbMiStateResponse readResponse() throws IOException {
-        Native2DebuggerGdbMiStateResponse response = myReaderThread.readResponse();
+    private GdbMiStateResponse readResponse() throws IOException {
+        GdbMiStateResponse response = myReaderThread.readResponse();
         return response;
     }
 
     private int counter = 0;
 
-    public Native2DebuggerGdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+    public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
         try {
             ++counter;
             myChildIn.write(Integer.toString(counter).getBytes(StandardCharsets.UTF_8));
@@ -82,7 +79,7 @@ public class Native2DebuggerGdbMiFilter {
             }
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
-            Native2DebuggerGdbMiStateResponse response = readResponse();
+            GdbMiStateResponse response = readResponse();
             return response;
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,11 +87,11 @@ public class Native2DebuggerGdbMiFilter {
         }
     }
 
-    public HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws Native2DebuggerGdbMiOperationException {
-        Native2DebuggerGdbMiStateResponse response = gdbSend(operation, options, parameters);
+    public HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+        GdbMiStateResponse response = gdbSend(operation, options, parameters);
         assert response.getMode() == '^';
         if (!"done".equals(response.getKlass())) {
-            throw new Native2DebuggerGdbMiOperationException();
+            throw new GdbMiOperationException();
         }
         return response.getAttributes();
     }

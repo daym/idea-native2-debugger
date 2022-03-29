@@ -15,11 +15,11 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import org.jetbrains.annotations.NotNull;
 
-public class Native2BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
-  private final Native2DebuggerEditorsProvider myMyEditorsProvider1 = new Native2DebuggerEditorsProvider();
+public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
+  private final EditorsProvider myMyEditorsProvider1 = new EditorsProvider();
 
-  public Native2BreakpointType() {
-    super("native2", Native2DebuggerBundle.message("title.native2.breakpoints"));
+  public BreakpointType() {
+    super("native2", DebuggerBundle.message("title.native2.breakpoints"));
   }
 
   @Override

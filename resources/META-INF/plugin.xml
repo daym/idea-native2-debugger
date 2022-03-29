@@ -18,12 +18,12 @@
   </change-notes>
 
   <extensions defaultExtensionNs="com.intellij">
-    <xdebugger.breakpointType implementation="com.friendly_machines.intellij.plugins.native2Debugger.Native2BreakpointType"/>
-    <xdebugger.attachDebuggerProvider implementation="com.friendly_machines.intellij.plugins.native2Debugger.Native2AttachDebuggerProvider"/>
+    <xdebugger.breakpointType implementation="com.friendly_machines.intellij.plugins.native2Debugger.BreakpointType"/>
+    <xdebugger.attachDebuggerProvider implementation="com.friendly_machines.intellij.plugins.native2Debugger.AttachDebuggerProvider"/>
 
     <!-- TODO xdebugger.localAttachDebuggerProvider implementation="" -->
-    <programRunner implementation="com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerRunner"/>
-    <configurationType implementation="com.friendly_machines.intellij.plugins.native2Debugger.Native2DebuggerConfigurationType"/>
+    <programRunner implementation="com.friendly_machines.intellij.plugins.native2Debugger.Runner"/>
+    <configurationType implementation="com.friendly_machines.intellij.plugins.native2Debugger.ConfigurationType"/>
   </extensions>
 
 <!--

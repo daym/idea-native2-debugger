@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 // FIXME:
 
-public class Native2DebuggerEditorsProvider extends XDebuggerEditorsProvider {
+public class EditorsProvider extends XDebuggerEditorsProvider {
 
-  public Native2DebuggerEditorsProvider() {
+  public EditorsProvider() {
   }
 
   @NotNull

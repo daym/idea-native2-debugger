@@ -12,7 +12,7 @@ import com.intellij.xdebugger.attach.LocalAttachHost;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Native2AttachDebuggerProvider implements XAttachDebuggerProvider {
+public class AttachDebuggerProvider implements XAttachDebuggerProvider {
     @Override
     public boolean isAttachHostApplicable(@NotNull XAttachHost xAttachHost) {
         return xAttachHost instanceof LocalAttachHost;
@@ -21,7 +21,7 @@ public class Native2AttachDebuggerProvider implements XAttachDebuggerProvider {
     @Override
     public @NotNull List<XAttachDebugger> getAvailableDebuggers(@NotNull Project project, @NotNull XAttachHost xAttachHost, @NotNull ProcessInfo processInfo, @NotNull UserDataHolder userDataHolder) {
         List<XAttachDebugger> result = new ArrayList<XAttachDebugger>();
-        result.add(new Native2AttachDebugger(project, xAttachHost, processInfo, userDataHolder));
+        result.add(new AttachDebugger(project, xAttachHost, processInfo, userDataHolder));
         return result;
     }
 }

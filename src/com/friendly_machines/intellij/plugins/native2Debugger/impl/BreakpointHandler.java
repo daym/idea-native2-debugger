@@ -9,19 +9,19 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
-import com.friendly_machines.intellij.plugins.native2Debugger.Native2BreakpointType;
+import com.friendly_machines.intellij.plugins.native2Debugger.BreakpointType;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> {
-  private final Native2DebugProcess myNative2DebugProcess;
+public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> {
+  private final DebugProcess myDebugProcess;
 
-  public Native2BreakpointHandler(Native2DebugProcess native2DebugProcess, final Class<? extends Native2BreakpointType> typeClass) {
+  public BreakpointHandler(DebugProcess debugProcess, final Class<? extends BreakpointType> typeClass) {
     super(typeClass);
-    myNative2DebugProcess = native2DebugProcess;
+    myDebugProcess = debugProcess;
   }
 
   @Override
@@ -33,11 +33,11 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     }
 
     final VirtualFile file = sourcePosition.getFile();
-    final Project project = myNative2DebugProcess.getSession().getProject();
+    final Project project = myDebugProcess.getSession().getProject();
     final String fileURL = getFileURL(file);
     final int lineNumber = getActualLineNumber(breakpoint, project);
     if (lineNumber == -1) {
-      myNative2DebugProcess.getSession().setBreakpointInvalid(breakpoint, "Unsupported breakpoint position");
+      myDebugProcess.getSession().setBreakpointInvalid(breakpoint, "Unsupported breakpoint position");
       return;
     }
 
@@ -55,14 +55,14 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     if (!breakpoint.isEnabled())
       options.add("-d");
     // TODO: breakpoint.isLogStack()
-    options.add(myNative2DebugProcess.fileLineReference(sourcePosition));
+    options.add(myDebugProcess.fileLineReference(sourcePosition));
     if (breakpoint.isLogMessage()) {
       options.add("Breakpointhit"); // TODO: what is the message?
-      myNative2DebugProcess.gdbSend("-dprintf-insert", options.toArray(new String[0]), new String[0]);
+      myDebugProcess.gdbSend("-dprintf-insert", options.toArray(new String[0]), new String[0]);
     } else {
-      myNative2DebugProcess.gdbSend("-break-insert", options.toArray(new String[0]), new String[0]);
+      myDebugProcess.gdbSend("-break-insert", options.toArray(new String[0]), new String[0]);
     }
-    final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
+    final BreakpointManager manager = myDebugProcess.getBreakpointManager();
     Breakpoint bp;
     if ((bp = manager.getBreakpoint(fileURL, lineNumber)) != null) {
       bp.setEnabled(true);
@@ -87,11 +87,11 @@ public class Native2BreakpointHandler extends XBreakpointHandler<XLineBreakpoint
     }
 
     final VirtualFile file = sourcePosition.getFile();
-    final Project project = myNative2DebugProcess.getSession().getProject();
+    final Project project = myDebugProcess.getSession().getProject();
     final String fileURL = getFileURL(file);
     final int lineNumber = getActualLineNumber(breakpoint, project);
 
-    final BreakpointManager manager = myNative2DebugProcess.getBreakpointManager();
+    final BreakpointManager manager = myDebugProcess.getBreakpointManager();
     if (temporary) {
       final Breakpoint bp = manager.getBreakpoint(fileURL, lineNumber);
       if (bp != null) {

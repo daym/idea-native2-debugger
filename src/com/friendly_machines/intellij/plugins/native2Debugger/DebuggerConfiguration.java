@@ -15,11 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 //import javax.swing.*;
 
-public class Native2DebuggerConfiguration extends LocatableConfigurationBase
+public class DebuggerConfiguration extends LocatableConfigurationBase
         implements RunConfigurationWithSuppressedDefaultRunAction, RemoteRunProfile {
 
 
-    protected Native2DebuggerConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory) {
+    protected DebuggerConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory) {
         super(project, factory);
     }
 
@@ -27,7 +27,7 @@ public class Native2DebuggerConfiguration extends LocatableConfigurationBase
     public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         /* FIXME: extends SettingsEditor<XsltRunConfiguration>
   implements CheckableRunConfigurationEditor<XsltRunConfiguration>  */
-        SettingsEditorGroup<Native2DebuggerConfiguration> group = new SettingsEditorGroup<>();
+        SettingsEditorGroup<DebuggerConfiguration> group = new SettingsEditorGroup<>();
         // or just: return new Native2DebuggerSettingsEditor(getProject());
         //group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new RemoteConfigurable(getProject())); FIXME
         //group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
@@ -35,7 +35,8 @@ public class Native2DebuggerConfiguration extends LocatableConfigurationBase
     }
 
     @Override
-    public @Nullable RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {
+    public @Nullable
+    com.intellij.execution.configurations.RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {
         /*final GenericDebuggerRunnerSettings debuggerSettings = (GenericDebuggerRunnerSettings)env.getRunnerSettings();
         if (debuggerSettings != null) {
             // sync self state with execution environment's state if available
@@ -44,6 +45,6 @@ public class Native2DebuggerConfiguration extends LocatableConfigurationBase
             debuggerSettings.setTransport(USE_SOCKET_TRANSPORT ? DebuggerSettings.SOCKET_TRANSPORT : DebuggerSettings.SHMEM_TRANSPORT);
         }*/
         final TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(getProject());
-        return new Native2DebuggerRunProfileState(this, env, builder);
+        return new RunProfileState(this, env, builder);
     }
 }

@@ -1,15 +1,15 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.DebugProcess;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
 
 public class Native2DebuggerSuspendContext extends XSuspendContext {
-    private final Native2DebugProcess myDebuggerSession;
+    private final DebugProcess myDebuggerSession;
     private final Native2ExecutionStack[] myExecutionStacks;
     private final int myActiveStackId;
 
-    public Native2DebuggerSuspendContext(Native2DebugProcess debuggerSession, Native2ExecutionStack[] executionStacks, int activeStackId) {
+    public Native2DebuggerSuspendContext(DebugProcess debuggerSession, Native2ExecutionStack[] executionStacks, int activeStackId) {
         myDebuggerSession = debuggerSession;
         myExecutionStacks = executionStacks;
         myActiveStackId = activeStackId;

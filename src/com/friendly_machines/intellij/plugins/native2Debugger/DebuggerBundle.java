@@ -13,11 +13,11 @@ import java.util.function.Supplier;
  * (c) 2020 Silent Forest AB
  * created: 06 August 2020
  */
-public class Native2DebuggerBundle extends DynamicBundle {
+public class DebuggerBundle extends DynamicBundle {
   @NonNls private static final String BUNDLE = "messages.Native2DebuggerBundle";
-  private static final Native2DebuggerBundle INSTANCE = new Native2DebuggerBundle();
+  private static final DebuggerBundle INSTANCE = new DebuggerBundle();
 
-  private Native2DebuggerBundle() {
+  private DebuggerBundle() {
     super(BUNDLE);
   }
 

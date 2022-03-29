@@ -48,11 +48,11 @@ import java.util.*;
 // ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
-public class Native2DebugProcess extends XDebugProcess implements Disposable {
-    private static final Key<Native2DebugProcess> KEY = Key.create("PROCESS");
-    public static final Key<Native2DebuggerGdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
+public class DebugProcess extends XDebugProcess implements Disposable {
+    private static final Key<DebugProcess> KEY = Key.create("PROCESS");
+    public static final Key<GdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
 
-    private final Native2DebuggerEditorsProvider myEditorsProvider;
+    private final EditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
     //private final OutputStream myChildIn;
@@ -60,20 +60,20 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     private BreakpointManager myBreakpointManager = new BreakpointManagerImpl();
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
-            new Native2BreakpointHandler(this, Native2BreakpointType.class),
+            new BreakpointHandler(this, BreakpointType.class),
     };
 
-    public Native2DebuggerGdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
-        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
+    public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbSend(operation, options, parameters);
     }
 
-    private HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws Native2DebuggerGdbMiOperationException {
-        Native2DebuggerGdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
+    private HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbCall(operation, options, parameters);
     }
 
-    public void handleGdbMiStateOutput(Native2DebuggerGdbMiStateResponse response) {
+    public void handleGdbMiStateOutput(GdbMiStateResponse response) {
         // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
         char mode = response.getMode();
         String klass = response.getKlass();
@@ -142,7 +142,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             } catch (ClassCastException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);
                 e.printStackTrace();
-            } catch (Native2DebuggerGdbMiOperationException e) {
+            } catch (GdbMiOperationException e) {
                 System.err.println("handleGdbMiStateOutput failed... " + attributes);
                 e.printStackTrace();
             }
@@ -176,7 +176,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         return context;
     }
 
-    public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws Native2DebuggerGdbMiOperationException {
+    public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException {
         ArrayList<HashMap<String, Object>> result = new ArrayList<>();
         // TODO: --simple-values and find stuff yourself.
         HashMap<String, Object> q = gdbCall("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
@@ -195,7 +195,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         return result;
     }
 
-    public List<HashMap<String, Object>> getFrames(String threadId) throws Native2DebuggerGdbMiOperationException {
+    public List<HashMap<String, Object>> getFrames(String threadId) throws GdbMiOperationException {
         List<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
         HashMap<String, Object> q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
         if (q.containsKey("stack")) {
@@ -217,7 +217,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         return result;
     }
 
-    private HashMap<String, Object> getThreadInfo() throws Native2DebuggerGdbMiOperationException {
+    private HashMap<String, Object> getThreadInfo() throws GdbMiOperationException {
         return gdbCall("-thread-info", new String[] {}, new String[0]);
     }
 
@@ -225,17 +225,17 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public Native2DebugProcess(Native2DebuggerRunProfileState runProfileState, ExecutionEnvironment environment, Native2DebuggerRunner runner, XDebugSession session) throws IOException, ExecutionException {
+    public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);
         //session.setCurrentStackFrame();
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(KEY, this);
-        Pty myPty = myProcessHandler.getUserData(Native2DebuggerRunProfileState.PTY);
+        Pty myPty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
-        myEditorsProvider = new Native2DebuggerEditorsProvider();
-        Native2DebuggerGdbMiFilter filter = new Native2DebuggerGdbMiFilter(this, environment.getProject(), myPty, myPty.getOutputStream());
+        myEditorsProvider = new EditorsProvider();
+        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), myPty, myPty.getOutputStream());
         myProcessHandler.putUserData(MI_FILTER, filter);
         myProcessHandler.addProcessListener(new ProcessListener() {
             @Override
@@ -248,7 +248,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
                     // TODO: Read everything from myPtr (for MacOS)
                     myPty.close();
                     myProcessHandler.putUserData(MI_FILTER, null);
-                    myProcessHandler.putUserData(Native2DebuggerRunProfileState.PTY, null);
+                    myProcessHandler.putUserData(RunProfileState.PTY, null);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -265,7 +265,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         //myChildIn = childIn;
         try {
             gdbSet("mi-async", "on");
-        } catch (Native2DebuggerGdbMiOperationException e) {
+        } catch (GdbMiOperationException e) {
             e.printStackTrace();
             //throw new RuntimeException(e);
         }
@@ -283,7 +283,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
         // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
     }
 
-    private void gdbSet(String key, String value) throws Native2DebuggerGdbMiOperationException {
+    private void gdbSet(String key, String value) throws GdbMiOperationException {
         gdbCall("-gdb-set", new String[] { key, value }, new String[0]);
     }
 
@@ -310,7 +310,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
     }
 
     @Nullable
-    public static Native2DebugProcess getInstance(ProcessHandler handler) {
+    public static DebugProcess getInstance(ProcessHandler handler) {
         return handler.getUserData(KEY);
     }
 
@@ -384,7 +384,7 @@ public class Native2DebugProcess extends XDebugProcess implements Disposable {
             e.printStackTrace();
             final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());
             assert psiFile != null;
-            StatusBar.Info.set(Native2DebuggerBundle.message("status.bar.text.not.valid.position.in.file", psiFile.getName()), psiFile.getProject());
+            StatusBar.Info.set(DebuggerBundle.message("status.bar.text.not.valid.position.in.file", psiFile.getName()), psiFile.getProject());
             //final Debugger c = myDebuggerSession.getClient();
             // TODO: Context: Stack Frames, Variable Table, Evaluated Expressions
             // FIXME getSession().positionReached(new MySuspendContext(myDebuggerSession, c.getCurrentFrame(), c.getSourceFrame()));

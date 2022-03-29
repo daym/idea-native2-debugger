@@ -10,15 +10,15 @@ import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.openapi.util.NotNullLazyValue;
 import com.intellij.icons.AllIcons;
 
-public class Native2DebuggerConfigurationType extends SimpleConfigurationType implements DumbAware {
-    public Native2DebuggerConfigurationType() {
+public class ConfigurationType extends SimpleConfigurationType implements DumbAware {
+    public ConfigurationType() {
         super("Native2Debugger", "Native2Debugger", "Get a native executable to a debugger", // TODO: i18n
                 NotNullLazyValue.createValue(() -> AllIcons.RunConfigurations.RemoteDebug)); // TODO: nicer icon
     }
 
     @Override
     public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new Native2DebuggerConfiguration(project, this);
+        return new DebuggerConfiguration(project, this);
     }
 
     @NotNull
@@ -39,8 +39,8 @@ public class Native2DebuggerConfigurationType extends SimpleConfigurationType im
     }
 
     @NotNull
-    public static Native2DebuggerConfigurationType getInstance() {
-        return ConfigurationTypeUtil.findConfigurationType(Native2DebuggerConfigurationType.class);
+    public static ConfigurationType getInstance() {
+        return ConfigurationTypeUtil.findConfigurationType(ConfigurationType.class);
     }
 
     @Override

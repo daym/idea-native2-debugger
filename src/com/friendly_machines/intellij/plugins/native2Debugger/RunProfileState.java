@@ -1,13 +1,10 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiFilter;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -24,17 +21,16 @@ import com.pty4j.unix.Pty;
 import com.intellij.util.ArrayUtil;
 import com.intellij.openapi.actionSystem.ToggleAction;
 
-import javax.swing.*;
 import java.io.IOException;
 
-public class Native2DebuggerRunProfileState extends CommandLineState {
-    public static final Key<Native2DebuggerRunProfileState> STATE = Key.create("STATE");
+public class RunProfileState extends CommandLineState {
+    public static final Key<RunProfileState> STATE = Key.create("STATE");
     public static final Key<Pty> PTY = Key.create("PTY");
-    private final Native2DebuggerConfiguration myConfiguration;
+    private final DebuggerConfiguration myConfiguration;
     private final TextConsoleBuilder myBuilder;
     private Pty myPty;
 
-    public Native2DebuggerRunProfileState(Native2DebuggerConfiguration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
+    public RunProfileState(DebuggerConfiguration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
         myConfiguration = configuration;
         myBuilder = builder;

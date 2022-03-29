@@ -1,15 +1,10 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
-import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebugProcess;
-import com.friendly_machines.intellij.plugins.native2Debugger.impl.Native2DebuggerGdbMiOperationException;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.project.Project;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.DebugProcess;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.GdbMiOperationException;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
@@ -22,11 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Native2StackFrame extends XStackFrame {
   private final HashMap<String, Object> myFrame;
-  private final Native2DebugProcess myDebuggerSession;
+  private final DebugProcess myDebuggerSession;
   private final XSourcePosition myPosition;
   private final String myThreadId;
 
@@ -55,7 +49,7 @@ public class Native2StackFrame extends XStackFrame {
     return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
   }
 
-  public Native2StackFrame(String threadId, HashMap<String, Object> gdbFrame, Native2DebugProcess debuggerSession) {
+  public Native2StackFrame(String threadId, HashMap<String, Object> gdbFrame, DebugProcess debuggerSession) {
     myThreadId = threadId;
     myFrame = gdbFrame;
     myDebuggerSession = debuggerSession;
@@ -113,7 +107,7 @@ public class Native2StackFrame extends XStackFrame {
         list.add(name, new Native2Value(name, value, variable.containsKey("arg")));
       }
       node.addChildren(list, true);
-    } catch (ClassCastException | Native2DebuggerGdbMiOperationException e) {
+    } catch (ClassCastException | GdbMiOperationException e) {
       e.printStackTrace();
     }
   }

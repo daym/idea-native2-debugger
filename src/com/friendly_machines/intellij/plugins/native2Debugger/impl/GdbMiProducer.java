@@ -14,10 +14,10 @@ import java.util.concurrent.LinkedBlockingDeque;
  * It sends each async responses to the application main thread via invokeLater.
  * It fills the sync response into a blocking queue.
  */
-public class Native2DebuggerGdbMiProducer extends Thread {
+public class GdbMiProducer extends Thread {
     private final Pty myChildOut;
-    private final Native2DebugProcess myProcess;
-    private final BlockingQueue<Native2DebuggerGdbMiStateResponse> myQueue = new LinkedBlockingDeque<Native2DebuggerGdbMiStateResponse>(1);
+    private final DebugProcess myProcess;
+    private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
 
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to async-find the corresponding items. Maybe use those. (but async outputs, so those starting with one of "*+=", will not have them.
     protected static Optional<String> parseToken(Scanner scanner) {
@@ -220,7 +220,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         // "^": sync command result
         if (scanner.hasNext("[*+=^]")) {
             // FIXME StatusBar.Info.set(line, myProject, "Debugger");
-            Native2DebuggerGdbMiStateResponse response = Native2DebuggerGdbMiStateResponse.decode(token, scanner);
+            GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
 
             // "*stopped"
             // "=breakpoint-modified"
@@ -269,7 +269,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         return buffer.toString();
     }
 
-    public Native2DebuggerGdbMiProducer(Pty childOut, Native2DebugProcess process) {
+    public GdbMiProducer(Pty childOut, DebugProcess process) {
         myProcess = process;
         myChildOut = childOut;
     }
@@ -293,7 +293,7 @@ public class Native2DebuggerGdbMiProducer extends Thread {
         }
     }
 
-    public Native2DebuggerGdbMiStateResponse readResponse() {
+    public GdbMiStateResponse readResponse() {
         try {
             return myQueue.take();
         } catch (InterruptedException e) {

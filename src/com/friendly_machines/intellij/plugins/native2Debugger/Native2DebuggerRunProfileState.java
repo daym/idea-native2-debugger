@@ -10,6 +10,8 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.util.Key;
@@ -19,7 +21,10 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.DefaultExecutionResult;
 import com.pty4j.unix.Pty;
+import com.intellij.util.ArrayUtil;
+import com.intellij.openapi.actionSystem.ToggleAction;
 
+import javax.swing.*;
 import java.io.IOException;
 
 public class Native2DebuggerRunProfileState extends CommandLineState {
@@ -43,7 +48,8 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         if (console != null) {
             console.attachToProcess(processHandler);
         }
-        return new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
+        DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
+        return q;
     }
 
     @NotNull
@@ -86,4 +92,23 @@ public class Native2DebuggerRunProfileState extends CommandLineState {
         return osProcessHandler;
     }
 
+    @Override
+    protected AnAction /*@NotNull*/ [] createActions(ConsoleView console, ProcessHandler processHandler, Executor executor) {
+        return ArrayUtil.append(super.createActions(console, processHandler, executor), new ToggleAction("frobnicate") {
+            @Override
+            public boolean isDumbAware() {
+                return true;
+            }
+
+            @Override
+            public boolean isSelected(@NotNull AnActionEvent anActionEvent) {
+                return false;
+            }
+
+            @Override
+            public void setSelected(@NotNull AnActionEvent anActionEvent, boolean b) {
+
+            }
+        });
+    }
 }

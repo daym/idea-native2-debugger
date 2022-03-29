@@ -1,25 +1,25 @@
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
-import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.annotations.NotNull;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.openapi.util.Key;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.DefaultExecutionResult;
-import com.pty4j.unix.Pty;
-import com.intellij.util.ArrayUtil;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.util.Key;
+import com.intellij.util.ArrayUtil;
+import com.pty4j.unix.Pty;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -59,7 +59,12 @@ public class RunProfileState extends CommandLineState {
         }
         String slaveName = myPty.getSlaveName();
         // myPty.getMasterFD()
-        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("gdb"));
+        String gdbExecutableName = ProjectSettingsState.getInstance().gdbExecutableName;
+        if (gdbExecutableName == null || gdbExecutableName.equals("")) {
+            gdbExecutableName = "gdb";
+        }
+
+        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
         commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
         commandLine.addParameter("-return-child-result");

@@ -2,6 +2,7 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.friendly_machines.intellij.plugins.native2Debugger.*;
+import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManagerImpl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -24,7 +25,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.friendly_machines.intellij.plugins.native2Debugger.rt.engine.BreakpointManager;
 import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

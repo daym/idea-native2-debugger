@@ -24,6 +24,16 @@
     <!-- TODO xdebugger.localAttachDebuggerProvider implementation="" -->
     <programRunner implementation="com.friendly_machines.intellij.plugins.native2Debugger.Runner"/>
     <configurationType implementation="com.friendly_machines.intellij.plugins.native2Debugger.ConfigurationType"/>
+    <!--
+ -->
+    <projectConfigurable
+            groupId="build"
+            id="build.native2Debugger"
+            groupWeight="119"
+            instance="com.friendly_machines.intellij.plugins.native2Debugger.ProjectSettingsConfigurable"
+            displayName="Native2 Debugger"
+    />
+    <applicationService serviceImplementation="com.friendly_machines.intellij.plugins.native2Debugger.ProjectSettingsState"/>
   </extensions>
 
 <!--

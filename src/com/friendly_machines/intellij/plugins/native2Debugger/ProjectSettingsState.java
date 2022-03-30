@@ -16,7 +16,7 @@ public class ProjectSettingsState implements PersistentStateComponent<ProjectSet
     public String gdbExecutableName = "gdb";
     public String gdbSysRoot = "target:";
     public String gdbArch = "auto";
-    public String gdbTargetType = "native";
+    public String gdbTargetType = "exec";
     public String gdbTargetArg = null;
     public String symbolFile = null;
 

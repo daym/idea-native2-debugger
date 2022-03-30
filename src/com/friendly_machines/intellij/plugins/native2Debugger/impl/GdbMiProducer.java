@@ -213,7 +213,6 @@ public class GdbMiProducer extends Thread {
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
-                System.err.println("LINE OF SYNC RESPONSE: " + line);
                 if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
                 } else {
                     myQueue.put(response); // note: Can block

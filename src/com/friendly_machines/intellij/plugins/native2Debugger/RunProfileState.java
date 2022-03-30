@@ -28,11 +28,11 @@ import java.io.IOException;
 public class RunProfileState extends CommandLineState {
     public static final Key<RunProfileState> STATE = Key.create("STATE");
     public static final Key<Pty> PTY = Key.create("PTY");
-    private final DebuggerConfiguration myConfiguration;
+    private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
     private Pty myPty;
 
-    public RunProfileState(DebuggerConfiguration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
+    public RunProfileState(Configuration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
         myConfiguration = configuration;
         myBuilder = builder;

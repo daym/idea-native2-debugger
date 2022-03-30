@@ -20,7 +20,7 @@ public class ConfigurationType extends SimpleConfigurationType implements DumbAw
 
     @Override
     public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new DebuggerConfiguration(project, this);
+        return new Configuration(project, this);
     }
 
     @NotNull

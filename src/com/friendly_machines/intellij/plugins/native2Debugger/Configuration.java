@@ -20,11 +20,11 @@ import org.jetbrains.annotations.Nullable;
 
 //import javax.swing.*;
 
-public class DebuggerConfiguration extends LocatableConfigurationBase
+public class Configuration extends LocatableConfigurationBase
         implements RunConfigurationWithSuppressedDefaultRunAction, RemoteRunProfile /* TODO: Maybe remove RemoteRunProfile */ {
 
 
-    protected DebuggerConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory) {
+    protected Configuration(@NotNull Project project, @NotNull ConfigurationFactory factory) {
         super(project, factory);
     }
 
@@ -32,7 +32,7 @@ public class DebuggerConfiguration extends LocatableConfigurationBase
     public @NotNull SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         /* FIXME: extends SettingsEditor<XsltRunConfiguration>
   implements CheckableRunConfigurationEditor<XsltRunConfiguration>  */
-        SettingsEditorGroup<DebuggerConfiguration> group = new SettingsEditorGroup<>();
+        SettingsEditorGroup<Configuration> group = new SettingsEditorGroup<>();
         // or just: return new Native2DebuggerSettingsEditor(getProject());
         //group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new RemoteConfigurable(getProject())); FIXME
         //group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());

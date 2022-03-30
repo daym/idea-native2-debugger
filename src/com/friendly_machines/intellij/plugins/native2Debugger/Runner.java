@@ -43,7 +43,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof DebuggerConfiguration);
+        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof Configuration);
     }
 
     @Nullable

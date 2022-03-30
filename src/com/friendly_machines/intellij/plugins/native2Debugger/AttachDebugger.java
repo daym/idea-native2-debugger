@@ -18,7 +18,7 @@ public class AttachDebugger implements XAttachDebugger {
     @Override
     public @NotNull
     @Nls String getDebuggerDisplayName() {
-        return "NATIVE2 debugger";
+        return "Native2 debugger";
     }
 
     @Override

@@ -67,6 +67,7 @@ public class RunProfileState extends CommandLineState {
         GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
         commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
+        //commandLine.addParameter("-batch");
         //commandLine.addParameter("-return-child-result");
         // -d <sourcedir>
         // -s <symbols>

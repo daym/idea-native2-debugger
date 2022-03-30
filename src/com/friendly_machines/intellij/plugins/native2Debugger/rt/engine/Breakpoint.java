@@ -44,7 +44,7 @@ public class Breakpoint {
         evaluated-by
         thread
         task
-        cond
+!        cond
         ignore
         enable
         traceframe-usage

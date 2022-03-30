@@ -2,7 +2,10 @@ package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.*;
+import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.LocatableConfigurationBase;
+import com.intellij.execution.configurations.RemoteRunProfile;
+import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
@@ -16,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 //import javax.swing.*;
 
 public class DebuggerConfiguration extends LocatableConfigurationBase
-        implements RunConfigurationWithSuppressedDefaultRunAction, RemoteRunProfile {
+        implements RunConfigurationWithSuppressedDefaultRunAction, RemoteRunProfile /* TODO: Maybe remove RemoteRunProfile */ {
 
 
     protected DebuggerConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory) {

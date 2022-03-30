@@ -43,8 +43,8 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-
     public boolean addBreakpoint(XLineBreakpoint<XBreakpointProperties> key) {
+        // TODO: Just store our Breakpoint in the user data of KEY and then you don't need myBreakpoints in the first place.
         final XSourcePosition sourcePosition = key.getSourcePosition();
         if (sourcePosition == null || !sourcePosition.getFile().exists() || !sourcePosition.getFile().isValid()) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported file for breakpoint");

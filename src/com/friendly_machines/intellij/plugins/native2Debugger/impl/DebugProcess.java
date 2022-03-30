@@ -13,9 +13,16 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDialog;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -29,8 +36,11 @@ import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.*;
 
 // TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
@@ -235,6 +245,92 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-file-symbol-file", new String[] { filename }, new String[0]);
     }
 
+    private static boolean isFileExecutable(VirtualFile file) {
+        @Nullable String extension = file.getExtension();
+        if (file.isDirectory()) {
+            return "app".equals(extension); // MacOS X
+        }
+        if ("exe".equals(extension)) { // Windows
+            return true;
+        }
+//        if (extension == null) { // UNIX
+//            // ./platform/lang-impl/src/com/intellij/openapi/fileTypes/impl/associate/OSAssociateFileTypesUtil.java
+//            return true;
+//        }
+        if (file.isInLocalFileSystem()) {
+            File f = new File(file.getPath());
+            if (f.canExecute()) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
+        if (configuredExecutableName == null || configuredExecutableName.isEmpty()) {
+            @Nullable VirtualFile preselectedExecutable = null;
+            // guessProjectDir is not perfect. A project has modules. Modules have content roots. Content roots can be anywhere. The module configuration file (iml) can be anywhere.
+            @Nullable String path = environment.getModulePath(); // often null
+            @Nullable VirtualFile base = path != null ? LocalFileSystem.getInstance().findFileByPath(path) : null;
+            if (base == null) {
+                base = ProjectUtil.guessProjectDir(environment.getProject());
+                path = base.getPath();
+            }
+            if (base != null) {
+                if (base.findFileByRelativePath("target") != null) { // Rust
+                    base = base.findFileByRelativePath("target");
+                    path = base.getPath();
+                }
+                // see ./platform/lang-impl/src/com/intellij/find/impl/
+                List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
+                int count = 0;
+                for (VirtualFile virtualFile : result) {
+                    if (isFileExecutable(virtualFile)) {
+                        preselectedExecutable = virtualFile;
+                        //System.err.println("EXEC " + virtualFile.getPath());
+                        ++count;
+                    }
+                }
+//                        if (count > 1) {
+//                            preselectedExecutable = null;
+//                        }
+            }
+
+            // FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor();
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false) {
+                @Override
+                public boolean isFileSelectable(@Nullable VirtualFile file) {
+                    return isFileExecutable(file);
+                }
+            };
+            Component parentComponent =  null; // TODO
+            FileChooserDialog chooser = FileChooserFactory.getInstance().createFileChooser(descriptor, environment.getProject(), parentComponent);
+            // TODO: Make it open a useful directory (for example PATH)
+            VirtualFile[] selectedExecutables = chooser.choose(environment.getProject(), new VirtualFile[]{preselectedExecutable});
+            //FileChooser.chooseFile(, environment.getProject(), preselectedExecutable);
+
+            VirtualFile selectedExecutable = selectedExecutables.length > 0 ? selectedExecutables[0] : null;
+            if (selectedExecutable != null) {
+                configuredExecutableName = selectedExecutable.getPath();
+            }
+        }
+        try {
+            if (configuredExecutableName != null && !configuredExecutableName.isEmpty()) {
+                gdbTarget("exec", configuredExecutableName);
+
+                try {
+                    loadSymbols(configuredExecutableName);
+                } catch (GdbMiOperationException e) {
+                    reportError("Loading symbols failed", e);
+                }
+            } else {
+                gdbTarget("exec"); // not that useful, but ehh.
+            }
+        } catch (GdbMiOperationException e) {
+            reportError("Could not load executable", e);
+        }
+    }
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);
@@ -293,18 +389,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             // TODO: Maybe show dialog box
             StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
         }
-        try {
-            if (projectSettings.gdbTargetArg != null && !projectSettings.gdbTargetArg.isEmpty()) {
-                gdbTarget(projectSettings.gdbTargetType, projectSettings.gdbTargetArg);
-            } else {
-                gdbTarget("target", projectSettings.gdbTargetType);
-            }
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set target to " + projectSettings.gdbTargetType + " " + projectSettings.gdbTargetArg, environment.getProject());
-        }
-
-        try {
+        if ("exec".equals(projectSettings.gdbTargetType)) {
+            loadExecutable(environment, projectSettings.gdbTargetArg);
+        } else try {
             if (projectSettings.symbolFile != null && !projectSettings.symbolFile.isEmpty()) {
                 loadSymbols(projectSettings.symbolFile);
             } else {
@@ -329,6 +416,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException {
         gdbCall("-target-select", new String[] { gdbTargetType, gdbTargetArg }, new String[] {});
+    }
+
+    private void gdbTarget(String gdbTargetType) throws GdbMiOperationException {
+        gdbCall("-target-select", new String[] { gdbTargetType }, new String[] {});
     }
 
     private void gdbSet(String key, String value) throws GdbMiOperationException {

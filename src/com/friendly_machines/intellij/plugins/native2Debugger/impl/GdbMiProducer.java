@@ -49,56 +49,60 @@ public class GdbMiProducer extends Thread {
         }
         return Character.toString(result);
     }
+    // Modifies RESULT.
+    @NotNull
+    private static void interpretEscapeSequenceBody(Scanner scanner, String result) {
+        if (scanner.hasNext("[0-7]")) {
+            result += parseDigitsIntoCode(scanner, 8, 3);
+        } else {
+            char c = scanner.next().charAt(0);
+            switch (c) {
+                case 'a':
+                    result += (char) 0x7;
+                    break;
+                case 'b':
+                    result += (char) 0x8;
+                    break;
+                case 'f':
+                    result += (char) 0xc;
+                    break;
+                case 'n':
+                    result += (char) 0xa;
+                    break;
+                case 'r':
+                    result += (char) 0xd;
+                    break;
+                case 't':
+                    result += (char) 0x9;
+                    break;
+                case 'v':
+                    result += (char) 0xb;
+                    break;
+                case 'x':
+                    result += parseDigitsIntoCode(scanner, 16, 2);
+                    break;
+                case 'u':
+                    result += parseDigitsIntoCode(scanner, 16, 4);
+                    break;
+                case 'U':
+                    result += parseDigitsIntoCode(scanner, 16, 8);
+                    break;
+                default:
+                    result += c;
+                    break;
+            }
+        }
+    }
+
     private static String parseCString(Scanner scanner) {
         String result = "";
         scanner.next("\"");
         boolean escape = false;
         while (scanner.hasNext()) {
             if (escape) {
-                if (scanner.hasNext("[0-7]")) {
-                    result += parseDigitsIntoCode(scanner, 8, 3);
-                } else {
-                    char c = scanner.next().charAt(0);
-                    switch (c) {
-                        case 'a':
-                            result += (char) 0x7;
-                            break;
-                        case 'b':
-                            result += (char) 0x8;
-                            break;
-                        case 'f':
-                            result += (char) 0xc;
-                            break;
-                        case 'n':
-                            result += (char) 0xa;
-                            break;
-                        case 'r':
-                            result += (char) 0xd;
-                            break;
-                        case 't':
-                            result += (char) 0x9;
-                            break;
-                        case 'v':
-                            result += (char) 0xb;
-                            break;
-                        case 'x':
-                            result += parseDigitsIntoCode(scanner, 16, 2);
-                            break;
-                        case 'u':
-                            result += parseDigitsIntoCode(scanner, 16, 4);
-                            break;
-                        case 'U':
-                            result += parseDigitsIntoCode(scanner, 16, 8);
-                            break;
-                        default:
-                            result += c;
-                            break;
-                    }
-                }
+                interpretEscapeSequenceBody(scanner, result);
                 escape = false;
-                continue;
-            }
-            if (scanner.hasNext("[\\x5C]")) {
+            } else if (scanner.hasNext("[\\x5C]")) { // backslash
                 scanner.next();
                 escape = true;
             } else if (scanner.hasNext("\"")) {
@@ -114,6 +118,7 @@ public class GdbMiProducer extends Thread {
         scanner.next("\"");
         return result;
     }
+
 
     // Not specified in GDB manual
     public static String parseString(Scanner scanner) {

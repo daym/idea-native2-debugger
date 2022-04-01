@@ -122,7 +122,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //        String core = (String) attributes.get("core");
 
                 HashMap<String, Object> tresponse = getThreadInfo();
-                if (tresponse.containsKey("threads")) { // response from -thread-info; FIXME: make that better.
+                if (tresponse.containsKey("threads")) {
                     List<Object> threads = (List<Object>) tresponse.get("threads");
                     String currentThreadId = (String) tresponse.get("current-thread-id");
 

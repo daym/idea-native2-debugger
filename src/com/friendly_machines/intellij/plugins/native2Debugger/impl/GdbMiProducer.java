@@ -35,12 +35,16 @@ public class GdbMiProducer extends Thread {
             return Optional.empty();
     }
 
-    static String digits = "01234567";
+    // Consume one character and give that one back
+    private static char consume(Scanner scanner) {
+        return scanner.next().charAt(0);
+    }
+    private static String digits = "01234567";
     @NotNull
     private static String parseDigitsIntoCode(Scanner scanner, int radix, int maxLength) {
         int result = 0;
         for (; maxLength > 0; --maxLength) {
-            char c = scanner.next().charAt(0);
+            char c = consume(scanner);
             int digit = digits.indexOf(c);
             if (digit == -1 || digit >= radix) { // error
                 break;
@@ -56,7 +60,7 @@ public class GdbMiProducer extends Thread {
         if (scanner.hasNext("[0-7]")) {
             result += parseDigitsIntoCode(scanner, 8, 3);
         } else {
-            char c = scanner.next().charAt(0);
+            char c = consume(scanner);
             switch (c) {
                 case 'a':
                     result += (char) 0x7;
@@ -105,7 +109,7 @@ public class GdbMiProducer extends Thread {
             } else if (scanner.hasNext("\"")) {
                 break;
             } else {
-                char c = scanner.next().charAt(0);
+                char c = consume(scanner);
                 result += c;
             }
         }
@@ -122,7 +126,7 @@ public class GdbMiProducer extends Thread {
         String result = scanner.next("[a-zA-Z-]");
 
         while (scanner.hasNext("[a-zA-Z0-9-]")) {
-            char c = scanner.next().charAt(0);
+            char c = consume(scanner);
             result += c;
         }
         return result;
@@ -249,7 +253,7 @@ public class GdbMiProducer extends Thread {
                 });
             }
         } else if (scanner.hasNext("[~@&]")) { // streams
-            char mode = scanner.next().charAt(0);
+            char mode = consume(scanner);
             String text = parseCString(scanner);
             ApplicationManager.getApplication().invokeLater(() -> {
                 myProcess.handleGdbTextOutput(mode, text);

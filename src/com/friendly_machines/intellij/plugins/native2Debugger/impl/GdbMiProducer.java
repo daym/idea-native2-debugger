@@ -3,8 +3,6 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.pty4j.unix.Pty;
-import jtermios.JTermios;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -18,7 +16,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * It fills the sync response into a blocking queue.
  */
 public class GdbMiProducer extends Thread {
-    private final Pty myChildOut;
+    private final PtyOnly myChildOut;
     private final DebugProcess myProcess;
     private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
 
@@ -266,26 +264,10 @@ public class GdbMiProducer extends Thread {
 
     @NotNull
     private String readLine() throws IOException, InterruptedException {
-        // TODO: InputStreamReader in order to decode from UTF-8 ?
-        StringBuilder buffer = new StringBuilder();
-        int fd = myChildOut.getMasterFD();
-        byte[] buf = new byte[1]; // TODO: Buffer more
-        int count;
-        // TODO: timeout
-        while ((count = JTermios.read(fd, buf, buf.length)) > 0) {
-            int c = buf[0];
-            buffer.append(Character.toString(c));
-            if (c == 10) {
-                break;
-            }
-        }
-        if (count == -1) {
-            throw new InterruptedException();
-        }
-        return buffer.toString();
+        return myChildOut.readLine();
     }
 
-    public GdbMiProducer(Pty childOut, DebugProcess process) {
+    public GdbMiProducer(PtyOnly childOut, DebugProcess process) {
         myProcess = process;
         myChildOut = childOut;
     }

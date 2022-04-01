@@ -3,23 +3,22 @@
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
 import com.intellij.openapi.project.Project;
-import com.pty4j.unix.PTYOutputStream;
-import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class GdbMiFilter {
     private final DebugProcess myProcess;
     private final Project myProject;
-    private final PTYOutputStream myChildIn;
+    private final OutputStream myChildIn;
     //private final InputStream myChildOut;
     private final GdbMiProducer myReaderThread;
 
-    public GdbMiFilter(DebugProcess process, @NotNull Project project, Pty childOut, PTYOutputStream childIn) {
+    public GdbMiFilter(DebugProcess process, @NotNull Project project, PtyOnly childOut, OutputStream childIn) {
         myProcess =  process;
         myProject = project;
         //myChildOut = childOut;

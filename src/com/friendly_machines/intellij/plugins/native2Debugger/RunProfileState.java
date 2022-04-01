@@ -2,6 +2,8 @@
 
 package com.friendly_machines.intellij.plugins.native2Debugger;
 
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.PtyOnly;
+import com.friendly_machines.intellij.plugins.native2Debugger.impl.PtyOnlyUnix;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -19,18 +21,18 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.util.ArrayUtil;
-import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
 public class RunProfileState extends CommandLineState {
     public static final Key<RunProfileState> STATE = Key.create("STATE");
-    public static final Key<Pty> PTY = Key.create("PTY");
+    public static final Key<PtyOnly> PTY = Key.create("PTY");
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
-    private Pty myPty;
+    private PtyOnly myPty;
 
     public RunProfileState(Configuration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
@@ -54,7 +56,7 @@ public class RunProfileState extends CommandLineState {
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
         try {
-            myPty = new Pty(true, true);
+            myPty = new PtyOnlyUnix();
         } catch (IOException e) {
             e.printStackTrace();
             throw new ExecutionException(e);
@@ -66,7 +68,14 @@ public class RunProfileState extends CommandLineState {
             gdbExecutableName = "gdb";
         }
 
-        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
+//        if (SystemInfo.isWindows) {
+//            GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("wsl.exe"));
+//              commandLine.addParameter("gdbExecutableName"); // no window
+//        } else
+        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(SystemInfo.isWindows ? "wsl.exe" : gdbExecutableName));
+        if (SystemInfo.isWindows) {
+            commandLine.addParameter(gdbExecutableName);
+        }
         commandLine.addParameter("-nw"); // no window
         commandLine.addParameter("-q");
         //commandLine.addParameter("-batch");

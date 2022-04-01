@@ -30,7 +30,6 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.pty4j.unix.Pty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -465,10 +464,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(KEY, this);
-        Pty myPty = myProcessHandler.getUserData(RunProfileState.PTY);
+        PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();
-        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), myPty, myPty.getOutputStream());
+        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), pty, pty.getOutputStream());
         myProcessHandler.putUserData(MI_FILTER, filter);
         myProcessHandler.addProcessListener(new ProcessListener() {
             @Override
@@ -479,7 +478,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             public void processTerminated(@NotNull ProcessEvent processEvent) {
                 try {
                     // TODO: Read everything from myPtr (for MacOS)
-                    myPty.close();
+                    pty.close();
                     myProcessHandler.putUserData(MI_FILTER, null);
                     myProcessHandler.putUserData(RunProfileState.PTY, null);
                 } catch (IOException e) {

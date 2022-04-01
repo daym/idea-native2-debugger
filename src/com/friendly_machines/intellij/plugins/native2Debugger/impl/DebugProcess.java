@@ -396,14 +396,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         try {
             gdbSet("sysroot", projectSettings.gdbSysRoot);
         } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
+            reportError("Could not set sysroot to " + projectSettings.gdbSysRoot, e);
         }
         try {
             gdbSet("arch", projectSettings.gdbArch);
         } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
+            reportError("Could not set arch to " + projectSettings.gdbArch, e);
         }
         if ("exec".equals(projectSettings.gdbTargetType)) {
             loadExecutable(environment, projectSettings.gdbTargetArg);

@@ -46,6 +46,7 @@ public class GdbMiFilter {
     private static byte digit(byte value) {
         return (byte) (48 + value);
     }
+    // Given TEXT, escapes it (if necessary) into a C string so you can use it as an GDB parameter in an input stream
     private static byte[] escape(byte[] text) {
         boolean escaping_needed = false;
         for (byte b: text) {

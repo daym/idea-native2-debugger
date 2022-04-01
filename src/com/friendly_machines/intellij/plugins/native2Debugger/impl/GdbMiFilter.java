@@ -35,27 +35,6 @@ public class GdbMiFilter {
         // new FileReader(FileDescriptor)
     }
 
-    //    // Called for each LINE.
-//    @Override
-//    public @Nullable Result applyFilter(@NotNull String line, int entireLength) {
-//        if (line.endsWith("\n"))
-//            line = line.substring(0, line.length() - 1);
-//        if (line.endsWith("\r"))
-//            line = line.substring(0, line.length() - 1);
-//        if (line.strip() == "(gdb)") {
-//            // Ignore
-//        } else if (line.length() > 0) {
-//            try {
-//                Native2DebugProcess process = myProcess
-//                parseLine(line, process);
-//            } catch (NoSuchElementException e) {
-//                e.printStackTrace();
-//                // ignore error
-//            }
-//        }
-//        return null;
-//    }
-
     /// Read the sync response from gdb. If there are async responses, those are handled as a side-effect.
     private GdbMiStateResponse readResponse() throws IOException {
         GdbMiStateResponse response = myReaderThread.readResponse();

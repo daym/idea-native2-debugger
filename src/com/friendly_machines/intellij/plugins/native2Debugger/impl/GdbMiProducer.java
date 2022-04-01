@@ -22,7 +22,8 @@ public class GdbMiProducer extends Thread {
     private final DebugProcess myProcess;
     private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
 
-    // Both requests and responses have an optional "id" token in front (a numeral) which can be used to async-find the corresponding items. Maybe use those. (but async outputs, so those starting with one of "*+=", will not have them.
+    // Both requests and responses have an optional "id" token in front (a numeral) which can be used to find the corresponding request to a response. Maybe use those.
+    // But async outputs, so those starting with one of "*+=", will not have them.
     protected static Optional<String> parseToken(@NotNull Scanner scanner) {
         String result = "";
         while (scanner.hasNext("[0-9]")) {

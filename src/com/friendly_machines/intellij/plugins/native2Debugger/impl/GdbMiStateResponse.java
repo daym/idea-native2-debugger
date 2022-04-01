@@ -2,6 +2,8 @@
 
 package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Scanner;
@@ -18,7 +20,7 @@ public class GdbMiStateResponse {
         myKlass = klass;
         myAttributes = attributes;
     }
-    public static GdbMiStateResponse decode(Optional<String> token, Scanner scanner) {
+    public static GdbMiStateResponse decode(Optional<String> token, @NotNull Scanner scanner) {
         // "+": contains on-going status information about the progress of a slow operation.
         // "*": contains asynchronous state change on the target (stopped, started, disappeared)
         // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)

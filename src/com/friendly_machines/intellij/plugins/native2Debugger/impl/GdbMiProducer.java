@@ -23,7 +23,7 @@ public class GdbMiProducer extends Thread {
     private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
 
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to async-find the corresponding items. Maybe use those. (but async outputs, so those starting with one of "*+=", will not have them.
-    protected static Optional<String> parseToken(Scanner scanner) {
+    protected static Optional<String> parseToken(@NotNull Scanner scanner) {
         String result = "";
         while (scanner.hasNext("[0-9]")) {
             String part = scanner.next("[0-9]");
@@ -35,7 +35,8 @@ public class GdbMiProducer extends Thread {
             return Optional.empty();
     }
 
-    static String digits = "0123456789abcdef";
+    static String digits = "01234567";
+    @NotNull
     private static String parseDigitsIntoCode(Scanner scanner, int radix, int maxLength) {
         int result = 0;
         for (; maxLength > 0; --maxLength) {
@@ -51,7 +52,7 @@ public class GdbMiProducer extends Thread {
     }
     // Modifies RESULT.
     @NotNull
-    private static void interpretEscapeSequenceBody(Scanner scanner, String result) {
+    private static void interpretEscapeSequenceBody(@NotNull Scanner scanner, @NotNull String result) {
         if (scanner.hasNext("[0-7]")) {
             result += parseDigitsIntoCode(scanner, 8, 3);
         } else {
@@ -94,7 +95,7 @@ public class GdbMiProducer extends Thread {
         }
     }
 
-    private static String parseCString(Scanner scanner) {
+    private static String parseCString(@NotNull Scanner scanner) {
         String result = "";
         scanner.next("\"");
         boolean escape = false;
@@ -121,7 +122,7 @@ public class GdbMiProducer extends Thread {
 
 
     // Not specified in GDB manual
-    public static String parseString(Scanner scanner) {
+    public static String parseString(@NotNull Scanner scanner) {
         String result = scanner.next("[a-zA-Z-]");
 
         while (scanner.hasNext("[a-zA-Z0-9-]")) {
@@ -136,7 +137,7 @@ public class GdbMiProducer extends Thread {
     }
 
     @NotNull
-    private static HashMap<String, Object> parseTuple(Scanner scanner) {
+    private static HashMap<String, Object> parseTuple(@NotNull Scanner scanner) {
         scanner.next("\\{");
         HashMap<String, Object> result = new HashMap<String, Object>();
         while (scanner.hasNext()) {
@@ -158,7 +159,7 @@ public class GdbMiProducer extends Thread {
     }
 
     @NotNull
-    private static List<Map.Entry<String, Object>> parseKeyValueList(Scanner scanner) {
+    private static List<Map.Entry<String, Object>> parseKeyValueList(@NotNull Scanner scanner) {
         List<Map.Entry<String, Object>> result = new ArrayList<>();
         while (scanner.hasNext() && !scanner.hasNext("\\]")) {
             String name = parseString(scanner);
@@ -176,7 +177,7 @@ public class GdbMiProducer extends Thread {
     }
 
     @NotNull
-    private static ArrayList<Object> parsePrimitiveList(Scanner scanner) {
+    private static ArrayList<Object> parsePrimitiveList(@NotNull Scanner scanner) {
         ArrayList<Object> result = new ArrayList<Object>();
         while (scanner.hasNext() && !scanner.hasNext("\\]")) {
             Object value = parseValue(scanner);
@@ -192,7 +193,7 @@ public class GdbMiProducer extends Thread {
     }
 
     @NotNull
-    private static List<?> parseList(Scanner scanner) {
+    private static List<?> parseList(@NotNull Scanner scanner) {
         scanner.next("\\[");
         if (scanner.hasNext("\\]")) {
             scanner.next("\\]");
@@ -206,7 +207,7 @@ public class GdbMiProducer extends Thread {
         }
     }
 
-    public static Object parseValue(Scanner scanner) {
+    public static Object parseValue(@NotNull Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"
         list ==> "[]"
@@ -224,7 +225,7 @@ public class GdbMiProducer extends Thread {
         }
     }
 
-    private void processLine(String line) throws InterruptedException {
+    private void processLine(@NotNull String line) throws InterruptedException {
         if ("(gdb)".equals(line.strip())) {
             return;
         }
@@ -262,6 +263,7 @@ public class GdbMiProducer extends Thread {
         }
     }
 
+    @NotNull
     private String readLine() throws IOException, InterruptedException {
         StringBuilder buffer = new StringBuilder();
         int fd = myChildOut.getMasterFD();

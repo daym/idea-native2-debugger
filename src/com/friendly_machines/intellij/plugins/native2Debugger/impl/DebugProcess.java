@@ -112,7 +112,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         if (klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             //*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
-            // FIXME: The point here is to change the IDEA debugger state to paused or something
+            // Note: The point here is to change the IDEA debugger state to paused
             try {
                 String reason = (String) attributes.get("reason");
 //        String disp = (String) attributes.get("disp");

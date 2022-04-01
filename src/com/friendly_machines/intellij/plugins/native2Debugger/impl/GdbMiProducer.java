@@ -5,6 +5,7 @@ package com.friendly_machines.intellij.plugins.native2Debugger.impl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.pty4j.unix.Pty;
 import jtermios.JTermios;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -129,6 +130,77 @@ public class GdbMiProducer extends Thread {
         return parseString(scanner);
     }
 
+    @NotNull
+    private static HashMap<String, Object> parseTuple(Scanner scanner) {
+        scanner.next("\\{");
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        while (scanner.hasNext()) {
+            if (scanner.hasNext("\\}")) {
+                break;
+            }
+            String name = parseString(scanner);
+            scanner.next("=");
+            Object value = parseValue(scanner);
+            result.put(name, value);
+            if (scanner.hasNext(",")) {
+                scanner.next();
+            } else {
+                break;
+            }
+        }
+        scanner.next("\\}");
+        return result;
+    }
+
+    @NotNull
+    private static List<Map.Entry<String, Object>> parseKeyValueList(Scanner scanner) {
+        List<Map.Entry<String, Object>> result = new ArrayList<>();
+        while (scanner.hasNext() && !scanner.hasNext("\\]")) {
+            String name = parseString(scanner);
+            scanner.next("=");
+            Object value = parseValue(scanner);
+            result.add(new AbstractMap.SimpleEntry<>(name, value));
+            if (scanner.hasNext(",")) {
+                scanner.next();
+            } else {
+                break;
+            }
+        }
+        scanner.next("\\]");
+        return result;
+    }
+
+    @NotNull
+    private static ArrayList<Object> parsePrimitiveList(Scanner scanner) {
+        ArrayList<Object> result = new ArrayList<Object>();
+        while (scanner.hasNext() && !scanner.hasNext("\\]")) {
+            Object value = parseValue(scanner);
+            result.add(value);
+            if (scanner.hasNext(",")) {
+                scanner.next();
+            } else {
+                break;
+            }
+        }
+        scanner.next("\\]");
+        return result;
+    }
+
+    @NotNull
+    private static List<?> parseList(Scanner scanner) {
+        scanner.next("\\[");
+        if (scanner.hasNext("\\]")) {
+            scanner.next("\\]");
+            return new ArrayList<Object>();
+        } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
+            List<Map.Entry<String, Object>> result = parseKeyValueList(scanner);
+            return result;
+        } else { // list of "value"s, not of "name=value"s
+            ArrayList<Object> result = parsePrimitiveList(scanner);
+            return result;
+        }
+    }
+
     public static Object parseValue(Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"
@@ -139,58 +211,9 @@ public class GdbMiProducer extends Thread {
         value ==> const | tuple | list
         */
         if (scanner.hasNext("\\{")) {
-            scanner.next("\\{");
-            HashMap<String, Object> result = new HashMap<String, Object>();
-            while (scanner.hasNext()) {
-                if (scanner.hasNext("\\}")) {
-                    break;
-                }
-                String name = parseString(scanner);
-                scanner.next("=");
-                Object value = parseValue(scanner);
-                result.put(name, value);
-                if (scanner.hasNext(",")) {
-                    scanner.next();
-                } else {
-                    break;
-                }
-            }
-            scanner.next("\\}");
-            return result;
+            return parseTuple(scanner);
         } else if (scanner.hasNext("\\[")) {
-            scanner.next("\\[");
-            if (scanner.hasNext("\\]")) {
-                scanner.next("\\]");
-                return new ArrayList<Object>();
-            } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
-                List<Map.Entry<String, Object>> result = new ArrayList<>();
-                while (scanner.hasNext() && !scanner.hasNext("\\]")) {
-                    String name = parseString(scanner);
-                    scanner.next("=");
-                    Object value = parseValue(scanner);
-                    result.add(new java.util.AbstractMap.SimpleEntry<>(name, value));
-                    if (scanner.hasNext(",")) {
-                        scanner.next();
-                    } else {
-                        break;
-                    }
-                }
-                scanner.next("\\]");
-                return result;
-            } else { // list of "value"s, not of "name=value"s
-                ArrayList<Object> result = new ArrayList<Object>();
-                while (scanner.hasNext() && !scanner.hasNext("\\]")) {
-                    Object value = parseValue(scanner);
-                    result.add(value);
-                    if (scanner.hasNext(",")) {
-                        scanner.next();
-                    } else {
-                        break;
-                    }
-                }
-                scanner.next("\\]");
-                return result;
-            }
+            return parseList(scanner);
         } else {
             return parseCString(scanner);
         }
@@ -215,9 +238,9 @@ public class GdbMiProducer extends Thread {
             // "*stopped"
             // "=breakpoint-modified"
             if (response.getMode() == '^') {
-                if (!response.getToken().isPresent()) { // that's a sync response for something we didn't ask
-                } else {
+                if (response.getToken().isPresent()) {
                     myQueue.put(response); // note: Can block
+                } else { // that's a sync response for something we didn't ask
                 }
             } else { // async
                 ApplicationManager.getApplication().invokeLater(() -> {
@@ -227,12 +250,9 @@ public class GdbMiProducer extends Thread {
         } else if (scanner.hasNext("[~@&]")) { // streams
             char mode = scanner.next().charAt(0);
             String text = parseCString(scanner);
-            if (mode == '&') {
-                // FIXME StatusBar.Info.set(text, myProject, "Debugger");
-            } else {
-                // TODO: Find a better place for these
-                // FIXME StatusBar.Info.set(text, myProject, "Stream");
-            }
+            ApplicationManager.getApplication().invokeLater(() -> {
+                myProcess.handleGdbTextOutput(mode, text);
+            });
         } else if (scanner.hasNext("-")) { // our echo
         } else {
         }

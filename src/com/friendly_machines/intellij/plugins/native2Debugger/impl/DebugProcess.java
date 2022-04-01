@@ -20,6 +20,7 @@ import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -164,8 +165,28 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
+    public void handleGdbTextOutput(char mode, String text) {
+        switch (mode) {
+            case '&': // log
+                reportMessage(text, MessageType.INFO);
+                break;
+            case '@': // target
+                reportMessage(text, MessageType.INFO); // not really; that output was produced by the target program.
+                break;
+            case ' ': // console
+                reportMessage(text, MessageType.INFO);
+                break;
+            default:
+                break;
+        }
+    }
+
+
     public void reportError(String s) {
         getSession().reportError(s);
+    }
+    public void reportMessage(@NotNull @NlsContexts.NotificationContent String text, @NotNull MessageType typ) {
+        getSession().reportMessage(text, typ);
     }
 
     public void reportError(String s, GdbMiOperationException e) {

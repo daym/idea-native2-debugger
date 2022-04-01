@@ -24,9 +24,6 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XSourcePosition;
@@ -575,15 +572,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
         try {
-            gdbSend("-exec-until", new String[]{BreakpointManager.fileLineReference(position)}, new String[0]);
+            gdbCall("-exec-until", new String[]{BreakpointManager.fileLineReference(position)}, new String[0]);
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());
-            assert psiFile != null;
-            StatusBar.Info.set(DebuggerBundle.message("status.bar.text.not.valid.position.in.file", psiFile.getName()), psiFile.getProject());
+//            e.printStackTrace();
+//            final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());
+//            assert psiFile != null;
+//            StatusBar.Info.set(DebuggerBundle.message("status.bar.text.not.valid.position.in.file", psiFile.getName()), psiFile.getProject());
             //final Debugger c = myDebuggerSession.getClient();
-            // TODO: Context: Stack Frames, Variable Table, Evaluated Expressions
-            // FIXME getSession().positionReached(new MySuspendContext(myDebuggerSession, c.getCurrentFrame(), c.getSourceFrame()));
+            reportError("Cannot run to that position");
+        } catch (GdbMiOperationException e) {
+            reportError("Cannot run to that position", e);
         }
     }
 

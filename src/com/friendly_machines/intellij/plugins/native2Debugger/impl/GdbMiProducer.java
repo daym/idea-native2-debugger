@@ -266,9 +266,10 @@ public class GdbMiProducer extends Thread {
 
     @NotNull
     private String readLine() throws IOException, InterruptedException {
+        // TODO: InputStreamReader in order to decode from UTF-8 ?
         StringBuilder buffer = new StringBuilder();
         int fd = myChildOut.getMasterFD();
-        byte[] buf = new byte[1];
+        byte[] buf = new byte[1]; // TODO: Buffer more
         int count;
         // TODO: timeout
         while ((count = JTermios.read(fd, buf, buf.length)) > 0) {

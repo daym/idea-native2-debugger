@@ -23,7 +23,6 @@ public class GdbMiFilter {
         myProcess =  process;
         myProject = project;
         //myChildOut = childOut;
-        // TODO: InputStreamReader ?
         //Native2DebugProcess process = Native2DebugProcess.getInstance(myOsProcessHandler);
         myReaderThread = new GdbMiProducer(childOut, process);
         myChildIn = childIn;

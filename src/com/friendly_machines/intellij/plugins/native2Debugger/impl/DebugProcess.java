@@ -363,6 +363,42 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
+    private void setUpGdb(ExecutionEnvironment environment) {
+        ProjectSettingsState projectSettings = ProjectSettingsState.getInstance();
+        try {
+            gdbSet("mi-async", "on");
+        } catch (GdbMiOperationException e) {
+            reportError("mi-async on failed", e);
+        }
+        //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
+        gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
+        try {
+            gdbSet("sysroot", projectSettings.gdbSysRoot);
+        } catch (GdbMiOperationException e) {
+            // TODO: Maybe show dialog box
+            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
+        }
+        try {
+            gdbSet("arch", projectSettings.gdbArch);
+        } catch (GdbMiOperationException e) {
+            // TODO: Maybe show dialog box
+            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
+        }
+        if ("exec".equals(projectSettings.gdbTargetType)) {
+            loadExecutable(environment, projectSettings.gdbTargetArg);
+        } else try {
+            if (projectSettings.symbolFile != null && !projectSettings.symbolFile.isEmpty()) {
+                loadSymbols(projectSettings.symbolFile);
+            } else {
+                if ("exec".equals(projectSettings.gdbTargetType)) {
+                    loadSymbols(projectSettings.gdbTargetArg);
+                }
+            }
+        } catch (GdbMiOperationException e) {
+            reportError("Loading symbols failed", e);
+        }
+    }
+
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);
@@ -401,39 +437,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         Disposer.register(myExecutionConsole, this);
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         //myChildIn = childIn;
-        try {
-            gdbSet("mi-async", "on");
-        } catch (GdbMiOperationException e) {
-            reportError("mi-async on failed", e);
-        }
-        //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
-        gdbSend("-enable-frame-filters", new String[] {}, new String[0]);
-        ProjectSettingsState projectSettings = ProjectSettingsState.getInstance();
-        try {
-            gdbSet("sysroot", projectSettings.gdbSysRoot);
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set sysroot to " + projectSettings.gdbSysRoot, environment.getProject());
-        }
-        try {
-            gdbSet("arch", projectSettings.gdbArch);
-        } catch (GdbMiOperationException e) {
-            // TODO: Maybe show dialog box
-            StatusBar.Info.set("Could not set arch to " + projectSettings.gdbArch, environment.getProject());
-        }
-        if ("exec".equals(projectSettings.gdbTargetType)) {
-            loadExecutable(environment, projectSettings.gdbTargetArg);
-        } else try {
-            if (projectSettings.symbolFile != null && !projectSettings.symbolFile.isEmpty()) {
-                loadSymbols(projectSettings.symbolFile);
-            } else {
-                if ("exec".equals(projectSettings.gdbTargetType)) {
-                    loadSymbols(projectSettings.gdbTargetArg);
-                }
-            }
-        } catch (GdbMiOperationException e) {
-            reportError("Loading symbols failed", e);
-        }
+        setUpGdb(environment);
 
 //        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args

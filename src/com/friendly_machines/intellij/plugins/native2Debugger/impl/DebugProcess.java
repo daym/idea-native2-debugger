@@ -83,12 +83,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return filter.gdbCall(operation, options, parameters);
     }
 
-    public void handleGdbMiStateOutput(GdbMiStateResponse response) {
-        // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
-        char mode = response.getMode();
-        String klass = response.getKlass();
-        HashMap<String, Object> attributes = response.getAttributes();
-        if (mode == '=' && (klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
+    private void handleGdbMiNotifyAsyncOutput(String klass, HashMap<String, Object> attributes) {
+        if ((klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
             // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             try {
                 HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
@@ -103,13 +99,17 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                     }
                 }
             } catch (ClassCastException e) {
-                reportError("handleGdbMiStateOutput failed with: " + response);
+                reportError("handleGdbMiNotifyAsyncOutput failed with: " + attributes);
                 e.printStackTrace();
             }
-        } else if (mode == '=') {
+        } else {
             // TODO: thread-group-added (id), thread-group-removed (id), thread-group-started (id, pid), thread-group-exited (id, exit-code), thread-created (id, group-id), thread-exited (id, group-id), thread-selected (id, frame), "library-loaded"
             getSession().reportMessage(klass + " " + attributes.toString(), MessageType.INFO);
-        } else if (mode == '*' && klass.equals("stopped")) {
+        }
+    }
+
+    private void handleGdbMiExecAsyncOutput(String klass, HashMap<String, Object> attributes) {
+        if (klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             //*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
             // FIXME: The point here is to change the IDEA debugger state to paused or something
@@ -143,10 +143,22 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();
-                reportError("handleGdbMiStateOutput failed with: " + attributes);
+                reportError("handleGdbMiExecAsyncOutput failed with: " + attributes);
             } catch (GdbMiOperationException e) {
-                reportError("handleGdbMiStateOutput failed", e);
+                reportError("handleGdbMiExecAsyncOutput failed", e);
             }
+        }
+    }
+
+    public void handleGdbMiStateOutput(GdbMiStateResponse response) {
+        // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
+        char mode = response.getMode();
+        String klass = response.getKlass();
+        HashMap<String, Object> attributes = response.getAttributes();
+        if (mode == '=') {
+            handleGdbMiNotifyAsyncOutput(klass, attributes);
+        } else if (mode == '*') {
+            handleGdbMiExecAsyncOutput(klass, attributes);
         }
     }
 

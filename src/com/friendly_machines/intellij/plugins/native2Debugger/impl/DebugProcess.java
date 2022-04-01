@@ -282,6 +282,46 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-file-symbol-file", new String[] { filename }, new String[0]);
     }
 
+    private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException {
+        gdbCall("-target-select", new String[] { gdbTargetType, gdbTargetArg }, new String[] {});
+    }
+
+    private void gdbTarget(String gdbTargetType) throws GdbMiOperationException {
+        gdbCall("-target-select", new String[] { gdbTargetType }, new String[] {});
+    }
+
+    private void gdbSet(String key, String value) throws GdbMiOperationException {
+        gdbCall("-gdb-set", new String[] { key, value }, new String[] {});
+    }
+
+    public HashMap<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+        return gdbCall("-dprintf-insert", options, parameters);
+    }
+
+    public HashMap<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+        return gdbCall("-break-insert", options, parameters);
+    }
+
+    public void breakDelete(String number) throws GdbMiOperationException {
+        gdbCall("-break-delete", new String[] { number }, new String[] { });
+    }
+
+    public void breakEnable(String number) throws GdbMiOperationException {
+        gdbCall("-break-enable", new String[] { number }, new String[] {  });
+    }
+    public void breakDisable(String number) throws GdbMiOperationException {
+        gdbCall("-break-disable", new String[] { number }, new String[] { });
+    }
+
+    public HashMap<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
+        return gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
+    }
+
+    private void execRun() throws GdbMiOperationException {
+        System.err.println("EXEC RUN");
+        gdbCall("-exec-run", new String[0], new String[0]);
+    }
+
     private static boolean isFileExecutable(VirtualFile file) {
         @Nullable String extension = file.getExtension();
         if (file.isDirectory()) {
@@ -304,6 +344,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
         return false;
     }
+
     @Nullable
     private VirtualFile getPreselectedExecutable(ExecutionEnvironment environment, @Nullable String path) {
         @Nullable VirtualFile preselectedExecutable = null;
@@ -460,23 +501,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
     }
 
-    private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException {
-        gdbCall("-target-select", new String[] { gdbTargetType, gdbTargetArg }, new String[] {});
-    }
-
-    private void gdbTarget(String gdbTargetType) throws GdbMiOperationException {
-        gdbCall("-target-select", new String[] { gdbTargetType }, new String[] {});
-    }
-
-    private void gdbSet(String key, String value) throws GdbMiOperationException {
-        gdbCall("-gdb-set", new String[] { key, value }, new String[] {});
-    }
-
-    private void execRun() throws GdbMiOperationException {
-        System.err.println("EXEC RUN");
-        gdbCall("-exec-run", new String[0], new String[0]);
-    }
-
     // We'll call initBreakpoints() at the right time on our own.
     @Override
     public boolean checkCanInitBreakpoints() {
@@ -583,28 +607,5 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         } catch (GdbMiOperationException e) {
             reportError("Cannot run to that position", e);
         }
-    }
-
-    public HashMap<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
-        return gdbCall("-dprintf-insert", options, parameters);
-    }
-
-    public HashMap<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
-        return gdbCall("-break-insert", options, parameters);
-    }
-
-    public void breakDelete(String number) throws GdbMiOperationException {
-        gdbCall("-break-delete", new String[] { number }, new String[] { });
-    }
-
-    public void breakEnable(String number) throws GdbMiOperationException {
-        gdbCall("-break-enable", new String[] { number }, new String[] {  });
-    }
-    public void breakDisable(String number) throws GdbMiOperationException {
-        gdbCall("-break-disable", new String[] { number }, new String[] { });
-    }
-
-    public HashMap<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
-        return gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
     }
 }

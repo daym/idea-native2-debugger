@@ -140,6 +140,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                         }
                     }
                     getSession().positionReached(context); // TODO: Only for "Run to Cursor" ?
+                } else {
+                    reportError("handleGdbMiExecAsyncOutput failed with: no threads response in " + attributes);
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();

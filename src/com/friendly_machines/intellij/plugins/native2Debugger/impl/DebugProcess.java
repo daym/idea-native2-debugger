@@ -183,6 +183,18 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         reportError(s + ":" + e.toString());
     }
 
+    private static String getThreadName(HashMap<String, Object> thread, String id) {
+        String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
+        String state = thread.containsKey("state") ? (String) thread.get("state") : "";
+        if (state.length() > 0) {
+            name = name + ": " + state;
+        }
+        if (thread.containsKey("details")) {
+            name = name + "; " + (String) thread.get("details");
+        }
+        return name;
+    }
+
     private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
         ArrayList<ExecutionStack> stacks = new ArrayList<>();
         int activeStackId = -1;
@@ -190,14 +202,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         for (Object thread1: threads) {
             HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
             String id = (String) thread.get("id");
-            String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
-            String state = thread.containsKey("state") ? (String) thread.get("state") : "";
-            if (state.length() > 0) {
-                name = name + ": " + state;
-            }
-            if (thread.containsKey("details")) {
-                name = name + "; " + (String) thread.get("details");
-            }
+            String name = getThreadName(thread, id);
             Optional<HashMap<String, Object>> topFrame = thread.containsKey("frame") ? Optional.of((HashMap<String, Object>) thread.get("frame")) : Optional.empty();
             //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
             ExecutionStack stack = new ExecutionStack(name, id, topFrame, this); // one per thread

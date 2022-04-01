@@ -170,7 +170,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             case '@': // target
                 reportMessage(text, MessageType.INFO); // not really; that output was produced by the target program.
                 break;
-            case ' ': // console
+            case '~': // console
                 reportMessage(text, MessageType.INFO);
                 break;
             default:

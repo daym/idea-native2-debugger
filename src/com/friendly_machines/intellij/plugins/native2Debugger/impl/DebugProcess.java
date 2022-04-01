@@ -397,6 +397,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         } catch (GdbMiOperationException e) {
             reportError("Loading symbols failed", e);
         }
+        // gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
+        // TODO: -exec-arguments args
     }
 
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
@@ -438,14 +440,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         //myChildIn = childIn;
         setUpGdb(environment);
-
-//        gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
-        // TODO: -exec-arguments args
-        //myDebuggerSession = new Native2DebuggerSession(this);
-
-        // too early. session.initBreakpoints();
-        // after initBreakpoints; send("-exec-run");
-//      final List<Breakpoint> breakpoints = myBreakpointManager.getBreakpoints();
 
         // TODO: -file-list-exec-source-files, -file-list-shared-libraries, -file-list-symbol-files,
     }

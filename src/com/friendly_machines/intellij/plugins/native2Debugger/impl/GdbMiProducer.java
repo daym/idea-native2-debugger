@@ -237,7 +237,6 @@ public class GdbMiProducer extends Thread {
         // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
         // "^": sync command result
         if (scanner.hasNext("[*+=^]")) {
-            // FIXME StatusBar.Info.set(line, myProject, "Debugger");
             GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
 
             // "*stopped"
@@ -295,7 +294,7 @@ public class GdbMiProducer extends Thread {
                 processLine(line);
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException(e); // FIXME?
+                throw new RuntimeException(e);
             } catch (InterruptedException e) {
                 break;
             }

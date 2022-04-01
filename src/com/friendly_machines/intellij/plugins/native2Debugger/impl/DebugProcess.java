@@ -316,7 +316,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return preselectedExecutable;
     }
 
-    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
+    @Nullable
+    private String completeConfiguredExecutableName(ExecutionEnvironment environment, String configuredExecutableName) {
         if (configuredExecutableName == null || configuredExecutableName.isEmpty()) {
             // guessProjectDir is not perfect. A project has modules. Modules have content roots. Content roots can be anywhere. The module configuration file (iml) can be anywhere.
             @Nullable String path = environment.getModulePath(); // often null
@@ -340,6 +341,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 configuredExecutableName = selectedExecutable.getPath();
             }
         }
+        return configuredExecutableName;
+    }
+
+    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
+        configuredExecutableName = completeConfiguredExecutableName(environment, configuredExecutableName);
         try {
             if (configuredExecutableName != null && !configuredExecutableName.isEmpty()) {
                 gdbTarget("exec", configuredExecutableName);

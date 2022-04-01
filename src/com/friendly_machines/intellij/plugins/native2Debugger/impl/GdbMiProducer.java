@@ -98,14 +98,10 @@ public class GdbMiProducer extends Thread {
     private static String parseCString(@NotNull Scanner scanner) {
         String result = "";
         scanner.next("\"");
-        boolean escape = false;
         while (scanner.hasNext()) {
-            if (escape) {
-                interpretEscapeSequenceBody(scanner, result);
-                escape = false;
-            } else if (scanner.hasNext("[\\x5C]")) { // backslash
+            if (scanner.hasNext("[\\x5C]")) { // backslash
                 scanner.next();
-                escape = true;
+                interpretEscapeSequenceBody(scanner, result);
             } else if (scanner.hasNext("\"")) {
                 break;
             } else {

@@ -286,35 +286,41 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
         return false;
     }
-    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
-        if (configuredExecutableName == null || configuredExecutableName.isEmpty()) {
-            @Nullable VirtualFile preselectedExecutable = null;
-            // guessProjectDir is not perfect. A project has modules. Modules have content roots. Content roots can be anywhere. The module configuration file (iml) can be anywhere.
-            @Nullable String path = environment.getModulePath(); // often null
-            @Nullable VirtualFile base = path != null ? LocalFileSystem.getInstance().findFileByPath(path) : null;
-            if (base == null) {
-                base = ProjectUtil.guessProjectDir(environment.getProject());
+    @Nullable
+    private VirtualFile getPreselectedExecutable(ExecutionEnvironment environment, @Nullable String path) {
+        @Nullable VirtualFile preselectedExecutable = null;
+        @Nullable VirtualFile base = path != null ? LocalFileSystem.getInstance().findFileByPath(path) : null;
+        if (base == null) {
+            base = ProjectUtil.guessProjectDir(environment.getProject());
+            path = base.getPath();
+        }
+        if (base != null) {
+            if (base.findFileByRelativePath("target") != null) { // Rust
+                base = base.findFileByRelativePath("target");
                 path = base.getPath();
             }
-            if (base != null) {
-                if (base.findFileByRelativePath("target") != null) { // Rust
-                    base = base.findFileByRelativePath("target");
-                    path = base.getPath();
+            // see ./platform/lang-impl/src/com/intellij/find/impl/
+            List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
+            int count = 0;
+            for (VirtualFile virtualFile : result) {
+                if (isFileExecutable(virtualFile)) {
+                    preselectedExecutable = virtualFile;
+                    //System.err.println("EXEC " + virtualFile.getPath());
+                    ++count;
                 }
-                // see ./platform/lang-impl/src/com/intellij/find/impl/
-                List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
-                int count = 0;
-                for (VirtualFile virtualFile : result) {
-                    if (isFileExecutable(virtualFile)) {
-                        preselectedExecutable = virtualFile;
-                        //System.err.println("EXEC " + virtualFile.getPath());
-                        ++count;
-                    }
-                }
+            }
 //                        if (count > 1) {
 //                            preselectedExecutable = null;
 //                        }
-            }
+        }
+        return preselectedExecutable;
+    }
+
+    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
+        if (configuredExecutableName == null || configuredExecutableName.isEmpty()) {
+            // guessProjectDir is not perfect. A project has modules. Modules have content roots. Content roots can be anywhere. The module configuration file (iml) can be anywhere.
+            @Nullable String path = environment.getModulePath(); // often null
+            VirtualFile preselectedExecutable = getPreselectedExecutable(environment, path);
 
             // FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor();
             FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false) {
@@ -350,6 +356,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             reportError("Could not load executable", e);
         }
     }
+
     public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);

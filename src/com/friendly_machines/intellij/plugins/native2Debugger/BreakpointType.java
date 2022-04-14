@@ -34,9 +34,11 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     }
     final FileType fileType = psiFile.getFileType();
     String fileTypeName = fileType.getName();
-//    if ("Rust".equals(fileTypeName)) {
-//      return true;
-//    }
+    if ("Rust".equalsIgnoreCase(fileTypeName) || "C++".equalsIgnoreCase(fileTypeName)) {
+      // TODO: D, Go, Objective-C, OpenCL C, Fortran, Pascal, Modula-2, Ada
+      return true;
+    }
+    //System.err.println("FILE TYPE " + fileTypeName);
     if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
       return false;
     }

@@ -3,6 +3,7 @@ package com.friendly_machines.intellij.plugins.native2Debugger;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -31,7 +32,17 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     if (psiFile == null) {
       return false;
     }
-    //final FileType fileType = psiFile.getFileType();
+    final FileType fileType = psiFile.getFileType();
+    String fileTypeName = fileType.getName();
+//    if ("Rust".equals(fileTypeName)) {
+//      return true;
+//    }
+    System.err.println(fileTypeName);
+    if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
+      return false;
+    }
+    //if (fileType. )
+    //java/java-tests/testSrc/com/intellij/psi/impl/file/impl/FileManagerTest.java:      System.err.println("Java ext file type " + FileTypeManager.getInstance().getFileTypeByExtension("java"));
     return true;
   }
 

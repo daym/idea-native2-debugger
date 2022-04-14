@@ -37,7 +37,6 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
 //    if ("Rust".equals(fileTypeName)) {
 //      return true;
 //    }
-    System.err.println(fileTypeName);
     if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
       return false;
     }

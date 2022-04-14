@@ -24,6 +24,7 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,6 @@ public class BreakpointManager {
         // TODO: "-h" for hardware breakpoint
         // TODO: "-f" for creating a pending breakpoint if necessary
         // TODO: "-a" for a tracepoint (see GDB page 193)
-        // TODO: "-c condition" for condition
         // TODO: "-i ignore-count"
         // TODO: "-p thread-id"
         // TODO: -break-watch [-r|-a] <variable>
@@ -72,6 +72,11 @@ public class BreakpointManager {
             options.add("-t");
         if (!key.isEnabled())
             options.add("-d");
+        @Nullable String condition = key.getCondition();
+        if (condition != null) {
+            options.add("-c");
+            options.add(condition);
+        }
         // TODO: breakpoint.isLogStack()
         Object response;
         try {

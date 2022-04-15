@@ -43,7 +43,7 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     } else if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
       return false;
     } else {
-      return true;
+      return false;
     }
   }
 

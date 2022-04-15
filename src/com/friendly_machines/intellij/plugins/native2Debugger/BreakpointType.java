@@ -34,17 +34,17 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     }
     final FileType fileType = psiFile.getFileType();
     String fileTypeName = fileType.getName();
+    String defaultExtension = psiFile.getFileType().getDefaultExtension();
+    // TODO: Objective-C
     if ("Rust".equalsIgnoreCase(fileTypeName) || "C++".equalsIgnoreCase(fileTypeName)) {
-      // TODO: D, Go, Objective-C, OpenCL C, Fortran, Pascal, Modula-2, Ada
+      return true;
+    } else if ("d".equalsIgnoreCase(defaultExtension) || "go".equalsIgnoreCase(defaultExtension) || "pas".equalsIgnoreCase(defaultExtension) || "pp".equalsIgnoreCase(defaultExtension) || "inc".equalsIgnoreCase(defaultExtension) || "f90".equalsIgnoreCase(defaultExtension) || "f95".equalsIgnoreCase(defaultExtension) || "f03".equalsIgnoreCase(defaultExtension) || "f".equalsIgnoreCase(defaultExtension) || "adb".equalsIgnoreCase(defaultExtension) || "ads".equalsIgnoreCase(defaultExtension) || "mod".equalsIgnoreCase(defaultExtension) || "def".equalsIgnoreCase(defaultExtension) || "cl".equalsIgnoreCase(defaultExtension) || "clcpp".equalsIgnoreCase(defaultExtension)) {
+      return true;
+    } else if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
+      return false;
+    } else {
       return true;
     }
-    //System.err.println("FILE TYPE " + fileTypeName);
-    if ("groovy".equalsIgnoreCase(fileTypeName) || "kotlin".equalsIgnoreCase(fileTypeName) || "java".equalsIgnoreCase(fileTypeName)) {
-      return false;
-    }
-    //if (fileType. )
-    //java/java-tests/testSrc/com/intellij/psi/impl/file/impl/FileManagerTest.java:      System.err.println("Java ext file type " + FileTypeManager.getInstance().getFileTypeByExtension("java"));
-    return true;
   }
 
   @Override

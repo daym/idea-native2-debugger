@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Map;
 
 public class GdbMiFilter {
     private final DebugProcess myProcess;
@@ -42,18 +42,18 @@ public class GdbMiFilter {
     private int counter = 0;
 
     private static byte digit(byte value) {
-        return (byte) (48 + value);
+        return (byte) ((byte) '0' + value);
     }
     // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an input stream
     @NotNull
     private static byte[] makeCString(byte[] text) {
         ByteArrayOutputStream s = new ByteArrayOutputStream();
-        s.write(34); // quote
+        s.write((byte) '"'); // quote
         for (byte b: text) {
-            if (b == 32) {
-                s.write(32); // space
-            } else if (b < 32 || b > 127 || b == 92) {
-                s.write(92); // backslash
+            if (b == (byte) ' ') {
+                s.write((byte) ' '); // space
+            } else if (b < 32 || b > 127 || b == (byte) '\\') {
+                s.write((byte) '\\');
                 s.write(digit((byte) ((b >> 6) & 7)));
                 s.write(digit((byte) ((b >> 3) & 7)));
                 s.write(digit((byte) ((b >> 0) & 7)));
@@ -61,7 +61,7 @@ public class GdbMiFilter {
                 s.write(b);
             }
         }
-        s.write(34); // quote
+        s.write((byte) '"'); // quote
         return s.toByteArray();
     }
 
@@ -69,7 +69,7 @@ public class GdbMiFilter {
     private static byte[] maybeEscape(byte[] text) {
         boolean escaping_needed = false;
         for (byte b: text) {
-            if (b <= 32 || b > 127 || b == 92) {
+            if (b <= 32 || b > 127 || b == (byte) '\\') {
                 escaping_needed = true;
                 break;
             }
@@ -107,7 +107,7 @@ public class GdbMiFilter {
         }
     }
 
-    public HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
         GdbMiStateResponse response = gdbSend(operation, options, parameters);
         assert response.getMode() == '^';
         if (!"done".equals(response.getKlass()) && !"connected".equals(response.getKlass()) && !"running".equals(response.getKlass())) { // "connected" is returned by -target-select only; "running" is by exec-run

@@ -6,18 +6,16 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.RunProfile;
-import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.configurations.RunnerSettings;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.execution.configurations.RunnerSettings;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -39,11 +37,12 @@ public class Runner implements ProgramRunner<RunnerSettings> {
      *
      * @param executorId
      * @param profile
-     * @return
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof Configuration);
+        System.err.println("native canRun executor: " + executorId + ", profile: " + profile + " " + profile.getClass());
+        return true;
+        //return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof Configuration);
     }
 
     @Nullable
@@ -61,7 +60,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
                     @Override
                     public @NotNull
                     XDebugProcess start(final @NotNull XDebugSession session) throws ExecutionException {
-                        ACTIVE.set(Boolean.TRUE);
+                        ACTIVE.set(Boolean.TRUE); // FIXME
                         try {
                             final RunProfileState c = (RunProfileState)runProfileState;
                             return new DebugProcess(c, environment, Runner.this, session);
@@ -79,7 +78,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
     @Override
     public void execute(@NotNull ExecutionEnvironment environment) throws ExecutionException {
         ExecutionManager.getInstance(environment.getProject()).startRunProfile(environment, Objects.requireNonNull(environment.getState()), state -> {
-            FileDocumentManager.getInstance().saveAllDocuments();
+            //FileDocumentManager.getInstance().saveAllDocuments();
             return createContentDescriptor(state, environment);
         });
     }

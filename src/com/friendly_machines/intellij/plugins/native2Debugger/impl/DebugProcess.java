@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.*;
 
@@ -75,7 +74,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return filter.gdbSend(operation, options, parameters);
     }
 
-    private HashMap<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+    private Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
         GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
         return filter.gdbCall(operation, options, parameters);
     }
@@ -87,7 +86,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
                 if (klass.equals("breakpoint-deleted")) {
-                    myBreakpointManager.deleteBreakpoint1(number);
+                    myBreakpointManager.deleteBreakpointByGdbNumber(number);
                 } else {
                     Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(number);
                     if (breakpointo.isPresent()) {
@@ -118,7 +117,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //        String stoppedThreads = (String) attributes.get("stopped-threads");
 //        String core = (String) attributes.get("core");
 
-                HashMap<String, Object> tresponse = getThreadInfo();
+                var tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) {
                     List<Object> threads = (List<Object>) tresponse.get("threads");
                     String currentThreadId = (String) tresponse.get("current-thread-id");
@@ -130,7 +129,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                             Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(bkptno);
                             if (breakpointo.isPresent()) {
                                 Breakpoint breakpoint = breakpointo.get();
-                                getSession().breakpointReached(breakpoint.getXBreakpoint(), "fancy message", context);
+                                getSession().breakpointReached(breakpoint.getXBreakpoint(), "fancy message", context); // FIXME
                             }
                         } else {
                             reportError("Unknown GDB breakpoint was hit");
@@ -235,10 +234,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException {
         ArrayList<HashMap<String, Object>> result = new ArrayList<>();
         // TODO: --simple-values and find stuff yourself.
-        HashMap<String, Object> q = gdbCall("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
+        var q = gdbCall("-stack-list-variables", new String[] { "--thread", threadId, "--frame", frameId, "--all-values" }, new String[] {  });
         if (q.containsKey("variables")) {
             try {
-                List<? extends Object> variables = (List<? extends Object>) q.get("variables");
+                List<?> variables = (List<?>) q.get("variables");
                 for (Object variable1 : variables) {
                     HashMap<String, Object> variable = (HashMap<String, Object>) variable1;
                     result.add(variable);
@@ -253,7 +252,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     public List<HashMap<String, Object>> getFrames(String threadId) throws GdbMiOperationException {
         List<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
-        HashMap<String, Object> q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
+        var q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
         if (q.containsKey("stack")) {
             try {
                 List<? extends Object> stack = (List<? extends Object>) q.get("stack");
@@ -273,7 +272,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return result;
     }
 
-    private HashMap<String, Object> getThreadInfo() throws GdbMiOperationException {
+    private Map<String, Object> getThreadInfo() throws GdbMiOperationException {
         return gdbCall("-thread-info", new String[] {}, new String[0]);
     }
 
@@ -293,11 +292,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-gdb-set", new String[] { key, value }, new String[] {});
     }
 
-    public HashMap<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
         return gdbCall("-dprintf-insert", options, parameters);
     }
 
-    public HashMap<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
         return gdbCall("-break-insert", options, parameters);
     }
 
@@ -312,7 +311,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-break-disable", new String[] { number }, new String[] { });
     }
 
-    public HashMap<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
+    public Map<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
         return gdbCall("-data-evaluate-expression", new String[] { "--thread", threadId, "--frame", frameId,  expr }, new String[0]);
     }
 
@@ -339,7 +338,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 return true;
             }
         } else {
-            return true;
+            return true; // TODO
         }
         return false;
     }
@@ -493,7 +492,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         });
 
         Disposer.register(myExecutionConsole, this);
-        @Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
+        //@Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
         //myChildIn = childIn;
         setUpGdb(environment);
 

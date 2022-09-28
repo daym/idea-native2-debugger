@@ -14,5 +14,5 @@ public final class Native2DebuggerIcons {
   private static @NotNull Icon load(@NotNull String path, int cacheKey, int flags) {
     return IconManager.getInstance().loadRasterizedIcon(path, Native2DebuggerIcons.class.getClassLoader(), cacheKey, flags);
   }
-  /** 16x16 */ public static final @NotNull Icon XmlComment = load("icons/xmlComment.svg", 1677696470, 0);
+  /** 16x16 */ //public static final @NotNull Icon XmlComment = load("icons/xmlComment.svg", 1677696470, 0);
 }

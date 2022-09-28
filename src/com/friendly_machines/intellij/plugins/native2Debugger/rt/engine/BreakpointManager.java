@@ -26,10 +26,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 // Note: one line can map to multiple actual addrs! (but that's GDB's business)
 public class BreakpointManager {
@@ -80,7 +77,7 @@ public class BreakpointManager {
         // TODO: breakpoint.isLogStack()
         Object response;
         try {
-            HashMap<String, Object> gdbResponse;
+            Map<String, Object> gdbResponse;
             if (key.isLogMessage()) {
                 gdbResponse = myDebugProcess.dprintfInsert(options.toArray(new String[0]), new String[] { fileLineReference(key.getSourcePosition()), "Breakpointhit" });
             } else {
@@ -140,7 +137,9 @@ public class BreakpointManager {
         }
     }
 
-    public boolean deleteBreakpoint1(String number) {
+    /// Note: This does not send a -break-delete to gdb because it's usually called as a reaction to gdb deleting the
+    /// breakpoint in the first place
+    public boolean deleteBreakpointByGdbNumber(String number) {
         Optional<Breakpoint> breakpointo = getBreakpointByGdbNumber(number);
         if (breakpointo.isPresent()) {
             Breakpoint breakpoint = breakpointo.get();

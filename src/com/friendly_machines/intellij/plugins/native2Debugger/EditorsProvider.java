@@ -34,7 +34,7 @@ public class EditorsProvider extends XDebuggerEditorsProvider {
   public Document createDocument(@NotNull Project project,
                                  @NotNull String text,
                                  @Nullable XSourcePosition sourcePosition,
-                                 @NotNull EvaluationMode mode) {
+                                 @NotNull EvaluationMode mode) { // FIXME
     final PsiFile psiFile = PsiFileFactory.getInstance(project)
       .createFileFromText("XPathExpr." + getFileType().getDefaultExtension(), getFileType(), text, LocalTimeCounter.currentTime(), true);
 

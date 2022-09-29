@@ -1,0 +1,1 @@
+rootProject.name = "idea-native2-debugger"

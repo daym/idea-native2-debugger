@@ -1,0 +1,55 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the COPYING file. -->
+
+<idea-plugin url="https://confluence.jetbrains.com/display/CONTEST/NATIVE2-Debugger">
+    <name>Native2 Debugger</name>
+    <id>com.friendly-machines.intellij.plugins.idea-native2-debugger</id>
+    <category>C, C++, Go, Rust</category>
+
+    <description><![CDATA[
+    Allows interactive debugging of native executables using gdb.
+
+    This plugin only supports Linux and MacOS X.
+  ]]></description>
+
+    <vendor email="support+idea@friendly-machines.com" url="https://www.friendly-machines.com">Friendly Machines</vendor>
+
+    <!-- suppress depends two times -->
+    <!-- com.intellij.modules.xml -->
+    <!-- Product and plugin compatibility requirements.
+     Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- suppress PluginXmlValidity -->
+    <change-notes>
+        Added Windows support. Fixed waitForClient, again. Changed PtyOnly interface.
+    </change-notes>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <xdebugger.breakpointType
+                implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.BreakpointType"/>
+        <xdebugger.attachDebuggerProvider
+                implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.AttachDebuggerProvider"/>
+
+        <!-- TODO xdebugger.localAttachDebuggerProvider implementation="" -->
+        <programRunner implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.Runner"/>
+        <configurationType implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ConfigurationType"/>
+
+        <projectConfigurable
+                groupId="build"
+                id="build.native2debugger"
+                groupWeight="119"
+                instance="com.friendly_machines.intellij.plugins.ideanative2debugger.ProjectSettingsConfigurable"
+                displayName="Native2 Debugger"
+        />
+        <applicationService
+                serviceImplementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ProjectSettingsState"/>
+    </extensions>
+
+    <!--
+      <extensions defaultExtensionNs="XPathView">
+        <native2RunnerExtension implementation="org.intellij.plugins.native2Debugger.Native2DebuggerExtension"/>
+      </extensions>
+    -->
+
+    <resource-bundle>messages.Native2DebuggerBundle</resource-bundle>
+</idea-plugin>

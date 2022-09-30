@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/GdbOsProcessHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +117,7 @@
       <module name="idea-native2-debugger.main" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.*" />
+          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -210,7 +211,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664580185016</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Remove DEBUG_PROCESS userdata.">
+      <created>1664580239336</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1664580239336</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -232,7 +240,8 @@
     <MESSAGE value="Remove our Pty classes." />
     <MESSAGE value="Remove STATE userdata." />
     <MESSAGE value="Remove MI_FILTER userdata." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove MI_FILTER userdata." />
+    <MESSAGE value="Remove DEBUG_PROCESS userdata." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove DEBUG_PROCESS userdata." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">

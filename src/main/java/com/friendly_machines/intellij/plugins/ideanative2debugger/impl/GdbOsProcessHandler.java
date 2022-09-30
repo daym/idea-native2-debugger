@@ -1,7 +1,5 @@
-package com.friendly_machines.intellij.plugins.ideanative2debugger;
+package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiProducer;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponse;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
@@ -29,10 +27,10 @@ public class GdbOsProcessHandler extends OSProcessHandler {
         super.doDestroyProcess();
     }
 
-    @Override
-    protected boolean processHasSeparateErrorStream() {
-        return true;
-    }
+    //@Override
+    //protected boolean processHasSeparateErrorStream() {
+//        return true;
+//    } // automatic
 
     @Override
     protected BaseOutputReader.@NotNull Options readerOptions() {

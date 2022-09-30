@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="" />
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/GdbOsProcessHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/GdbOsReaderOptions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/PtyOnlyUnix.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/PtyOnlyUnix.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -50,17 +60,15 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="jar://C:/Program Files/Zulu/zulu-17/lib/src.zip!/java.base/java/io/OutputStream.java" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.2/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-2022.2.2-sources.jar!/com/intellij/execution/ExecutionManager.kt" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.2/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-2022.2.2-sources.jar!/com/intellij/execution/impl/ExecutionManagerImpl.kt" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.2/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-2022.2.2-sources.jar!/com/intellij/xdebugger/XDebugProcess.java" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.2/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-2022.2.2-sources.jar!/com/intellij/xdebugger/XDebugSession.java" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.2/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-2022.2.2-sources.jar!/com/intellij/xdebugger/impl/XDebuggerManagerImpl.java" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.12.1/a558f0c18863579764c8adcdf2312e0b9711c5af/jna-5.12.1-sources.jar!/com/sun/jna/Native.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="LogFilters">
     <option name="FILTER_ERRORS" value="false" />
@@ -84,11 +92,17 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/git/idea-native2-debugger/build/distributions/idea-native2-debugger-1.0-SNAPSHOT.zip&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/tmp/idea-native2-debugger-1.0-SNAPSHOT.zip&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.24168366&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
     </key>
@@ -98,14 +112,14 @@
       <command value="gradle buildPlugin" />
     </option>
   </component>
-  <component name="RunManager" selected="Application.PtyOnlyWin">
+  <component name="RunManager" selected="Gradle.idea-native2-debugger [buildPlugin]">
     <configuration name="PtyOnlyWin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="IntelliJ IDEA Community Edition IC-222.4167.29" />
       <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin" />
       <module name="idea-native2-debugger.main" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.*" />
+          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -183,21 +197,6 @@
             <option name="WATCH_EXIT" value="false" />
           </properties>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java</url>
-          <line>84</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java</url>
-          <line>276</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java</url>
-          <line>288</line>
-          <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/PtyOnlyWin.java</url>

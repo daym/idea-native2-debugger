@@ -8,9 +8,10 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -53,8 +54,8 @@ import java.util.*;
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class DebugProcess extends XDebugProcess implements Disposable {
-    private static final Key<DebugProcess> KEY = Key.create("PROCESS");
-    public static final Key<GdbMiFilter> MI_FILTER = Key.create("MI_FILTER");
+    private static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS");
+    public static final Key<GdbMiFilter> MI_FILTER_KEY = Key.create("MI_FILTER");
 
     private final EditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
@@ -70,12 +71,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     };
 
     private GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
-        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
+        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER_KEY);
         return filter.gdbSend(operation, options, parameters);
     }
 
     private Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
-        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER);
+        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER_KEY);
         return filter.gdbCall(operation, options, parameters);
     }
 
@@ -160,16 +161,23 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public void handleGdbTextOutput(char mode, String text) {
+    public void handleGdbTextOutput(char mode, @NotNull String text) {
         switch (mode) {
             case '&': // log
-                reportMessage(text, MessageType.INFO);
+                if (!text.isEmpty())
+                    reportMessage(text, MessageType.INFO);
                 break;
             case '@': // target
-                reportMessage(text, MessageType.INFO); // not really; that output was produced by the target program.
+            {
+                var view = (ConsoleView) myExecutionConsole.getComponent();
+                if (!text.isEmpty())
+                    view.print(text, ConsoleViewContentType.SYSTEM_OUTPUT);
+                reportMessage("QQQ", MessageType.INFO);
                 break;
+            }
             case '~': // console
-                reportMessage(text, MessageType.INFO);
+                if (!text.isEmpty())
+                    reportMessage(text, MessageType.INFO);
                 break;
             default:
                 break;
@@ -463,47 +471,44 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         session.setPauseActionSupported(true);
         //session.setCurrentStackFrame();
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
+        ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
-        myProcessHandler.putUserData(KEY, this);
-        PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
+        myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
+        //PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();
-        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), pty);
-        myProcessHandler.putUserData(MI_FILTER, filter);
+        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), (GdbOsProcessHandler) myProcessHandler);
+        myProcessHandler.putUserData(MI_FILTER_KEY, filter);
         myProcessHandler.addProcessListener(new ProcessListener() {
             @Override
             public void startNotified(@NotNull ProcessEvent processEvent) {
+                //pty.waitForClient();
+                DebugProcess.this.isGDBconnected = true;
+                filter.startReaderThread();
+                setUpGdb(environment);
+                session.initBreakpoints();
                 try {
-                    pty.waitForClient();
-                    DebugProcess.this.isGDBconnected = true;
-                    filter.startReaderThread();
-                    setUpGdb(environment);
-                    session.initBreakpoints();
-                    try {
-                        execRun();
-                    } catch (GdbMiOperationException e) {
-                        reportError("exec-run failed", e);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    execRun();
+                } catch (GdbMiOperationException e) {
+                    reportError("exec-run failed", e);
                 }
             }
 
             @Override
             public void processTerminated(@NotNull ProcessEvent processEvent) {
-                try {
-                    // TODO: Read everything from myPtr (for MacOS)
-                    pty.close();
-                    myProcessHandler.putUserData(MI_FILTER, null);
-                    myProcessHandler.putUserData(RunProfileState.PTY, null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                myProcessHandler.putUserData(MI_FILTER_KEY, null);
             }
 
             @Override
             public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
-
+                var text = processEvent.getText();
+                if (text != null) {
+                    System.err.println("text available 2: " + text);
+                    System.err.flush();
+                    filter.processLine(text);
+                    System.err.println("done text available 2: " + text);
+                    System.err.flush();
+                }
             }
         });
 
@@ -533,9 +538,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     @Nullable
-    public static DebugProcess getInstance(ProcessHandler handler) {
-        return handler.getUserData(KEY);
-    }
+//    public static DebugProcess getInstance(ProcessHandler handler) {
+//        return handler.getUserData(DEBUG_PROCESS_KEY);
+//    }
 
     @NotNull
     @Override

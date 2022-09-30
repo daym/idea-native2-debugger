@@ -2,27 +2,36 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.GdbOsProcessHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Scanner;
+
+import static com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiProducer.parseToken;
 
 public class GdbMiFilter {
     private final DebugProcess myProcess;
     private final Project myProject;
     private final OutputStream myChildIn;
+    private final GdbOsProcessHandler myChildOut;
     //private final InputStream myChildOut;
-    private final GdbMiProducer myReaderThread;
+    //private final GdbMiProducer myReaderThread;
 
-    public GdbMiFilter(DebugProcess process, @NotNull Project project, PtyOnly childIO) throws IOException {
+    public GdbMiFilter(DebugProcess process, @NotNull Project project, GdbOsProcessHandler childIO) throws IOException {
         myProcess = process;
         myProject = project;
         //myChildOut = childOut;
         //Native2DebugProcess process = Native2DebugProcess.getInstance(myOsProcessHandler);
-        myReaderThread = new GdbMiProducer(new BufferedReader(new InputStreamReader(childIO.getInputStream(), StandardCharsets.UTF_8), 1), process);
-        myChildIn = childIO.getOutputStream();
+        myChildOut = childIO;
+        myChildIn = childIO.getProcessInput();
+        //myReaderThread = new GdbMiProducer(new BufferedReader(new InputStreamReader(childIO.getInputStream(), StandardCharsets.UTF_8), 1), process);
 
         // TODO: PipedReader, PipedWriter
 
@@ -30,10 +39,9 @@ public class GdbMiFilter {
         // new FileReader(FileDescriptor)
     }
 
-    /// Read the sync response from gdb. If there are async responses, those are handled as a side-effect.
-    private GdbMiStateResponse readResponse() throws IOException {
-        GdbMiStateResponse response = myReaderThread.readResponse();
-        return response;
+//    / Read the sync response from gdb. If there are async responses, those are handled as a side-effect.
+    private GdbMiStateResponse readResponse() throws InterruptedException {
+        return myChildOut.readResponse();
     }
 
     private int requestId = 0;
@@ -80,6 +88,8 @@ public class GdbMiFilter {
     }
 
     public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+        System.err.println("gdbSend " + operation);
+        System.err.flush();
         try {
             ++requestId;
             myChildIn.write(Integer.toString(requestId).getBytes(StandardCharsets.UTF_8));
@@ -98,8 +108,13 @@ public class GdbMiFilter {
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
             GdbMiStateResponse response = readResponse();
+            System.err.println("done gdbSend " + operation);
+            System.err.flush();
             return response;
         } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -115,6 +130,42 @@ public class GdbMiFilter {
     }
 
     public void startReaderThread() {
-        myReaderThread.start();
+        //myReaderThread.start();
     }
+
+    private static char consume(Scanner scanner) {
+        return scanner.next().charAt(0);
+    }
+    public void processLine(@NotNull String line) {
+        line = line.strip();
+        if ("(gdb)".equals(line)) {
+            return;
+        }
+
+        Scanner scanner = new Scanner(line);
+        scanner.useDelimiter(""); // character by character mode
+        Optional<String> token = parseToken(scanner);
+        // "+": contains on-going status information about the progress of a slow operation.
+        // "*": contains asynchronous state change on the target (stopped, started, disappeared)
+        // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
+        // "^": sync command result
+        if (scanner.hasNext("[*+=]")) {
+            GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
+
+            // "*stopped"
+            // "=breakpoint-modified"
+            //ApplicationManager.getApplication().invokeLater(() -> {
+                myProcess.handleGdbMiStateOutput(response);
+            //});
+        } else if (scanner.hasNext("[~@&]")) { // streams
+            char mode = consume(scanner);
+            @NotNull String text = GdbMiProducer.parseCString(scanner);
+            //ApplicationManager.getApplication().invokeLater(() -> {
+                myProcess.handleGdbTextOutput(mode, text);
+            //});
+        } else if (scanner.hasNext("-")) { // our echo
+        } else {
+        }
+    }
+
 }

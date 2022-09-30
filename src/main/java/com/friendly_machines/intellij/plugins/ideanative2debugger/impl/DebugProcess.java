@@ -55,11 +55,11 @@ import java.util.*;
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class DebugProcess extends XDebugProcess implements Disposable {
     private static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS");
-    public static final Key<GdbMiFilter> MI_FILTER_KEY = Key.create("MI_FILTER");
 
     private final EditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
+    private final GdbMiFilter myMiFilter;
     //private final OutputStream myChildIn;
 
     protected volatile boolean isGDBconnected = false;
@@ -71,13 +71,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     };
 
     private GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
-        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER_KEY);
-        return filter.gdbSend(operation, options, parameters);
+        return myMiFilter.gdbSend(operation, options, parameters);
     }
 
     private Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
-        GdbMiFilter filter = myProcessHandler.getUserData(MI_FILTER_KEY);
-        return filter.gdbCall(operation, options, parameters);
+        return myMiFilter.gdbCall(operation, options, parameters);
     }
 
     private void handleGdbMiNotifyAsyncOutput(String klass, HashMap<String, Object> attributes) {
@@ -477,14 +475,13 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();
-        GdbMiFilter filter = new GdbMiFilter(this, environment.getProject(), (GdbOsProcessHandler) myProcessHandler);
-        myProcessHandler.putUserData(MI_FILTER_KEY, filter);
+        myMiFilter = new GdbMiFilter(this, environment.getProject(), (GdbOsProcessHandler) myProcessHandler);
         myProcessHandler.addProcessListener(new ProcessListener() {
             @Override
             public void startNotified(@NotNull ProcessEvent processEvent) {
                 //pty.waitForClient();
                 DebugProcess.this.isGDBconnected = true;
-                filter.startReaderThread();
+                myMiFilter.startReaderThread();
                 setUpGdb(environment);
                 session.initBreakpoints();
                 try {
@@ -496,7 +493,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
             @Override
             public void processTerminated(@NotNull ProcessEvent processEvent) {
-                myProcessHandler.putUserData(MI_FILTER_KEY, null);
             }
 
             @Override
@@ -505,7 +501,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 if (text != null) {
                     System.err.println("text available 2: " + text);
                     System.err.flush();
-                    filter.processLine(text);
+                    myMiFilter.processLine(text);
                     System.err.println("done text available 2: " + text);
                     System.err.flush();
                 }

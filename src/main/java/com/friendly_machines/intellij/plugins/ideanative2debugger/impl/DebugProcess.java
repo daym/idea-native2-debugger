@@ -54,7 +54,7 @@ import java.util.*;
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class DebugProcess extends XDebugProcess implements Disposable {
-    private static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS");
+    //private static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS");
 
     private final EditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
@@ -471,7 +471,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
-        myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
+        //myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
         //PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();

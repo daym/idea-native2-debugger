@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class GdbOsProcessHandler extends OSProcessHandler.Silent {
+public class GdbOsProcessHandler extends OSProcessHandler {
     private final GdbMiProducer myProducer;
 
     public GdbOsProcessHandler(@NotNull GeneralCommandLine commandLine) throws ExecutionException {

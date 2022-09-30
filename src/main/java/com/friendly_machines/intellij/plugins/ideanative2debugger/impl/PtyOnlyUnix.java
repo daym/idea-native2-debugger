@@ -3,7 +3,7 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.pty4j.unix.Pty;
-import com.sun.jna.platform.win32.WinError;
+import com.pty4j.unix.PtyHelpers;
 import jtermios.JTermios;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,5 +76,22 @@ public class PtyOnlyUnix implements PtyOnly {
 
     public PtyOnlyUnix() throws IOException {
         pty = new Pty(true, true);
+        var facade = PtyHelpers.getInstance();
+        var attrs = new PtyHelpers.TerminalSettings();
+        var fd = pty.getMasterFD();
+        if (facade.tcgetattr(fd, attrs) == 0) {
+            final int VTIME = 5; // FIXME -> pty4j
+            final int VMIN = 6; // FIXME -> pty4j
+
+            attrs.c_cc[VMIN] = 1;
+            attrs.c_cc[VTIME] = 1; // in units of 0.1 s
+            attrs.c_iflag = 0;
+            attrs.c_oflag = 0;
+            attrs.c_cflag = JTermios.CS8;
+            attrs.c_lflag = 0;
+            if (facade.tcsetattr(fd, JTermios.TCSANOW, attrs) == 0) {
+                //System.err.println("OK tcsetattr");
+            }
+        }
     }
 }

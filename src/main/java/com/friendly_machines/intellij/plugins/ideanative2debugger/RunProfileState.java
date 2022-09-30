@@ -98,10 +98,10 @@ public class RunProfileState extends CommandLineState {
     public ExecutionResult execute(@NotNull final Executor executor, @NotNull final ProgramRunner<?> runner) throws ExecutionException {
         final ProcessHandler processHandler = startProcess();
         final ConsoleView console = createConsole(executor); // keep this AFTER the startProcess call.
-//        if (console != null) {
-//            // TODO nope console.attachToProcess(processHandler);
-//            //console.print();
-//        }
+        if (console != null) {
+            console.attachToProcess(processHandler); // TODO: nope
+            //console.print();
+        }
         DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
         return q;
     }

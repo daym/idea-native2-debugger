@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -204,7 +203,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664580003174</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Remove MI_FILTER userdata.">
+      <created>1664580185016</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1664580185016</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -225,7 +231,8 @@
     <MESSAGE value="Do console.attachToProcess in order for IDEA to create a pty." />
     <MESSAGE value="Remove our Pty classes." />
     <MESSAGE value="Remove STATE userdata." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove STATE userdata." />
+    <MESSAGE value="Remove MI_FILTER userdata." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove MI_FILTER userdata." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">

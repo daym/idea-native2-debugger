@@ -18,12 +18,11 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.util.Key;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class RunProfileState extends CommandLineState {
-    public static final Key<RunProfileState> STATE = Key.create("STATE");
+//    public static final Key<RunProfileState> STATE = Key.create("STATE");
     //public static final Key<PtyOnly> PTY = Key.create("PTY");
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
@@ -83,7 +82,7 @@ public class RunProfileState extends CommandLineState {
 
         commandLine.setRedirectErrorStream(false); // FIXME!?
         final OSProcessHandler osProcessHandler = new GdbOsProcessHandler(commandLine);
-        osProcessHandler.putUserData(STATE, this);
+//        osProcessHandler.putUserData(STATE, this);
         //osProcessHandler.putUserData(PTY, myPty);
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.

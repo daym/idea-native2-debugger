@@ -6,6 +6,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.util.Key;
+import com.intellij.util.io.BaseDataReader;
 import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,28 @@ public class GdbOsProcessHandler extends OSProcessHandler.Silent {
 
     @Override
     protected BaseOutputReader.@NotNull Options readerOptions() {
-        return new GdbOsReaderOptions();
+        return
+        new BaseOutputReader.Options() {
+            @Override
+            public BaseDataReader.SleepingPolicy policy() {
+                return BaseDataReader.SleepingPolicy.BLOCKING;
+            }
+
+            @Override
+            public boolean splitToLines() {
+                return true;
+            }
+
+            @Override
+            public boolean sendIncompleteLines() {
+                return false;
+            }
+
+            @Override
+            public boolean withSeparators() {
+                return true;
+            }
+        };
     }
 
     public GdbMiStateResponse readResponse() throws InterruptedException {

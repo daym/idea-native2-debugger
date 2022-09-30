@@ -2,29 +2,28 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.intellij.openapi.application.ApplicationManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+
+import static java.lang.Thread.currentThread;
 
 /**
  * This reads async and sync responses from a pty input stream.
  * It sends each async responses to the application main thread via invokeLater.
  * It fills the sync response into a blocking queue.
  */
-public class GdbMiProducer extends Thread {
-    private final BufferedReader myChildOut;
-    private final DebugProcess myProcess;
+public class GdbMiProducer /*extends Thread*/ {
+    //    private final BufferedReader myChildOut;
     private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
 
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to find the corresponding request to a response. Maybe use those.
     // But async outputs, so those starting with one of "*+=", will not have them.
-    protected static Optional<String> parseToken(@NotNull Scanner scanner) {
+    public static Optional<String> parseToken(@NotNull Scanner scanner) {
         String result = "";
         while (scanner.hasNext("[0-9]")) {
             String part = scanner.next("[0-9]");
@@ -103,7 +102,8 @@ public class GdbMiProducer extends Thread {
         }
     }
 
-    private static StringBuilder parseCString(@NotNull Scanner scanner) {
+    @NotNull
+    public static String parseCString(@NotNull Scanner scanner) {
         StringBuilder result = new StringBuilder();
         scanner.next("\"");
         try {
@@ -125,11 +125,12 @@ public class GdbMiProducer extends Thread {
 //
 //        }
         scanner.next("\"");
-        return result;
+        return result.toString();
     }
 
 
     // Not specified in GDB manual
+    @NotNull
     public static String parseString(@NotNull Scanner scanner) {
         String result = scanner.next("[a-zA-Z-]");
 
@@ -140,6 +141,7 @@ public class GdbMiProducer extends Thread {
         return result;
     }
 
+    @NotNull
     public static String parseKlass(Scanner scanner) {
         return parseString(scanner);
     }
@@ -215,6 +217,7 @@ public class GdbMiProducer extends Thread {
         }
     }
 
+    @Nullable
     public static Object parseValue(@NotNull Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"
@@ -233,78 +236,93 @@ public class GdbMiProducer extends Thread {
         }
     }
 
-    private void processLine(@NotNull String line) throws InterruptedException {
-        line = line.strip();
-        if ("(gdb)".equals(line)) {
-            return;
-        }
+    public GdbMiProducer() {
 
-        Scanner scanner = new Scanner(line);
-        scanner.useDelimiter(""); // character by character mode
-        Optional<String> token = parseToken(scanner);
-        // "+": contains on-going status information about the progress of a slow operation.
-        // "*": contains asynchronous state change on the target (stopped, started, disappeared)
-        // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
-        // "^": sync command result
-        if (scanner.hasNext("[*+=^]")) {
-            GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
-
-            // "*stopped"
-            // "=breakpoint-modified"
-            if (response.getMode() == '^') {
-                if (response.getToken().isPresent()) {
-                    myQueue.put(response); // note: Can block
-                } else { // that's a sync response for something we didn't ask
-                }
-            } else { // async
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    myProcess.handleGdbMiStateOutput(response);
-                });
-            }
-        } else if (scanner.hasNext("[~@&]")) { // streams
-            char mode = consume(scanner);
-            StringBuilder text = parseCString(scanner);
-            ApplicationManager.getApplication().invokeLater(() -> {
-                myProcess.handleGdbTextOutput(mode, text.toString());
-            });
-        } else if (scanner.hasNext("-")) { // our echo
-        } else {
-        }
     }
 
-    @NotNull
-    private String readLine() throws IOException, InterruptedException {
-        return myChildOut.readLine();
+    public void produce(GdbMiStateResponse item) throws InterruptedException {
+        System.err.println(currentThread().getId() + currentThread().getName() + " produce");
+        myQueue.put(item);
     }
 
-    public GdbMiProducer(BufferedReader childOut, DebugProcess process) {
-        myProcess = process;
-        myChildOut = childOut;
-        this.setDaemon(true);
+    public GdbMiStateResponse consume() throws InterruptedException {
+        System.err.println(currentThread().getId() + currentThread().getName() + " consume");
+        return myQueue.take();
     }
 
-    @Override
-    public void run() {
-        final var currentThread = Thread.currentThread();
-        while (!currentThread.isInterrupted()) {
-            try {
-                final String line = readLine();
-                processLine(line);
-            } catch (EOFException | InterruptedException e) {
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        }
-    }
+//    private void processLine(@NotNull String line) throws InterruptedException {
+//        line = line.strip();
+//        if ("(gdb)".equals(line)) {
+//            return;
+//        }
+//
+//        Scanner scanner = new Scanner(line);
+//        scanner.useDelimiter(""); // character by character mode
+//        Optional<String> token = parseToken(scanner);
+//        // "+": contains on-going status information about the progress of a slow operation.
+//        // "*": contains asynchronous state change on the target (stopped, started, disappeared)
+//        // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
+//        // "^": sync command result
+//        if (scanner.hasNext("[*+=^]")) {
+//            GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
+//
+//            // "*stopped"
+//            // "=breakpoint-modified"
+//            if (response.getMode() == '^') {
+//                if (response.getToken().isPresent()) {
+//                    myQueue.put(response); // note: Can block
+//                } else { // that's a sync response for something we didn't ask
+//                }
+//            } else { // async
+//                ApplicationManager.getApplication().invokeLater(() -> {
+//                    myProcess.handleGdbMiStateOutput(response);
+//                });
+//            }
+//        } else if (scanner.hasNext("[~@&]")) { // streams
+//            char mode = consume(scanner);
+//            @NotNull String text = parseCString(scanner);
+//            ApplicationManager.getApplication().invokeLater(() -> {
+//                myProcess.handleGdbTextOutput(mode, text);
+//            });
+//        } else if (scanner.hasNext("-")) { // our echo
+//        } else {
+//        }
+//    }
 
-    public GdbMiStateResponse readResponse() {
-        try {
-            return myQueue.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
+//    @NotNull
+//    private String readLine() throws IOException, InterruptedException {
+//        return myChildOut.readLine();
+//    }
+
+//    public GdbMiProducer(BufferedReader childOut, DebugProcess process) {
+//        myProcess = process;
+////        myChildOut = childOut;
+//        this.setDaemon(true);
+//    }
+
+//    @Override
+//    public void run() {
+//        final var currentThread = Thread.currentThread();
+//        while (!currentThread.isInterrupted()) {
+//            try {
+//                final String line = readLine();
+//                processLine(line);
+//            } catch (EOFException | InterruptedException e) {
+//                break;
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
+//
+//    @NotNull
+//    public GdbMiStateResponse readResponse() {
+//        try {
+//            return myQueue.take();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

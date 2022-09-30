@@ -2,9 +2,6 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnly;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyUnix;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -22,18 +19,15 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-
 public class RunProfileState extends CommandLineState {
     public static final Key<RunProfileState> STATE = Key.create("STATE");
-    public static final Key<PtyOnly> PTY = Key.create("PTY");
+    //public static final Key<PtyOnly> PTY = Key.create("PTY");
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
-    private PtyOnly myPty;
+    //private PtyOnly myPty;
 
     public RunProfileState(Configuration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
@@ -41,28 +35,16 @@ public class RunProfileState extends CommandLineState {
         myBuilder = builder;
     }
 
-    @Override
-    @NotNull
-    public ExecutionResult execute(@NotNull final Executor executor, @NotNull final ProgramRunner<?> runner) throws ExecutionException {
-        final ProcessHandler processHandler = startProcess();
-        final ConsoleView console = createConsole(executor); // keep this AFTER the startProcess call.
-        if (console != null) {
-            console.attachToProcess(processHandler);
-        }
-        DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
-        return q;
-    }
-
     @NotNull
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
-        try {
-            myPty = SystemInfo.isWindows ? new PtyOnlyWin() : new PtyOnlyUnix();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionException(e);
-        }
-        String slaveName = myPty.getSlaveName();
+//        try {
+//            myPty = SystemInfo.isWindows ? new PtyOnlyWin() : new PtyOnlyUnix();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new ExecutionException(e);
+//        }
+//        String slaveName = myPty.getSlaveName();
         // myPty.getMasterFD()
         String gdbExecutableName = ProjectSettingsState.getInstance().gdbExecutableName;
         if (gdbExecutableName == null || gdbExecutableName.equals("")) {
@@ -89,25 +71,39 @@ public class RunProfileState extends CommandLineState {
         // -tty=/dev/tty0
         //commandLine.addParameter("--interpreter=mi3");
 
-        //commandLine.addParameter("--interpreter=mi3");
+        commandLine.addParameter("--interpreter=mi3");
         // gdb needs either forward-slashes or doubly-escaped backslashes
         //commandLine.addParameter("--tty=" + slaveName.replace("\\", "\\\\"));
         
-        commandLine.addParameter("--eval-command=new-ui mi3 " + slaveName.replace("\\", "\\\\"));
+        //commandLine.addParameter("--eval-command=new-ui mi3 " + slaveName.replace("\\", "\\\\"));
 
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
         //final OSProcessHandler processHandler = creator.fun(commandLine);
 
-        final OSProcessHandler osProcessHandler = new OSProcessHandler.Silent(commandLine);
+        commandLine.setRedirectErrorStream(false); // FIXME!?
+        final OSProcessHandler osProcessHandler = new GdbOsProcessHandler(commandLine);
         osProcessHandler.putUserData(STATE, this);
-        osProcessHandler.putUserData(PTY, myPty);
+        //osProcessHandler.putUserData(PTY, myPty);
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
         //myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
         this.setConsoleBuilder(myBuilder);
 
         return osProcessHandler;
+    }
+
+    @Override
+    @NotNull
+    public ExecutionResult execute(@NotNull final Executor executor, @NotNull final ProgramRunner<?> runner) throws ExecutionException {
+        final ProcessHandler processHandler = startProcess();
+        final ConsoleView console = createConsole(executor); // keep this AFTER the startProcess call.
+//        if (console != null) {
+//            // TODO nope console.attachToProcess(processHandler);
+//            //console.print();
+//        }
+        DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
+        return q;
     }
 
     @Override

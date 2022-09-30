@@ -2,7 +2,6 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.GdbOsProcessHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 

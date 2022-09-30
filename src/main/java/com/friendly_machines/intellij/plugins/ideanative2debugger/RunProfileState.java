@@ -2,6 +2,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbOsProcessHandler;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;

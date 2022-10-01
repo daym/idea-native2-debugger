@@ -7,6 +7,7 @@ import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
+import com.intellij.notification.Notification;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
@@ -187,7 +188,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public void reportMessage(@NotNull @NlsContexts.NotificationContent String text, @NotNull MessageType typ) {
-        getSession().reportMessage(text, typ);
+        if (!Notification.isEmpty(text)) {
+            getSession().reportMessage(text, typ);
+        }
     }
 
     public void reportError(String s, GdbMiOperationException e) {

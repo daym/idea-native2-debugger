@@ -374,7 +374,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                     var al = a.length();
                     var bl = b.length();
                     if (al != bl)
-                        return new Integer(al).compareTo(bl);
+                        return Integer.compare(al, bl);
                     else
                         return a.compareTo(b);
                 }

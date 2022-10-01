@@ -4,9 +4,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.*;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
@@ -54,12 +52,13 @@ import java.util.*;
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class DebugProcess extends XDebugProcess implements Disposable {
-    //private static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS");
+    public static final Key<DebugProcess> DEBUG_PROCESS_KEY = Key.create("DEBUG_PROCESS"); // FIXME
 
     private final EditorsProvider myEditorsProvider;
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
     private final GdbMiFilter myMiFilter;
+    private final ExecutionEnvironment myEnvironment;
     //private final OutputStream myChildIn;
 
     protected volatile boolean isGDBconnected = false;
@@ -471,42 +470,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
-        //myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
+        myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
         //PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();
+        myEnvironment = environment;
         myMiFilter = new GdbMiFilter(this, environment.getProject(), (GdbOsProcessHandler) myProcessHandler);
-        myProcessHandler.addProcessListener(new ProcessListener() {
-            @Override
-            public void startNotified(@NotNull ProcessEvent processEvent) {
-                //pty.waitForClient();
-                DebugProcess.this.isGDBconnected = true;
-                myMiFilter.startReaderThread();
-                setUpGdb(environment);
-                session.initBreakpoints();
-                try {
-                    execRun();
-                } catch (GdbMiOperationException e) {
-                    reportError("exec-run failed", e);
-                }
-            }
-
-            @Override
-            public void processTerminated(@NotNull ProcessEvent processEvent) {
-            }
-
-            @Override
-            public void onTextAvailable(@NotNull ProcessEvent processEvent, @NotNull Key key) {
-                var text = processEvent.getText();
-                if (text != null) {
-                    System.err.println("text available 2: " + text);
-                    System.err.flush();
-                    myMiFilter.processLine(text);
-                    System.err.println("done text available 2: " + text);
-                    System.err.flush();
-                }
-            }
-        });
 
         Disposer.register(myExecutionConsole, this);
         //@Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();
@@ -613,6 +582,18 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             reportError("Cannot run to that position");
         } catch (GdbMiOperationException e) {
             reportError("Cannot run to that position", e);
+        }
+    }
+
+    public void startDebugging() {
+        isGDBconnected = true; // FIXME
+        myMiFilter.startReaderThread();
+        setUpGdb(myEnvironment);
+        getSession().initBreakpoints();
+        try {
+            execRun();
+        } catch (GdbMiOperationException e) {
+            reportError("exec-run failed", e);
         }
     }
 }

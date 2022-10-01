@@ -27,6 +27,7 @@ public class RunProfileState extends CommandLineState {
     //public static final Key<PtyOnly> PTY = Key.create("PTY");
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
+    //private DebugProcess myDebugProcess;
     //private PtyOnly myPty;
 
     public RunProfileState(Configuration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {

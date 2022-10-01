@@ -147,7 +147,7 @@ public class GdbMiFilter {
         // "+": contains on-going status information about the progress of a slow operation.
         // "*": contains asynchronous state change on the target (stopped, started, disappeared)
         // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)
-        // "^": sync command result
+        // "^": sync command result (already handled)
         if (scanner.hasNext("[*+=]")) {
             GdbMiStateResponse response = GdbMiStateResponse.decode(token, scanner);
 

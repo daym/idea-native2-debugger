@@ -79,11 +79,11 @@ public class GdbOsProcessHandler extends OSProcessHandler {
         addProcessListener(new ProcessAdapter() {
             @Override
             public void startNotified(@NotNull final ProcessEvent event) {
-                var p = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+                var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
                 try {
                     BaseDataReader stdOutReader = createOutputDataReader();
                     BaseDataReader stdErrReader = processHasSeparateErrorStream() ? createErrorDataReader() : null;
-                    p.startDebugging();
+                    debugProcess.startDebugging();
 
                     myWaitFor.setTerminationCallback(exitCode -> {
                         try {
@@ -138,6 +138,9 @@ public class GdbOsProcessHandler extends OSProcessHandler {
             }
 
             // For async response handling, see GdbMiFilter
+        } else {
+            var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+            debugProcess.processAsync(token, scanner);
         }
         System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"done notify");
         System.err.flush();

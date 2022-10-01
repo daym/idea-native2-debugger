@@ -365,10 +365,26 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             }
             // see ./platform/lang-impl/src/com/intellij/find/impl/
             List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
+            result.sort(new Comparator() {
+                @Override
+                public int compare(Object o1, Object o2) {
+                    // Sort by length and then by name
+                    var a = ((VirtualFile) o1).getCanonicalPath();
+                    var b = ((VirtualFile) o2).getCanonicalPath();
+                    var al = a.length();
+                    var bl = b.length();
+                    if (al != bl)
+                        return new Integer(al).compareTo(bl);
+                    else
+                        return a.compareTo(b);
+                }
+            });
             int count = 0;
             for (VirtualFile virtualFile : result) {
-                if (isFileExecutable(virtualFile)) {
-                    preselectedExecutable = virtualFile;
+                if (isFileExecutable(virtualFile) && virtualFile.getLength() > 0) {
+                    if (preselectedExecutable == null) {
+                        preselectedExecutable = virtualFile;
+                    }
                     //System.err.println("EXEC " + virtualFile.getPath());
                     ++count;
                 }

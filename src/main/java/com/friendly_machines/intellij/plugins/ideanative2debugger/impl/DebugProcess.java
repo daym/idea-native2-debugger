@@ -113,6 +113,13 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //        String threadId = (String) attributes.get("thread-id");
 //        String stoppedThreads = (String) attributes.get("stopped-threads");
 //        String core = (String) attributes.get("core");
+                if (reason != null && reason.startsWith("exited")) {
+                    // TODO: reason=("exited-normally"|"exited"|"exited-signalled")
+                    getSession().reportMessage("Debugged program exited with " + attributes.toString(), MessageType.INFO);
+                    // Exit gdb when debugged program exits
+                    this.stop();
+                    return;
+                }
 
                 var tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) {

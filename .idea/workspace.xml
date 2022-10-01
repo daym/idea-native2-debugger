@@ -110,7 +110,7 @@
       <command value="gradle buildPlugin" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.idea-native2-debugger [buildPlugin]">
+  <component name="RunManager" selected="Gradle.Run Plugin">
     <configuration name="PtyOnlyWin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="IntelliJ IDEA Community Edition IC-222.4167.29" />
       <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin" />
@@ -185,8 +185,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Gradle.Run Plugin" />
+        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Application.PtyOnlyWin" />
       </list>
     </recent_temporary>
@@ -284,7 +284,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664587418633</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Show 'target' messages inside a bubble, too">
+      <created>1664589171403</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1664589171403</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -311,7 +318,8 @@
     <MESSAGE value="Add &quot;Run IDE with plugin&quot;." />
     <MESSAGE value="Factor out and fix startDebugging." />
     <MESSAGE value="Handle async messages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Handle async messages." />
+    <MESSAGE value="Show 'target' messages inside a bubble, too" />
+    <option name="LAST_COMMIT_MESSAGE" value="Show 'target' messages inside a bubble, too" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">

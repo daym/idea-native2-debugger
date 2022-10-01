@@ -6,8 +6,6 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -166,10 +164,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 break;
             case '@': // target
             {
-                var view = (ConsoleView) myExecutionConsole.getComponent();
-                if (!text.isEmpty())
-                    view.print(text, ConsoleViewContentType.SYSTEM_OUTPUT);
-                reportMessage("QQQ", MessageType.INFO);
+//                var view = (ConsoleView) myExecutionConsole.getComponent();
+//                if (!text.isEmpty())
+//                    view.print(text, ConsoleViewContentType.SYSTEM_OUTPUT);
+                if (!text.isEmpty()) {
+                    reportMessage(text, MessageType.INFO);
+                }
                 break;
             }
             case '~': // console

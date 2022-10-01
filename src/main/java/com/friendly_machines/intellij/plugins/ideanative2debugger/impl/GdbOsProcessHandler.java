@@ -6,6 +6,7 @@ import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessOutputTypes;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.io.BaseDataReader;
 import com.intellij.util.io.BaseOutputReader;
@@ -139,8 +140,11 @@ public class GdbOsProcessHandler extends OSProcessHandler {
 
             // For async response handling, see GdbMiFilter
         } else {
-            var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-            debugProcess.processAsync(token, scanner);
+            // Move to UI thread.
+            ApplicationManager.getApplication().invokeLater(() -> {
+                var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+                debugProcess.processAsync(token, scanner);
+            });
         }
         System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"done notify");
         System.err.flush();

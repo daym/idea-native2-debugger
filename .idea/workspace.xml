@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="Ignore interrupted">
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
     </list>
@@ -63,7 +63,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="cleanup" />
+        <entry key="$PROJECT_DIR$" value="kotlin" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -94,7 +94,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.24168366&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.language.Kotlin&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -110,7 +110,7 @@
       <command value="gradle buildPlugin" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.idea-native2-debugger [buildPlugin]">
+  <component name="RunManager" selected="Gradle.Run Plugin">
     <configuration name="PtyOnlyWin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="IntelliJ IDEA Community Edition IC-222.4167.29" />
       <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin" />
@@ -185,8 +185,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Gradle.Run Plugin" />
+        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Application.PtyOnlyWin" />
         <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Gradle.Run Plugin" />
@@ -307,7 +307,28 @@
       <option name="project" value="LOCAL" />
       <updated>1664627658342</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Replace &quot;new Integer compareTo&quot; by &quot;Integer.compare&quot;.">
+      <created>1664642800599</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1664642800599</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Ignore empty message on notifications.">
+      <created>1664651133878</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1664651133878</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Exit gdb when debugged program exits">
+      <created>1664664417148</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1664664417148</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -337,8 +358,15 @@
     <MESSAGE value="Show 'target' messages inside a bubble, too" />
     <MESSAGE value="Make automatic search for executable better." />
     <MESSAGE value="Make async message handling happen in UI thread." />
-    <option name="LAST_COMMIT_MESSAGE" value="Make async message handling happen in UI thread." />
+    <MESSAGE value="Replace &quot;new Integer compareTo&quot; by &quot;Integer.compare&quot;." />
+    <MESSAGE value="Ignore empty message on notifications." />
+    <MESSAGE value="Exit gdb when debugged program exits" />
+    <option name="LAST_COMMIT_MESSAGE" value="Exit gdb when debugged program exits" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/idea_native2_debugger$Run_Plugin.ic" NAME="Run Plugin Coverage Results" MODIFIED="1664407190664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />

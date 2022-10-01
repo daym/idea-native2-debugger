@@ -596,4 +596,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             reportError("exec-run failed", e);
         }
     }
+
+    public void processAsync(Optional<String> token, @NotNull Scanner scanner) {
+        myMiFilter.processAsync(token, scanner);
+    }
 }

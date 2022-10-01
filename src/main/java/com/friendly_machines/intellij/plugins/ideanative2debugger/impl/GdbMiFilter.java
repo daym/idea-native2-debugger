@@ -4,6 +4,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,8 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
-
-import static com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiProducer.parseToken;
 
 public class GdbMiFilter {
     private final DebugProcess myProcess;
@@ -135,15 +134,9 @@ public class GdbMiFilter {
     private static char consume(Scanner scanner) {
         return scanner.next().charAt(0);
     }
-    public void processLine(@NotNull String line) {
-        line = line.strip();
-        if ("(gdb)".equals(line)) {
-            return;
-        }
-
-        Scanner scanner = new Scanner(line);
+    public void processAsync(@Nullable Optional<String> token, @NotNull Scanner scanner) {
         scanner.useDelimiter(""); // character by character mode
-        Optional<String> token = parseToken(scanner);
+        //Optional<String> token = parseToken(scanner);
         // "+": contains on-going status information about the progress of a slow operation.
         // "*": contains asynchronous state change on the target (stopped, started, disappeared)
         // "=": contains supplementary information that the client should handle (e.g., a new breakpoint information)

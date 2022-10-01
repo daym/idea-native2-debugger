@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.run/Run IDE with Plugin.run.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -114,7 +113,7 @@
       <command value="gradle buildPlugin" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.Run Plugin">
+  <component name="RunManager" selected="Gradle.idea-native2-debugger [buildPlugin]">
     <configuration name="PtyOnlyWin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="IntelliJ IDEA Community Edition IC-222.4167.29" />
       <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin" />
@@ -189,8 +188,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.Run Plugin" />
         <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
+        <item itemvalue="Gradle.Run Plugin" />
         <item itemvalue="Application.PtyOnlyWin" />
       </list>
     </recent_temporary>
@@ -267,7 +266,21 @@
       <option name="project" value="LOCAL" />
       <updated>1664580544411</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Add &quot;Run IDE with plugin&quot;.">
+      <created>1664586102089</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1664586102089</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Factor out and fix startDebugging.">
+      <created>1664586165598</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1664586165598</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -291,20 +304,10 @@
     <MESSAGE value="Remove MI_FILTER userdata." />
     <MESSAGE value="Remove DEBUG_PROCESS userdata." />
     <MESSAGE value="Move GdbOsProcessHandler to impl." />
-    <option name="LAST_COMMIT_MESSAGE" value="Move GdbOsProcessHandler to impl." />
+    <MESSAGE value="Add &quot;Run IDE with plugin&quot;." />
+    <MESSAGE value="Factor out and fix startDebugging." />
+    <option name="LAST_COMMIT_MESSAGE" value="Factor out and fix startDebugging." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="NONE" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiFilter.java</url>
-          <line>138</line>
-          <log-expression expression="&quot;processLine&quot;" language="JAVA" />
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/idea_native2_debugger$Run_Plugin.ic" NAME="Run Plugin Coverage Results" MODIFIED="1664407190664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />

@@ -36,22 +36,23 @@ public class AssemblyView extends BorderLayoutPanel {
                 txtRegisters.setText("");
                 try {
                     List<String> registerNames = process.dataListRegisterNames();
-//                    List<Map<String, Object>> registerValues = process.dataListRegisterValues("x"); // FIXME: weird bug
-//                    if (registerNames.size() == registerValues.size()) {
-//                        for(var i = 0; i < registerNames.size(); ++i) {
-//                            var name = registerNames.get(i);
-//                            var values = registerValues.get(i);
-//                            txtRegisters.append("\n");
-//                            txtRegisters.append(name);
-//                            txtRegisters.append(values.toString());
-//                        }
-//                    }
-
+                    List<Map<String, Object>> registerValues = process.dataListRegisterValues("x");
+                    for (Map<String, Object> entry: registerValues) {
+                        String numberString = (String) entry.get("number");
+                        Object value = entry.get("value");
+                        txtRegisters.append("\n");
+                        var number = Integer.parseInt(numberString);
+                        var name = registerNames.get(number);
+                        txtRegisters.append(name);
+                        txtRegisters.append(" = ");
+                        txtRegisters.append(value.toString());
+                    }
                 } catch (GdbMiOperationException e2) {
                     e2.printStackTrace();
                 } catch (RuntimeException e3) {
                     e3.printStackTrace();
                 }
+                txtRegisters.revalidate();
                 try {
                     // FIXME: spnCount
                     var result = process.dataDisassemble(txtBeginning.getText(), "$pc+16", GdbMiDisassemblyMode.MixedSourceAndDisassembly);

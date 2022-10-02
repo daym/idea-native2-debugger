@@ -131,7 +131,7 @@ public class GdbMiProducer /*extends Thread*/ {
 
     // Not specified in GDB manual
     @NotNull
-    public static String parseString(@NotNull Scanner scanner) {
+    public static String parseSymbol(@NotNull Scanner scanner) {
         String result = scanner.next("[a-zA-Z_-]");
 
         while (scanner.hasNext("[a-zA-Z0-9_-]")) {
@@ -143,7 +143,7 @@ public class GdbMiProducer /*extends Thread*/ {
 
     @NotNull
     public static String parseKlass(Scanner scanner) {
-        return parseString(scanner);
+        return parseSymbol(scanner);
     }
 
     @NotNull
@@ -154,7 +154,7 @@ public class GdbMiProducer /*extends Thread*/ {
             if (scanner.hasNext("\\}")) {
                 break;
             }
-            String name = parseString(scanner);
+            String name = parseSymbol(scanner);
             scanner.next("=");
             Object value = parseValue(scanner);
             result.put(name, value);
@@ -172,7 +172,7 @@ public class GdbMiProducer /*extends Thread*/ {
     private static List<Map.Entry<String, Object>> parseKeyValueList(@NotNull Scanner scanner) {
         List<Map.Entry<String, Object>> result = new ArrayList<>();
         while (scanner.hasNext() && !scanner.hasNext("\\]")) {
-            String name = parseString(scanner);
+            String name = parseSymbol(scanner);
             scanner.next("=");
             Object value = parseValue(scanner);
             result.add(new AbstractMap.SimpleEntry<>(name, value));

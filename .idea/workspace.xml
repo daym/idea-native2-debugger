@@ -4,20 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="Exit gdb when debugged program exits">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiDisassemblyMode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponseTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/MemoryView.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/MemoryView.java" afterDir="false" />
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="Add AssemblyView, MemoryView.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/RunProfileState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +102,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.24168366&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.stepping&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -136,20 +128,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Gradle.Run Plugin">
-    <configuration name="PtyOnlyWin" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="IntelliJ IDEA Community Edition IC-222.4167.29" />
-      <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.PtyOnlyWin" />
-      <module name="idea-native2-debugger.main" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Run Plugin" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <log_file alias="idea.log" path="$PROJECT_DIR$/build/idea-sandbox/system/log/idea.log" />
       <ExternalSystemSettings>
@@ -184,6 +162,27 @@
         <option name="taskNames">
           <list>
             <option value="buildPlugin" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="idea-native2-debugger [buildSearchableOptions]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="buildSearchableOptions" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -237,7 +236,7 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.PtyOnlyWin" />
+      <item itemvalue="Gradle.idea-native2-debugger [buildSearchableOptions]" />
       <item itemvalue="Gradle.Run Plugin" />
       <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
       <item itemvalue="JUnit.GdbMiStateResponseTest" />
@@ -249,8 +248,8 @@
         <item itemvalue="Gradle.Run Plugin" />
         <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="JUnit.GdbMiStateResponseTest" />
+        <item itemvalue="Gradle.idea-native2-debugger [buildSearchableOptions]" />
         <item itemvalue="JUnit.GdbMiStateResponseTest.decode" />
-        <item itemvalue="Application.PtyOnlyWin" />
       </list>
     </recent_temporary>
   </component>
@@ -403,7 +402,42 @@
       <option name="project" value="LOCAL" />
       <updated>1664664558410</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="GdbMi: Allow &quot;_&quot; in symbols.">
+      <created>1664717425724</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1664717425724</updated>
+    </task>
+    <task id="LOCAL-00022" summary="GdbMiProducer: Rename &quot;parseString&quot; to &quot;parseSymbol&quot;.">
+      <created>1664717461179</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1664717461179</updated>
+    </task>
+    <task id="LOCAL-00023" summary="GdbOsProcessHandler: Synthesize error response if there is an error in parsing the Gdb Mi response.">
+      <created>1664717549394</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1664717549394</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Add AssemblyView, MemoryView.">
+      <created>1664717589787</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1664717589787</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Add test for GdbMiStateResponse.">
+      <created>1664727010941</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1664727010941</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -436,8 +470,43 @@
     <MESSAGE value="Replace &quot;new Integer compareTo&quot; by &quot;Integer.compare&quot;." />
     <MESSAGE value="Ignore empty message on notifications." />
     <MESSAGE value="Exit gdb when debugged program exits" />
-    <option name="LAST_COMMIT_MESSAGE" value="Exit gdb when debugged program exits" />
+    <MESSAGE value="GdbMi: Allow &quot;_&quot; in symbols." />
+    <MESSAGE value="GdbMiProducer: Rename &quot;parseString&quot; to &quot;parseSymbol&quot;." />
+    <MESSAGE value="GdbOsProcessHandler: Synthesize error response if there is an error in parsing the Gdb Mi response." />
+    <MESSAGE value="Add AssemblyView, MemoryView." />
+    <MESSAGE value="Add test for GdbMiStateResponse." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add test for GdbMiStateResponse." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java</url>
+          <line>76</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint type="java-line">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-222.4167.29-sources.jar!/com/intellij/util/io/BaseDataReader.java</url>
+          <line>155</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java</url>
+          <line>616</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/20b2316f0038ec4b5853ee0725f05df46b6aa206/ideaIC-222.4167.29/lib/pty4j.jar!/com/pty4j/unix/Pty.class</url>
+          <line>198</line>
+          <properties class="com.pty4j.unix.Pty" method="read">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

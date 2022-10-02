@@ -121,13 +121,19 @@ public class GdbOsProcessHandler extends OSProcessHandler {
         Optional<String> token = GdbMiProducer.parseToken(scanner);
         if (scanner.hasNext("\\^")) { // sync response
             if (token.isPresent()) {
-                var item = GdbMiStateResponse.decode(token, scanner);
                 try {
-                    System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"before putting item in queue");
-                    System.err.flush();
+                    var item = GdbMiStateResponse.decode(token, scanner);
                     myProducer.produce(item);
-                    System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"after putting item in queue");
-                    System.err.flush();
+                } catch (RuntimeException e) { // InputMismatchException
+                    e.printStackTrace();
+                    // Put an error response into the queue--otherwise the caller would wait for an answer indefinitely.
+                    var item2 = GdbMiStateResponse.errorResponse(token, '^', "error", e.toString());
+                    try {
+                        myProducer.produce(item2);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                        throw new RuntimeException(ex);
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e); // FIXME

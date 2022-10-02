@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.io.BaseDataReader;
@@ -13,6 +12,7 @@ import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -73,42 +73,15 @@ public class GdbOsProcessHandler extends OSProcessHandler {
 
     // This is here so we don't have an ordering problem with the startNotified events
     public void startNotify() {
-        if (myCommandLine != null) {
-            notifyTextAvailable(myCommandLine + '\n', ProcessOutputTypes.SYSTEM);
-        }
-
         addProcessListener(new ProcessAdapter() {
             @Override
             public void startNotified(@NotNull final ProcessEvent event) {
-                var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-                try {
-                    BaseDataReader stdOutReader = createOutputDataReader();
-                    BaseDataReader stdErrReader = processHasSeparateErrorStream() ? createErrorDataReader() : null;
+                SwingUtilities.invokeLater(() -> {
+                    var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
                     debugProcess.startDebugging();
-
-                    myWaitFor.setTerminationCallback(exitCode -> {
-                        try {
-                            // tell readers that no more attempts to read process' output should be made
-                            if (stdErrReader != null) stdErrReader.stop();
-                            stdOutReader.stop();
-
-                            try {
-                                if (stdErrReader != null) stdErrReader.waitFor();
-                                stdOutReader.waitFor();
-                            }
-                            catch (InterruptedException ignore) { }
-                        }
-                        finally {
-                            onOSProcessTerminated(exitCode);
-                        }
-                    });
-                }
-                finally {
-                    removeProcessListener(this);
-                }
+                });
             }
         });
-
         super.startNotify();
     }
 

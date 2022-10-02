@@ -4,9 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="Exit gdb when debugged program exits">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiDisassemblyMode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponseTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/MemoryView.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/MemoryView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiStateResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +68,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Enum" />
+        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -90,6 +103,9 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/tmp/idea-native2-debugger-1.0-SNAPSHOT.zip&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
@@ -99,6 +115,15 @@
 }</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
       <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -168,6 +193,40 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="GdbMiStateResponseTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="idea-native2-debugger.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="15" />
+      <option name="PACKAGE_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
+      <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponseTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GdbMiStateResponseTest.decode" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="idea-native2-debugger.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
+      <option name="MAIN_CLASS_NAME" value="com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponseTest" />
+      <option name="METHOD_NAME" value="decode" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Plugin" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -ea" />
@@ -181,15 +240,17 @@
       <item itemvalue="Application.PtyOnlyWin" />
       <item itemvalue="Gradle.Run Plugin" />
       <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
+      <item itemvalue="JUnit.GdbMiStateResponseTest" />
+      <item itemvalue="JUnit.GdbMiStateResponseTest.decode" />
       <item itemvalue="Plugin.Plugin" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.Run Plugin" />
         <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
+        <item itemvalue="JUnit.GdbMiStateResponseTest" />
+        <item itemvalue="JUnit.GdbMiStateResponseTest.decode" />
         <item itemvalue="Application.PtyOnlyWin" />
-        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
-        <item itemvalue="Gradle.Run Plugin" />
       </list>
     </recent_temporary>
   </component>
@@ -328,7 +389,21 @@
       <option name="project" value="LOCAL" />
       <updated>1664664417148</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Exit gdb when debugged program exits">
+      <created>1664664477709</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1664664477709</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Exit gdb when debugged program exits">
+      <created>1664664558410</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1664664558410</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

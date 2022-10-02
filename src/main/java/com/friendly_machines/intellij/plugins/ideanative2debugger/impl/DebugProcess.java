@@ -7,8 +7,11 @@ import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
+import com.intellij.execution.ui.RunnerLayoutUi;
+import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.notification.Notification;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -17,15 +20,22 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManagerEvent;
+import com.intellij.ui.content.ContentManagerListener;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import com.intellij.xdebugger.memory.component.InstancesTracker;
+import com.intellij.xdebugger.memory.component.MemoryViewManager;
+import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,11 +50,9 @@ import java.util.*;
 // TODO: -thread-info, -thread-list-ids, -thread-select
 // TODO: -stack-info-frame
 // TODO: fixed variable object, floating variable object, -var-create, -var-delete, -var-info-type, -var-info-expression, -var-info-path-expression, -var-show-attributes, -var-evaluate-expression, -var-assign, -var-update, -var-set-frozen, -var-set-update-range
-// TODO: -data-read-memory-bytes, -data-write-memory-bytes
 // TODO: tracepoints, -trace-find, -trace-define-variable, -trace-frame-collected, -trace-list-variables, -trace-start, -trace-save
-// TODO: registerAdditionalActions(DefaultActionGroup leftToolbar, DefaultActionGroup topToolbar, DefaultActionGroup settings) ?
 // TODO: public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remote it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
-
+// TODO: "registers" view (in assembly view)
 // TODO: exec-jump fileline
 // TODO: -exec-next-instruction
 // ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
@@ -334,7 +342,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void execRun() throws GdbMiOperationException {
         System.err.println("EXEC RUN");
-        gdbCall("-exec-run", new String[0], new String[0]);
+        gdbCall("-exec-run", new String[] {"--start"}, new String[0]); // FIXME optional "--start"
     }
 
     private static boolean isFileExecutable(VirtualFile file) {
@@ -571,6 +579,61 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //getSession().pause();
     }
 
+    public Object dataReadMemoryBytes(int byteOffset, String addressExpr, int countBytes) throws GdbMiOperationException {
+        return gdbCall("-data-read-memory-bytes", new String[] { "-o", Integer.toString(byteOffset), addressExpr, Integer.toString(countBytes) }, new String[] {});
+    }
+
+    private static char[] hexdigits = "0123456789abcdef".toCharArray();
+
+    public Object dataWriteMemoryBytes(String addressExpr, byte[] contents) throws GdbMiOperationException {
+        var contentsStream = new StringBuilder();
+        for (byte item : contents) {
+            contentsStream.append(hexdigits[(item >> 4) & 0xF]);
+            contentsStream.append(hexdigits[(item >> 0) & 0xF]);
+        }
+        return gdbCall("-data-write-memory-bytes", new String[] { addressExpr, contentsStream.toString() }, new String[] {});
+    }
+    public List<String> dataListChangedRegisters() throws GdbMiOperationException {
+        Map<String, Object> result = gdbCall("-data-list-changed-registers", new String[] {}, new String[] {});
+        // ^done,changed-registers=[...]
+        if (result.containsKey("changed-registers")) {
+            return (List<String>) result.get("changed-registers");
+        } else {
+            throw new RuntimeException("invalid result");
+        }
+    }
+    public List<String> dataListRegisterNames() throws GdbMiOperationException {
+        Map<String, Object> result = gdbCall("-data-list-register-names", new String[]{}, new String[]{});
+        if (result.containsKey("register-names")) {
+            return (List<String>) result.get("register-names");
+        } else {
+            throw new RuntimeException("invalid result");
+        }
+    }
+
+    // TODO: Arg: list of registers
+    public List<Map<String, Object>> dataListRegisterValues(String fmt) throws GdbMiOperationException {
+        Map<String, Object> result = gdbCall("-data-list-register-values", new String[] { fmt }, new String[]{});
+        if (result.containsKey("register-values")) {
+            return (List<Map<String, Object>>) result.get("register-values");
+        } else {
+            throw new RuntimeException("invalid result");
+        }
+    }
+
+    public Map<String, Object> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException {
+        Map<String, Object> result = gdbCall("-data-disassemble", new String[] { "-s", beginningAddress, "-e", endAddress }, new String[]{ Integer.toString(mode.code()) });
+        // ^done,changed-registers=[...]
+        return result;
+    }
+
+    // FIXME: allow specifying endAddress
+    public Map<String, Object> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException {
+        Map<String, Object> result = gdbCall("-data-list-register-values", lineCount.isPresent() ? new String[] { "-f", filename, "-l", Integer.toString(linenum), "-n", Integer.toString(lineCount.get()) } : new String[] { "-f", filename, "-l", Integer.toString(linenum) }, new String[]{ includeHighlevelSource ? "1" : "0" });
+        // ^done,changed-registers=[...]naems
+        return result;
+    }
+
     @Override
     public void stop() {
         // Note: IDEA usually calls this AFTER the process was already terminated.
@@ -625,5 +688,71 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     public void processAsync(Optional<String> token, @NotNull Scanner scanner) {
         myMiFilter.processAsync(token, scanner);
+    }
+
+    private void registerMemoryViewPanel(@NotNull RunnerLayoutUi ui) {
+        if (!Registry.is("debugger.enable.memory.view"))
+            return;
+
+        final XDebugSession session = getSession();
+        final InstancesTracker tracker = InstancesTracker.getInstance(getSession().getProject());
+        final MemoryView memoryView = new MemoryView(session, this, tracker);
+        final Content content = ui.createContent(MemoryViewManager.MEMORY_VIEW_CONTENT, memoryView, DebuggerBundle.message("memory.toolwindow.title"), null, memoryView.getDefaultFocusedComponent());
+        content.setCloseable(false);
+        content.setShouldDisposeContent(true);
+        ui.addContent(content, 0, PlaceInGrid.right, true);
+        // FIXME: memoryView.setActive(content.isSelected());
+        //final DebuggerManagerThreadImpl managerThread = process.getManagerThread();
+        ui.addListener(new ContentManagerListener() {
+            @Override
+            public void selectionChanged(@NotNull ContentManagerEvent event) {
+                if (event.getContent() == content) {
+                    memoryView.setActive(content.isSelected());
+                }
+            }
+        }, content);
+    }
+
+    private void registerAssemblyViewPanel(@NotNull RunnerLayoutUi ui) {
+        final XDebugSession session = getSession();
+        final AssemblyView assemblyView = new AssemblyView(session, this);
+        final Content content = ui.createContent("AssemblyView", assemblyView, DebuggerBundle.message("assembly.toolwindow.title"), null, assemblyView.getDefaultFocusedComponent());
+        content.setCloseable(false);
+        content.setShouldDisposeContent(true);
+        ui.addContent(content, 0, PlaceInGrid.right, true);
+        // FIXME: assemblyView.setActive(content.isSelected());
+        //final DebuggerManagerThreadImpl managerThread = process.getManagerThread();
+        ui.addListener(new ContentManagerListener() {
+            @Override
+            public void selectionChanged(@NotNull ContentManagerEvent event) {
+                if (event.getContent() == content) {
+                    assemblyView.setActive(content.isSelected());
+                }
+            }
+        }, content);
+    }
+
+    @NotNull
+    @Override
+    public XDebugTabLayouter createTabLayouter() {
+        return new XDebugTabLayouter() {
+            @Override
+            public void registerAdditionalContent(@NotNull RunnerLayoutUi ui) {
+                registerMemoryViewPanel(ui);
+                registerAssemblyViewPanel(ui);
+            }
+        };
+    }
+
+    @Override
+    public void registerAdditionalActions(@NotNull DefaultActionGroup leftToolbar, @NotNull DefaultActionGroup topToolbar, @NotNull DefaultActionGroup settings) {
+        super.registerAdditionalActions(leftToolbar, topToolbar, settings);
+        //     settings.add(new WatchReturnValuesAction(this));
+        //    settings.add(new PyVariableViewSettings.SimplifiedView(this));
+        //    settings.add(new PyVariableViewSettings.VariablesPolicyGroup());
+        //leftToolbar.add(Separator.getInstance());
+        //leftToolbar.add(Separator.getInstance());
+        // TODO: ToggleAction
+
     }
 }

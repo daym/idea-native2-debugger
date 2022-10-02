@@ -31,12 +31,17 @@ public class GdbMiStateResponse {
         HashMap<String, Object> result = new HashMap<String, Object>();
         while (scanner.hasNext(",")) {
             scanner.next(",");
-            String name = GdbMiProducer.parseString(scanner);
+            String name = GdbMiProducer.parseSymbol(scanner);
             scanner.next("=");
             Object value = GdbMiProducer.parseValue(scanner);
             result.put(name, value);
         }
         return new GdbMiStateResponse(token, mode, klass, result);
+    }
+
+    public static GdbMiStateResponse errorResponse(Optional<String> token, char mode, String klass, String errorMessage) {
+        // TODO: add error message somehow?
+        return new GdbMiStateResponse(token, mode, klass, new HashMap<>());
     }
 
     public char getMode() {

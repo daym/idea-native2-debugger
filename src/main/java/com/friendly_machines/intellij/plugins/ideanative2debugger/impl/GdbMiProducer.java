@@ -132,9 +132,9 @@ public class GdbMiProducer /*extends Thread*/ {
     // Not specified in GDB manual
     @NotNull
     public static String parseString(@NotNull Scanner scanner) {
-        String result = scanner.next("[a-zA-Z-]");
+        String result = scanner.next("[a-zA-Z_-]");
 
-        while (scanner.hasNext("[a-zA-Z0-9-]")) {
+        while (scanner.hasNext("[a-zA-Z0-9_-]")) {
             char c = consume(scanner);
             result += c;
         }

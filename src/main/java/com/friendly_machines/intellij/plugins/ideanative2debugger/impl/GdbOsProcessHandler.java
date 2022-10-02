@@ -3,8 +3,6 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.io.BaseDataReader;
@@ -12,7 +10,6 @@ import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -73,18 +70,10 @@ public class GdbOsProcessHandler extends OSProcessHandler {
 
     // This is here so we don't have an ordering problem with the startNotified events
     public void startNotify() {
-        addProcessListener(new ProcessAdapter() {
-            @Override
-            public void startNotified(@NotNull final ProcessEvent event) {
-                SwingUtilities.invokeLater(() -> {
-                    var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-                    debugProcess.startDebugging();
-                });
-            }
-        });
         super.startNotify();
+        var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+        debugProcess.startDebugging();
     }
-
     @Override
     public void notifyTextAvailable(@NotNull String text, @NotNull Key outputType) {
         System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() + " notifyTextAvailable: " + text);

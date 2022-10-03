@@ -235,22 +235,17 @@ public class GdbMiProducer /*extends Thread*/ {
         }
     }
 
-    public GdbMiProducer() {
-
-    }
-
     public void produce(GdbMiStateResponse item) throws InterruptedException {
         //println(currentThread().getId() + currentThread().getName() + " produce");
         myQueue.put(item);
     }
 
+    /// Note: result will be null on timeout.
     public GdbMiStateResponse consume() throws InterruptedException {
         //println(currentThread().getId() + currentThread().getName() + " consume");
-        var result = myQueue.poll(2, TimeUnit.SECONDS);
-        if (result == null) { // timeout
-            throw new RuntimeException("timeout while waiting for response from GDB/MI");
-        } else {
-            return result;
-        }
+        return myQueue.poll(2, TimeUnit.SECONDS);
+    }
+
+    public GdbMiProducer() {
     }
 }

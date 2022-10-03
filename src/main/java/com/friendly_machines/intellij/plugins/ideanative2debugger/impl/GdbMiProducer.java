@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.currentThread;
 
@@ -247,6 +248,11 @@ public class GdbMiProducer /*extends Thread*/ {
 
     public GdbMiStateResponse consume() throws InterruptedException {
         System.err.println(currentThread().getId() + currentThread().getName() + " consume");
-        return myQueue.take();
+        var result = myQueue.poll(2, TimeUnit.SECONDS);
+        if (result == null) { // timeout
+            throw new RuntimeException("timeout while waiting for response from GDB/MI");
+        } else {
+            return result;
+        }
     }
 }

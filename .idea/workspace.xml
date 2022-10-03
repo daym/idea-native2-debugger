@@ -5,11 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="RunProfileState: Fix">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuRegistersView.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuRegistersView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuAssemblyView.form" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuAssemblyView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,9 +62,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Enum" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -451,7 +454,42 @@
       <option name="project" value="LOCAL" />
       <updated>1664732596719</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="AssemblyView: Fix size.">
+      <created>1664734141586</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1664734141586</updated>
+    </task>
+    <task id="LOCAL-00029" summary="GdbOsProcessHandler: Remove invokeLater.">
+      <created>1664734170803</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1664734170803</updated>
+    </task>
+    <task id="LOCAL-00030" summary="GdebMiProducer.consume: Time out if the queue is empty for too long.">
+      <created>1664797540291</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1664797540291</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Remove debugging messages.">
+      <created>1664797634775</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1664797634775</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Remove debugging messages.">
+      <created>1664797698145</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1664797698145</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -466,11 +504,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Make Pty even more pipe-like." />
-    <MESSAGE value="Try to make gdb interpreter the actual main pty thing (so &quot;--interpreter=mi3&quot; instead of &quot;new-ui mi3 ...&quot;)" />
-    <MESSAGE value="Inline GdbOsReaderOptions." />
-    <MESSAGE value="Do console.attachToProcess in order for IDEA to create a pty." />
-    <MESSAGE value="Remove our Pty classes." />
     <MESSAGE value="Remove STATE userdata." />
     <MESSAGE value="Remove MI_FILTER userdata." />
     <MESSAGE value="Remove DEBUG_PROCESS userdata." />
@@ -491,14 +524,19 @@
     <MESSAGE value="Add test for GdbMiStateResponse." />
     <MESSAGE value="* GdbOsProcessHandler: Remove double-startup." />
     <MESSAGE value="RunProfileState: Add comment on how to use Pty if required." />
-    <option name="LAST_COMMIT_MESSAGE" value="RunProfileState: Add comment on how to use Pty if required." />
+    <MESSAGE value="AssemblyView: Fix size." />
+    <MESSAGE value="GdbOsProcessHandler: Remove invokeLater." />
+    <MESSAGE value="GdebMiProducer.consume: Time out if the queue is empty for too long." />
+    <MESSAGE value="RunProfileState: Fix" />
+    <MESSAGE value="Remove debugging messages." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove debugging messages." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AssemblyView.java</url>
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuAssemblyView.java</url>
           <line>77</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
@@ -506,11 +544,6 @@
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-222.4167.29-sources.jar!/com/intellij/util/io/BaseDataReader.java</url>
           <line>155</line>
           <option name="timeStamp" value="29" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java</url>
-          <line>616</line>
-          <option name="timeStamp" value="37" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/20b2316f0038ec4b5853ee0725f05df46b6aa206/ideaIC-222.4167.29/lib/pty4j.jar!/com/pty4j/unix/Pty.class</url>

@@ -715,18 +715,37 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void registerAssemblyViewPanel(@NotNull RunnerLayoutUi ui) {
         final XDebugSession session = getSession();
-        final AssemblyView assemblyView = new AssemblyView(session, this);
-        final Content content = ui.createContent("AssemblyView", assemblyView, DebuggerBundle.message("assembly.toolwindow.title"), null, assemblyView.getDefaultFocusedComponent());
+        final CpuAssemblyView view = new CpuAssemblyView(session, this);
+        final Content content = ui.createContent("AssemblyView", view, DebuggerBundle.message("assembly.toolwindow.title"), null, view.getDefaultFocusedComponent());
         content.setCloseable(false);
         content.setShouldDisposeContent(true);
         ui.addContent(content, 0, PlaceInGrid.right, true);
-        // FIXME: assemblyView.setActive(content.isSelected());
+        //final DebuggerManagerThreadImpl managerThread = process.getManagerThread();
+        ui.addListener(new ContentManagerListener() {
+
+            @Override
+            public void selectionChanged(@NotNull ContentManagerEvent event) {
+                if (event.getContent() == content) {
+                    view.setActive(content.isSelected());
+                }
+            }
+        }, content);
+    }
+
+    private void registerCpuRegistersViewPanel(@NotNull RunnerLayoutUi ui) {
+        final XDebugSession session = getSession();
+        final var view = new CpuRegistersView(session, this);
+        final var content = ui.createContent("RegistersView", view, DebuggerBundle.message("registers.toolwindow.title"), null, view.getDefaultFocusedComponent());
+        content.setCloseable(false);
+        content.setShouldDisposeContent(true);
+        ui.addContent(content, 0, PlaceInGrid.right, true);
+        // FIXME: view.setActive(content.isSelected());
         //final DebuggerManagerThreadImpl managerThread = process.getManagerThread();
         ui.addListener(new ContentManagerListener() {
             @Override
             public void selectionChanged(@NotNull ContentManagerEvent event) {
                 if (event.getContent() == content) {
-                    assemblyView.setActive(content.isSelected());
+                    view.setActive(content.isSelected());
                 }
             }
         }, content);
@@ -740,6 +759,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             public void registerAdditionalContent(@NotNull RunnerLayoutUi ui) {
                 registerMemoryViewPanel(ui);
                 registerAssemblyViewPanel(ui);
+                registerCpuRegistersViewPanel(ui);
             }
         };
     }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class AssemblyView extends BorderLayoutPanel {
+public class CpuAssemblyView extends BorderLayoutPanel {
     private final DebugProcess myProcess;
     private JTextArea txtAssembly;
     private JPanel panel1;
@@ -24,10 +24,10 @@ public class AssemblyView extends BorderLayoutPanel {
     }
 
     public JComponent getDefaultFocusedComponent() {
-        return null;
+        return btnDisassemble;
     }
 
-    public AssemblyView(XDebugSession session, DebugProcess process) {
+    public CpuAssemblyView(XDebugSession session, DebugProcess process) {
         myProcess = process;
         this.add(panel1);
         btnDisassemble.addActionListener(new ActionListener() {

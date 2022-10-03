@@ -11,8 +11,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.Thread.currentThread;
-
 /**
  * This reads async and sync responses from a pty input stream.
  * It sends each async responses to the application main thread via invokeLater.
@@ -242,12 +240,12 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     public void produce(GdbMiStateResponse item) throws InterruptedException {
-        System.err.println(currentThread().getId() + currentThread().getName() + " produce");
+        //println(currentThread().getId() + currentThread().getName() + " produce");
         myQueue.put(item);
     }
 
     public GdbMiStateResponse consume() throws InterruptedException {
-        System.err.println(currentThread().getId() + currentThread().getName() + " consume");
+        //println(currentThread().getId() + currentThread().getName() + " consume");
         var result = myQueue.poll(2, TimeUnit.SECONDS);
         if (result == null) { // timeout
             throw new RuntimeException("timeout while waiting for response from GDB/MI");

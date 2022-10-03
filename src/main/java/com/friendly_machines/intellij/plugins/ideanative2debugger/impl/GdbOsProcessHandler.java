@@ -76,8 +76,8 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     }
     @Override
     public void notifyTextAvailable(@NotNull String text, @NotNull Key outputType) {
-        System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() + " notifyTextAvailable: " + text);
-        System.err.flush();
+        // Note: Runs in "output stream of gdb" thread.
+//        println(Thread.currentThread().getId() + Thread.currentThread().getName() + " notifyTextAvailable: " + text);
         var scanner = new Scanner(text);
         scanner.useDelimiter(""); // character by character mode
         Optional<String> token = GdbMiProducer.parseToken(scanner);
@@ -102,8 +102,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                 }
             } else {
                 // a sync response we didn't wait for
-                System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"ignored unknown sync response");
-                System.err.flush();
+                System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +": ignored unknown sync response");
             }
 
             // For async response handling, see GdbMiFilter
@@ -114,8 +113,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                 debugProcess.processAsync(token, scanner);
             });
         }
-        System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +"done notify");
-        System.err.flush();
+//        println(Thread.currentThread().getId() + Thread.currentThread().getName() +"done notify");
 
         super.notifyTextAvailable(text, outputType);
     }

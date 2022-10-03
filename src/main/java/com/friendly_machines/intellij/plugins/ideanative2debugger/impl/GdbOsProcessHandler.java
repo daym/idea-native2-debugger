@@ -60,7 +60,13 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     }
 
     public GdbMiStateResponse readResponse() throws InterruptedException {
-        return myProducer.consume();
+        GdbMiStateResponse result = myProducer.consume();
+        if (result == null) { // timeout
+            this.destroyProcess();
+            throw new RuntimeException("timeout while waiting for response from GDB/MI");
+        } else {
+            return result;
+        }
     }
 
     @Nullable

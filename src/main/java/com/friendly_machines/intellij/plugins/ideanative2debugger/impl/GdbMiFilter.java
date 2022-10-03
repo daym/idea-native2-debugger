@@ -86,8 +86,7 @@ public class GdbMiFilter {
     }
 
     public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
-        System.err.println("gdbSend " + operation);
-        System.err.flush();
+//        println("gdbSend " + operation);
         try {
             ++requestId;
             myChildIn.write(Integer.toString(requestId).getBytes(StandardCharsets.UTF_8));
@@ -106,8 +105,7 @@ public class GdbMiFilter {
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
             GdbMiStateResponse response = readResponse();
-            System.err.println("done gdbSend " + operation);
-            System.err.flush();
+//          println("done gdbSend " + operation);
             return response;
         } catch (IOException e) {
             e.printStackTrace();

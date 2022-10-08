@@ -7,8 +7,6 @@
 
     <description><![CDATA[
     Allows interactive debugging of native executables using gdb.
-
-    This plugin only supports Linux and MacOS X.
   ]]></description>
 
     <vendor email="support+idea@friendly-machines.com" url="https://www.friendly-machines.com">Friendly Machines</vendor>

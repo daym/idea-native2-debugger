@@ -315,6 +315,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     private void gdbSet(String key, String value) throws GdbMiOperationException {
         gdbCall("-gdb-set", new String[]{key, value}, new String[]{});
     }
+    private Object gdbShow(String key) throws GdbMiOperationException {
+        var result = gdbCall("-gdb-show", new String[]{key}, new String[]{});
+        return result.get("value");
+    }
 
     public Map<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
         return gdbCall("-dprintf-insert", options, parameters);

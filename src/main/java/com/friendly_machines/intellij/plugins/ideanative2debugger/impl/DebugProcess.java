@@ -505,7 +505,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
-        //PtyOnly pty = myProcessHandler.getUserData(RunProfileState.PTY);
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new EditorsProvider();
         myEnvironment = environment;
@@ -535,11 +534,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public BreakpointManager getBreakpointManager() {
         return myBreakpointManager;
     }
-
-    @Nullable
-//    public static DebugProcess getInstance(ProcessHandler handler) {
-//        return handler.getUserData(DEBUG_PROCESS_KEY);
-//    }
 
     @NotNull
     @Override

@@ -52,7 +52,6 @@ import java.util.*;
 // TODO: fixed variable object, floating variable object, -var-create, -var-delete, -var-info-type, -var-info-expression, -var-info-path-expression, -var-show-attributes, -var-evaluate-expression, -var-assign, -var-update, -var-set-frozen, -var-set-update-range
 // TODO: tracepoints, -trace-find, -trace-define-variable, -trace-frame-collected, -trace-list-variables, -trace-start, -trace-save
 // TODO: public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remote it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
-// TODO: exec-jump fileline
 // TODO: -info-os [processes]
 // TODO: -list-thread-groups [--available] [--recurse 1] [group ...] and cache results
 // ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
@@ -574,6 +573,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
     public void until(Optional<String> location) throws GdbMiOperationException {
         gdbCall("-exec-until", location.isPresent() ? new String[] { location.get() } : new String[] { }, new String[0]);
+    }
+    public void jump(String location) throws GdbMiOperationException {
+        gdbCall("-exec-jump", new String[] { location }, new String[0]);
     }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {

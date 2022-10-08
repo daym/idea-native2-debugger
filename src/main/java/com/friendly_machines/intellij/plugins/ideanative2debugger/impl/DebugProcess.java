@@ -552,19 +552,50 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return myEditorsProvider;
     }
 
+    public void step(boolean reverse) throws GdbMiOperationException {
+        gdbCall("-exec-step", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    }
+    public void next(boolean reverse) throws GdbMiOperationException {
+        gdbCall("-exec-next", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    }
+    public void stepInstruction(boolean reverse) throws GdbMiOperationException {
+        gdbCall("-exec-step-instruction", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    }
+    public void nextInstruction(boolean reverse) throws GdbMiOperationException {
+        gdbCall("-exec-next-instruction", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    }
+
+    public void finish(boolean reverse) throws GdbMiOperationException {
+        gdbCall("-exec-finish", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        gdbSend("-exec-next", new String[0], new String[0]);
+        try {
+            next(false);
+        } catch (GdbMiOperationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        gdbSend("-exec-step", new String[0], new String[0]);
+        try {
+            step(false);
+        } catch (GdbMiOperationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        gdbSend("-exec-finish", new String[0], new String[0]);
+        try {
+            finish(false);
+        } catch (GdbMiOperationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

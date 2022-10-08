@@ -18,6 +18,7 @@ public class CpuAssemblyView extends BorderLayoutPanel {
     private JButton btnDisassemble;
     private JSpinner spnCount;
     private JTextArea txtRegisters;
+    private JButton stepInstructionButton;
 
     public void setActive(boolean value) {
 
@@ -101,6 +102,18 @@ public class CpuAssemblyView extends BorderLayoutPanel {
                     myProcess.reportError("Assembly error", ex);
                 }
                 // TODO: process.dataDisassembleFile("filename", 42, 2, true);// or that
+            }
+        });
+        stepInstructionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    process.stepInstruction(false);
+                } catch (GdbMiOperationException ex) {
+                    ex.printStackTrace();
+                } catch (RuntimeException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
     }

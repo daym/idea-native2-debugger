@@ -568,6 +568,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void finish(boolean reverse) throws GdbMiOperationException {
         gdbCall("-exec-finish", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
     }
+    public void until(Optional<String> location) throws GdbMiOperationException {
+        gdbCall("-exec-until", location.isPresent() ? new String[] { location.get() } : new String[] { }, new String[0]);
+    }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
         try {
@@ -686,7 +689,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
         try {
-            gdbCall("-exec-until", new String[]{BreakpointManager.fileLineReference(position)}, new String[0]);
+            until(Optional.of(BreakpointManager.fileLineReference(position)));
         } catch (RuntimeException e) {
 //            e.printStackTrace();
 //            final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());

@@ -29,8 +29,8 @@ dependencies {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "15"
-        targetCompatibility = "15"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 
     patchPluginXml {
@@ -53,6 +53,7 @@ tasks {
     }
 
     buildSearchableOptions {
+        // TODO: make this work
         isEnabled = false
         //jbrVersion.set("qqq")
         //jbrVariant.set("sdk")

@@ -23,12 +23,8 @@ import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class RunProfileState extends CommandLineState {
-//    public static final Key<RunProfileState> STATE = Key.create("STATE");
-    //public static final Key<PtyOnly> PTY = Key.create("PTY");
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
-    //private DebugProcess myDebugProcess;
-    //private PtyOnly myPty;
 
     public RunProfileState(Configuration configuration, ExecutionEnvironment environment, TextConsoleBuilder builder) {
         super(environment);
@@ -71,22 +67,17 @@ public class RunProfileState extends CommandLineState {
         // -cd=<dir>
         // -f (stack frame special format)
         // -tty=/dev/tty0
-        //commandLine.addParameter("--interpreter=mi3");
 
         commandLine.addParameter("--interpreter=mi3");
         // gdb needs either forward-slashes or doubly-escaped backslashes
         //commandLine.addParameter("--tty=" + slaveName.replace("\\", "\\\\"));
-        
         //commandLine.addParameter("--eval-command=new-ui mi3 " + slaveName.replace("\\", "\\\\"));
 
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
-        //final OSProcessHandler processHandler = creator.fun(commandLine);
 
-        commandLine.setRedirectErrorStream(false); // FIXME!?
+        commandLine.setRedirectErrorStream(false);
         final OSProcessHandler osProcessHandler = new GdbOsProcessHandler(commandLine);
-//        osProcessHandler.putUserData(STATE, this);
-        //osProcessHandler.putUserData(PTY, myPty);
         // "Since we cannot guarantee that the listener is added before process handled is start notified, ..." ugh
         // This assumes that we can do that still and have it have an effect. That's why we override execute() to make sure that that's the case.
         //myBuilder.addFilter(new Native2DebuggerGdbMiFilter(osProcessHandler, getEnvironment().getProject()));
@@ -101,8 +92,7 @@ public class RunProfileState extends CommandLineState {
         final ProcessHandler processHandler = startProcess();
         final ConsoleView console = createConsole(executor); // keep this AFTER the startProcess call.
         if (console != null) {
-            console.attachToProcess(processHandler); // TODO: nope
-            //console.print();
+            console.attachToProcess(processHandler);
         }
         DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
         return q;

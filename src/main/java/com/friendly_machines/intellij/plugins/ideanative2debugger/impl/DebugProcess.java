@@ -496,6 +496,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         } catch (GdbMiOperationException e) {
             reportError("Loading symbols failed", e);
         }
+        try {
+            reportMessage(listFeatures().toString(), MessageType.INFO);
+        } catch (GdbMiOperationException e) {
+            e.printStackTrace();
+        }
+//        try {
+//            reportMessage(infoGdbMiCommand("quux").toString(), MessageType.INFO);
+//        } catch (GdbMiOperationException e) {
+//            e.printStackTrace();
+//        }
         // gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
         // TODO: -exec-arguments args
     }
@@ -576,6 +586,13 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
     public void jump(String location) throws GdbMiOperationException {
         gdbCall("-exec-jump", new String[] { location }, new String[0]);
+    }
+    public List<String> listFeatures() throws GdbMiOperationException {
+        // For example, GDB 12.1 has ^done,features=["frozen-varobjs","pending-breakpoints","thread-info","data-read-memory-bytes","breakpoint-notifications","ada-task-info","language-option","info-gdb-mi-command","undefined-command-error-code","exec-run-start-option","data-disassemble-a-option","python"]
+        return (List<String>) gdbCall("-list-features", new String[] {}, new String[0]).get("features");
+    }
+    public Object infoGdbMiCommand(String commandName) throws GdbMiOperationException {
+        return gdbCall("-info-gdb-mi-command", new String[] { commandName }, new String[0]).get("command");
     }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {

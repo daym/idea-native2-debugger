@@ -14,6 +14,7 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
+import com.intellij.execution.executors.DefaultDebugExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,14 +43,13 @@ public class Runner implements ProgramRunner<RunnerSettings> {
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
         System.err.println("native canRun executor: " + executorId + ", profile: " + profile + " " + profile.getClass());
-        return true;
-        //return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof Configuration);
+        return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId)); // && profile instanceof Configuration);
     }
 
     @Nullable
     protected RunContentDescriptor createContentDescriptor(com.intellij.execution.configurations.RunProfileState runProfileState, ExecutionEnvironment environment)
             throws ExecutionException {
-        Executor executor = environment.getExecutor();
+        //Executor executor = environment.getExecutor();
         // could check STATE's stuff (like getParameters() etc)
         //String debuggerPort = DebuggerUtils.getInstance().findAvailableDebugAddress(true);
         //String remotePort = JDWP + debuggerPort;

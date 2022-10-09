@@ -78,7 +78,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return myMiFilter.gdbSend(operation, options, parameters);
     }
 
-    private Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+    private Map<String, ?> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
         return myMiFilter.gdbCall(operation, options, parameters);
     }
 
@@ -302,7 +302,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return result;
     }
 
-    private Map<String, Object> getThreadInfo() throws GdbMiOperationException {
+    private Map<String, ?> getThreadInfo() throws GdbMiOperationException { // TODO return type ?
         return gdbCall("-thread-info", new String[]{}, new String[0]);
     }
 
@@ -326,11 +326,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return result.get("value");
     }
 
-    public Map<String, Object> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, ?> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
         return gdbCall("-dprintf-insert", options, parameters);
     }
 
-    public Map<String, Object> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, ?> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
         return gdbCall("-break-insert", options, parameters);
     }
 
@@ -346,7 +346,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-break-disable", new String[]{number}, new String[]{});
     }
 
-    public Map<String, Object> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
+    public Map<String, ?> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
         return gdbCall("-data-evaluate-expression", new String[]{"--thread", threadId, "--frame", frameId, expr}, new String[0]);
     }
 
@@ -431,7 +431,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             Component parentComponent = null; // TODO
             FileChooserDialog chooser = FileChooserFactory.getInstance().createFileChooser(descriptor, environment.getProject(), parentComponent);
             // TODO: Make it open a useful directory (for example PATH)
-            VirtualFile[] selectedExecutables = chooser.choose(environment.getProject(), new VirtualFile[]{preselectedExecutable});
+            VirtualFile[] selectedExecutables = chooser.choose(environment.getProject(), preselectedExecutable);
             //FileChooser.chooseFile(, environment.getProject(), preselectedExecutable);
 
             VirtualFile selectedExecutable = selectedExecutables.length > 0 ? selectedExecutables[0] : null;
@@ -485,10 +485,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         } else try {
             if (projectSettings.symbolFile != null && !projectSettings.symbolFile.isEmpty()) {
                 loadSymbols(projectSettings.symbolFile);
-            } else {
-                if ("exec".equals(projectSettings.gdbTargetType)) {
-                    loadSymbols(projectSettings.gdbTargetArg);
-                }
             }
         } catch (GdbMiOperationException e) {
             reportError("Loading symbols failed", e);
@@ -579,14 +575,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         gdbCall("-exec-finish", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
     }
     public void until(Optional<String> location) throws GdbMiOperationException {
-        gdbCall("-exec-until", location.isPresent() ? new String[] { location.get() } : new String[] { }, new String[0]);
+        gdbCall("-exec-until", location.map(x -> new String[] { x }).orElse(new String[] { }), new String[0]);
     }
     public void jump(String location) throws GdbMiOperationException {
         gdbCall("-exec-jump", new String[] { location }, new String[0]);
     }
-    public List<String> listFeatures() throws GdbMiOperationException {
+    public List<String> listFeatures() throws GdbMiOperationException, ClassCastException {
         // For example, GDB 12.1 has ^done,features=["frozen-varobjs","pending-breakpoints","thread-info","data-read-memory-bytes","breakpoint-notifications","ada-task-info","language-option","info-gdb-mi-command","undefined-command-error-code","exec-run-start-option","data-disassemble-a-option","python"]
-        return (List<String>) gdbCall("-list-features", new String[] {}, new String[0]).get("features");
+        @SuppressWarnings("unchecked")
+        var result = (List<String>) gdbCall("-list-features", new String[] {}, new String[0]).get("features");
+        return result;
     }
     public Object infoGdbMiCommand(String commandName) throws GdbMiOperationException {
         return gdbCall("-info-gdb-mi-command", new String[] { commandName }, new String[0]).get("command");
@@ -641,8 +639,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
         return gdbCall("-data-write-memory-bytes", new String[] { addressExpr, contentsStream.toString() }, new String[] {});
     }
-    public List<String> dataListChangedRegisters() throws GdbMiOperationException {
-        Map<String, Object> result = gdbCall("-data-list-changed-registers", new String[] {}, new String[] {});
+    @SuppressWarnings("unchecked")
+    public List<String> dataListChangedRegisters() throws GdbMiOperationException, ClassCastException {
+        var result = gdbCall("-data-list-changed-registers", new String[] {}, new String[] {});
         // ^done,changed-registers=[...]
         if (result.containsKey("changed-registers")) {
             return (List<String>) result.get("changed-registers");
@@ -650,8 +649,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             throw new RuntimeException("invalid result");
         }
     }
-    public List<String> dataListRegisterNames() throws GdbMiOperationException {
-        Map<String, Object> result = gdbCall("-data-list-register-names", new String[]{}, new String[]{});
+    @SuppressWarnings("unchecked")
+    public List<String> dataListRegisterNames() throws GdbMiOperationException, ClassCastException {
+        var result = gdbCall("-data-list-register-names", new String[]{}, new String[]{});
         if (result.containsKey("register-names")) {
             return (List<String>) result.get("register-names");
         } else {
@@ -660,22 +660,28 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     // TODO: Arg: list of registers
-    public List<Map<String, Object>> dataListRegisterValues(String fmt) throws GdbMiOperationException {
-        Map<String, Object> result = gdbCall("-data-list-register-values", new String[] { fmt }, new String[]{});
+    @SuppressWarnings("unchecked")
+    public List<Map<String, ?>> dataListRegisterValues(String fmt) throws GdbMiOperationException, ClassCastException {
+        var result = gdbCall("-data-list-register-values", new String[] { fmt }, new String[]{});
         if (result.containsKey("register-values")) {
-            return (List<Map<String, Object>>) result.get("register-values");
+            return (List<Map<String, ?>>) result.get("register-values");
         } else {
             throw new RuntimeException("invalid result");
         }
     }
 
-    public Map<String, Object> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException {
+    public Map<String, ?> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException {
         return gdbCall("-data-disassemble", new String[] { "-s", beginningAddress, "-e", endAddress }, new String[]{ Integer.toString(mode.code()) });
     }
 
     // FIXME: allow specifying endAddress
-    public Map<String, Object> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException {
-        return gdbCall("-data-list-register-values", lineCount.isPresent() ? new String[] { "-f", filename, "-l", Integer.toString(linenum), "-n", Integer.toString(lineCount.get()) } : new String[] { "-f", filename, "-l", Integer.toString(linenum) }, new String[]{ includeHighlevelSource ? "1" : "0" });
+    public Map<String, ?> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException {
+        var options = new ArrayList<String>(List.of("-f", filename, "-l", Integer.toString(linenum)));
+        lineCount.ifPresent(x -> {
+            options.add("-n");
+            options.add(Integer.toString(x));
+        });
+        return gdbCall("-data-list-register-values", options.toArray(new String[0]), new String[]{ includeHighlevelSource ? "1" : "0" });
     }
 
     @Override

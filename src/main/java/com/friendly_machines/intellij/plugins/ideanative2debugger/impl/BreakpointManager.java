@@ -75,18 +75,17 @@ public class BreakpointManager {
         }
         // TODO: breakpoint.isLogStack()
         try {
-            Map<String, Object> gdbResponse;
+            Map<String, ?> gdbResponse;
             if (key.isLogMessage()) {
                 gdbResponse = myDebugProcess.dprintfInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition()), "Breakpointhit"});
             } else {
                 gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition())});
             }
-            myBreakpoints.add(new Breakpoint(myDebugProcess, key, (Map<String, Object>) gdbResponse.get("bkpt")));
+            @SuppressWarnings("unchecked")
+            var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt));
             return true;
-        } catch (GdbMiOperationException e) {
-            myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
-            return false;
-        } catch (ClassCastException e) {
+        } catch (GdbMiOperationException | ClassCastException e) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
             return false;
         }

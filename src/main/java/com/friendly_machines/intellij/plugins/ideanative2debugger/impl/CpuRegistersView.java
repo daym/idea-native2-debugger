@@ -18,8 +18,8 @@ public class CpuRegistersView extends BorderLayoutPanel {
             txtRegisters.setText("");
             try {
                 List<String> registerNames = process.dataListRegisterNames();
-                List<Map<String, Object>> registerValues = process.dataListRegisterValues("x");
-                for (Map<String, Object> entry: registerValues) {
+                var registerValues = process.dataListRegisterValues("x");
+                for (Map<String, ?> entry: registerValues) {
                     String numberString = (String) entry.get("number");
                     Object value = entry.get("value");
                     txtRegisters.append("\n");

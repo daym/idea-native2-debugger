@@ -357,6 +357,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     private static boolean isFileExecutable(VirtualFile file) {
+        if (file == null) {
+            return false;
+        }
         @Nullable String extension = file.getExtension();
         if (file.isDirectory()) {
             return "app".equals(extension); // MacOS X

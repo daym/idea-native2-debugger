@@ -19,7 +19,6 @@ import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -69,7 +68,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     protected volatile boolean isGDBconnected = false;
 
-    private BreakpointManager myBreakpointManager = new BreakpointManager(this);
+    private final BreakpointManager myBreakpointManager = new BreakpointManager(this);
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new BreakpointHandler(this, BreakpointType.class),
@@ -123,7 +122,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //        String core = (String) attributes.get("core");
                 if (reason != null && reason.startsWith("exited")) {
                     // TODO: reason=("exited-normally"|"exited"|"exited-signalled")
-                    getSession().reportMessage("Debugged program exited with " + attributes.toString(), MessageType.INFO);
+                    getSession().reportMessage("Debugged program exited with " + attributes, MessageType.INFO);
                     // Exit gdb when debugged program exits
                     this.stop();
                     return;
@@ -133,13 +132,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 if (tresponse.containsKey("threads")) {
                     @SuppressWarnings("unchecked")
                     List<Object> threads = (List<Object>) tresponse.get("threads");
-                    @SuppressWarnings("unchecked")
                     String currentThreadId = (String) tresponse.get("current-thread-id");
 
                     SuspendContext context = generateSuspendContext(threads, currentThreadId);
                     if ("breakpoint-hit".equals(reason)) {
                         if (attributes.containsKey("bkptno")) {
-                            @SuppressWarnings("unchecked")
                             String bkptno = (String) attributes.get("bkptno");
                             Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(bkptno);
                             if (breakpointo.isPresent()) {
@@ -192,9 +189,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 break;
             }
             case '~': // console
+            {
                 if (!text.isEmpty())
                     reportMessage(text, MessageType.INFO);
                 break;
+            }
             default:
                 break;
         }
@@ -205,7 +204,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         getSession().reportError(s);
     }
 
-    public void reportMessage(@NotNull @NlsContexts.NotificationContent String text, @NotNull MessageType typ) {
+    public void reportMessage(@NotNull String text, @NotNull MessageType typ) {
         if (!Notification.isEmpty(text)) {
             getSession().reportMessage(text, typ);
         }
@@ -223,7 +222,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 }
             }
         }
-        reportError(s + ":" + e.toString());
+        reportError(s + ":" + e);
     }
 
     private static String getThreadName(Map<String, Object> thread, String id) {
@@ -233,7 +232,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             name = name + ": " + state;
         }
         if (thread.containsKey("details")) {
-            name = name + "; " + (String) thread.get("details");
+            name = name + "; " + thread.get("details");
         }
         return name;
     }
@@ -245,7 +244,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         for (Object thread1 : threads) {
             @SuppressWarnings("unchecked")
             var thread = (Map<String, Object>) thread1;
-            @SuppressWarnings("unchecked")
             String id = (String) thread.get("id");
             String name = getThreadName(thread, id);
             @SuppressWarnings("unchecked")
@@ -257,8 +255,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                 activeStackId = stacks.size() - 1;
             }
         }
-        SuspendContext context = new SuspendContext(this, stacks.toArray(new ExecutionStack[0]), activeStackId);
-        return context;
+        return new SuspendContext(this, stacks.toArray(new ExecutionStack[0]), activeStackId);
     }
 
     public List<Map<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException, ClassCastException {
@@ -282,11 +279,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public List<Map<String, Object>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException {
-        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> result = new ArrayList<>();
         var q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
         if (q.containsKey("stack")) {
             try {
-                List<? extends Object> stack = (List<? extends Object>) q.get("stack");
+                List<?> stack = (List<?>) q.get("stack");
                 for (Object frame1 : stack) {
                     @SuppressWarnings("unchecked")
                     Map.Entry<String, Object> frame = (Map.Entry<String, Object>) frame1;
@@ -526,7 +523,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         session.setPauseActionSupported(true);
         //session.setCurrentStackFrame();
         final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
-        ExecutionConsole console = executionResult.getExecutionConsole();
+        //ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);
         myExecutionConsole = executionResult.getExecutionConsole();
@@ -551,7 +548,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     @Override
-    public XBreakpointHandler<?> /*@NotNull*/[] getBreakpointHandlers() {
+    public XBreakpointHandler<?> @NotNull[] getBreakpointHandlers() {
         return myXBreakpointHandlers;
     }
 
@@ -645,7 +642,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-data-read-memory-bytes", new String[] { "-o", Integer.toString(byteOffset), addressExpr, Integer.toString(countBytes) }, new String[] {});
     }
 
-    private static char[] hexdigits = "0123456789abcdef".toCharArray();
+    private final static char[] hexdigits = "0123456789abcdef".toCharArray();
 
     public Object dataWriteMemoryBytes(String addressExpr, byte[] contents) throws GdbMiOperationException {
         var contentsStream = new StringBuilder();
@@ -684,16 +681,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public Map<String, Object> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException {
-        Map<String, Object> result = gdbCall("-data-disassemble", new String[] { "-s", beginningAddress, "-e", endAddress }, new String[]{ Integer.toString(mode.code()) });
-        // ^done,changed-registers=[...]
-        return result;
+        return gdbCall("-data-disassemble", new String[] { "-s", beginningAddress, "-e", endAddress }, new String[]{ Integer.toString(mode.code()) });
     }
 
     // FIXME: allow specifying endAddress
     public Map<String, Object> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException {
-        Map<String, Object> result = gdbCall("-data-list-register-values", lineCount.isPresent() ? new String[] { "-f", filename, "-l", Integer.toString(linenum), "-n", Integer.toString(lineCount.get()) } : new String[] { "-f", filename, "-l", Integer.toString(linenum) }, new String[]{ includeHighlevelSource ? "1" : "0" });
-        // ^done,changed-registers=[...]naems
-        return result;
+        return gdbCall("-data-list-register-values", lineCount.isPresent() ? new String[] { "-f", filename, "-l", Integer.toString(linenum), "-n", Integer.toString(lineCount.get()) } : new String[] { "-f", filename, "-l", Integer.toString(linenum) }, new String[]{ includeHighlevelSource ? "1" : "0" });
     }
 
     @Override

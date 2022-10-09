@@ -62,39 +62,17 @@ public class GdbMiProducer /*extends Thread*/ {
         } else {
             char c = consume(scanner);
             switch (c) {
-                case 'a':
-                    result.append((char) 0x7);
-                    break;
-                case 'b':
-                    result.append((char) 0x8);
-                    break;
-                case 'f':
-                    result.append((char) 0xc);
-                    break;
-                case 'n':
-                    result.append((char) 0xa);
-                    break;
-                case 'r':
-                    result.append((char) 0xd);
-                    break;
-                case 't':
-                    result.append((char) 0x9);
-                    break;
-                case 'v':
-                    result.append((char) 0xb);
-                    break;
-                case 'x':
-                    result.append(parseDigitsIntoCode(scanner, 16, 2));
-                    break;
-                case 'u':
-                    result.append(parseDigitsIntoCode(scanner, 16, 4));
-                    break;
-                case 'U':
-                    result.append(parseDigitsIntoCode(scanner, 16, 8));
-                    break;
-                default:
-                    result.append(c);
-                    break;
+                case 'a' -> result.append((char) 0x7);
+                case 'b' -> result.append((char) 0x8);
+                case 'f' -> result.append((char) 0xc);
+                case 'n' -> result.append((char) 0xa);
+                case 'r' -> result.append((char) 0xd);
+                case 't' -> result.append((char) 0x9);
+                case 'v' -> result.append((char) 0xb);
+                case 'x' -> result.append(parseDigitsIntoCode(scanner, 16, 2));
+                case 'u' -> result.append(parseDigitsIntoCode(scanner, 16, 4));
+                case 'U' -> result.append(parseDigitsIntoCode(scanner, 16, 8));
+                default -> result.append(c);
             }
         }
     }

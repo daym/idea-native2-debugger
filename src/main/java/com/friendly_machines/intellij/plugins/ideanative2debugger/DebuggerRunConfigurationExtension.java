@@ -15,9 +15,9 @@ public class DebuggerRunConfigurationExtension extends org.rust.cargo.runconfig.
     @Override
     public void attachToProcess(
             CargoCommandConfiguration configuration,
-            ProcessHandler handler,
-            ExecutionEnvironment environment,
-            ConfigurationExtensionContext context
+            @NotNull ProcessHandler handler,
+            @NotNull ExecutionEnvironment environment,
+            @NotNull ConfigurationExtensionContext context
     ) {
         System.err.println("!!! MAYBE USEFUL!!!!");
         final MessageBusConnection connection = configuration.getProject().getMessageBus().connect();
@@ -38,21 +38,21 @@ public class DebuggerRunConfigurationExtension extends org.rust.cargo.runconfig.
     }
 
     @Override
-    public boolean isEnabledFor(CargoCommandConfiguration configuration, RunnerSettings runnerSettings) {
+    public boolean isEnabledFor(@NotNull CargoCommandConfiguration configuration, RunnerSettings runnerSettings) {
         return false;
     }
 
     @Override
-    public boolean isApplicableFor(CargoCommandConfiguration configuration) {
+    public boolean isApplicableFor(@NotNull CargoCommandConfiguration configuration) {
         return false;
     }
 
     @Override
     public void patchCommandLine(
-            CargoCommandConfiguration configuration,
-            ExecutionEnvironment environment,
-            GeneralCommandLine cmdLine,
-            ConfigurationExtensionContext context
+            @NotNull CargoCommandConfiguration configuration,
+            @NotNull ExecutionEnvironment environment,
+            @NotNull GeneralCommandLine cmdLine,
+            @NotNull ConfigurationExtensionContext context
     ) {
     }
 }

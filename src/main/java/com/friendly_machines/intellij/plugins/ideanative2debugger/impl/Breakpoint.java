@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class Breakpoint {
     private final DebugProcess myDebugProcess;
-    private XBreakpoint myXBreakpoint;
+    private final XBreakpoint myXBreakpoint;
     private Map<String, Object> myGdbBkpt; /* TODO: unroll.
         Mandatory are:
         number

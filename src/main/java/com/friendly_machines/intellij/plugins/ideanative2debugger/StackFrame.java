@@ -91,7 +91,7 @@ public class StackFrame extends XStackFrame {
             // component.setIcon ?
             // TODO
         } catch (ClassCastException e) {
-            component.append("failed to parse " + myFrame.toString(), SimpleTextAttributes.ERROR_ATTRIBUTES);
+            component.append("failed to parse " + myFrame, SimpleTextAttributes.ERROR_ATTRIBUTES);
         }
     }
 
@@ -102,10 +102,8 @@ public class StackFrame extends XStackFrame {
             var variables = myDebuggerSession.getVariables(myThreadId, level);
             final XValueChildrenList list = new XValueChildrenList();
             for (var variable : variables) {
-                @SuppressWarnings("unchecked")
                 String name = (String) variable.get("name");
                 // TODO: optional
-                @SuppressWarnings("unchecked")
                 String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
                 list.add(name, new Value(name, value, variable.containsKey("arg")));
             }

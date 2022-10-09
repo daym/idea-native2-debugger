@@ -4,9 +4,9 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProcess;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
-import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunnerSettings;
+import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -14,7 +14,6 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
-import com.intellij.execution.executors.DefaultDebugExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
     /**
      * This makes sure the Debug mode is executed and not run mode
      *
-     * @param executorId
+     * @param executorId DefaultDebugExecutor.EXECUTOR_ID or Run executor
      * @param profile
      */
     @Override

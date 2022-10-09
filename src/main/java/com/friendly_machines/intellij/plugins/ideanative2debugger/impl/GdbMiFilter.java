@@ -56,8 +56,9 @@ public class GdbMiFilter {
         for (byte b : text) {
             if (b == (byte) ' ') {
                 s.write((byte) ' '); // space
-            } else if (b < 32 || b > 127 || b == (byte) '\\') {
+            } else if (b < 32 || b < 0 || b == (byte) '\\') {
                 s.write((byte) '\\');
+                // FIXME: Is that handled correctly for b < 0 ?
                 s.write(digit((byte) ((b >> 6) & 7)));
                 s.write(digit((byte) ((b >> 3) & 7)));
                 s.write(digit((byte) ((b >> 0) & 7)));
@@ -73,7 +74,7 @@ public class GdbMiFilter {
     private static byte[] maybeEscape(byte[] text) {
         boolean escaping_needed = false;
         for (byte b : text) {
-            if (b <= 32 || b > 127 || b == (byte) '\\') {
+            if (b <= 32 || b < 0 || b == (byte) '\\') {
                 escaping_needed = true;
                 break;
             }
@@ -104,9 +105,7 @@ public class GdbMiFilter {
             }
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
-            GdbMiStateResponse response = readResponse();
-//          println("done gdbSend " + operation);
-            return response;
+            return readResponse();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

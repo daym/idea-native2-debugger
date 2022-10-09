@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public class Value extends XValue {
-    private String myName;
-    private String myValue;
-    private boolean myArg;
+    private final String myName;
+    private final String myValue;
+    private final boolean myArg;
 
     @Override
     public void computePresentation(@NotNull XValueNode node, @NotNull XValuePlace xValuePlace) {

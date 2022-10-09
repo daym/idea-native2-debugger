@@ -5,6 +5,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProcess;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import org.jetbrains.annotations.NotNull;
 
 public class SuspendContext extends XSuspendContext {
     private final DebugProcess myDebuggerSession;
@@ -27,7 +28,7 @@ public class SuspendContext extends XSuspendContext {
     }
 
     @Override
-    public XExecutionStack /*@NotNull*/[] getExecutionStacks() {
+    public XExecutionStack @NotNull [] getExecutionStacks() {
         // TODO: print execution stacks of all threads
         return myExecutionStacks;
     }

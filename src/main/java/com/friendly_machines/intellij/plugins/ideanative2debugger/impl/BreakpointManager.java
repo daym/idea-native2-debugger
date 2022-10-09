@@ -16,8 +16,6 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -31,7 +29,7 @@ import java.util.Optional;
 
 // Note: one line can map to multiple actual addrs! (but that's GDB's business)
 public class BreakpointManager {
-    private final List<Breakpoint> myBreakpoints = new ArrayList<Breakpoint>();
+    private final List<Breakpoint> myBreakpoints = new ArrayList<>();
     private final DebugProcess myDebugProcess;
 
     public BreakpointManager(DebugProcess debugProcess) {
@@ -50,8 +48,8 @@ public class BreakpointManager {
             return false;
         }
 
-        final VirtualFile file = sourcePosition.getFile();
-        final Project project = myDebugProcess.getSession().getProject();
+        //final VirtualFile file = sourcePosition.getFile();
+        //final Project project = myDebugProcess.getSession().getProject();
         final int lineNumber = sourcePosition.getLine();
         if (lineNumber == -1) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
@@ -76,7 +74,6 @@ public class BreakpointManager {
             options.add(condition);
         }
         // TODO: breakpoint.isLogStack()
-        Object response;
         try {
             Map<String, Object> gdbResponse;
             if (key.isLogMessage()) {
@@ -84,7 +81,6 @@ public class BreakpointManager {
             } else {
                 gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition())});
             }
-            String number = (String) gdbResponse.get("number");
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, (Map<String, Object>) gdbResponse.get("bkpt")));
             return true;
         } catch (GdbMiOperationException e) {
@@ -94,10 +90,6 @@ public class BreakpointManager {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
             return false;
         }
-    }
-
-    List<Breakpoint> getBreakpoints() {
-        return myBreakpoints;
     }
 
     public Optional<Breakpoint> getBreakpointByGdbNumber(String key) {

@@ -3,6 +3,7 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
@@ -39,9 +40,9 @@ public class ProjectSettingsComponent {
                 new FileChooserDescriptor(false, true, false, false, false, false));
 
         // TODO: Maybe don't hard-code
-        myGdbArch = new JComboBox(new String[]{"auto", "alpha", "armbe", "armle", "ia64", "mips32be", "mips32le", "mips64be", "mips64le", "ppc32", "ppc64", "V8", "sparc-v9", "x86-64", "x86"});
+        myGdbArch = new ComboBox(new String[]{"auto", "alpha", "armbe", "armle", "ia64", "mips32be", "mips32le", "mips64be", "mips64le", "ppc32", "ppc64", "V8", "sparc-v9", "x86-64", "x86"});
         // TODO: Maybe don't hard-code
-        myGdbTargetType = new JComboBox(new String[]{"native", "core", "exec", "extended-remote", "record-btrace", "record-core", "record-full", "remote", "tfile"});
+        myGdbTargetType = new ComboBox(new String[]{"native", "core", "exec", "extended-remote", "record-btrace", "record-core", "record-full", "remote", "tfile"});
         myGdbTargetArg = new JBTextField();
         mySymbolFile = new TextFieldWithBrowseButton();
         mySymbolFile.addBrowseFolderListener("GDB executable", "The symbol table", null, new FileChooserDescriptor(true, false, false, false, false, false));

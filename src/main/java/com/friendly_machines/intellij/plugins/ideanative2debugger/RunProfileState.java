@@ -16,6 +16,7 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.ConsoleView;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
@@ -94,13 +95,17 @@ public class RunProfileState extends CommandLineState {
         if (console != null) {
             console.attachToProcess(processHandler);
         }
-        DefaultExecutionResult q = new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
-        return q;
+        return new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
     }
 
     @Override
-    protected AnAction /*@NotNull*/[] createActions(ConsoleView console, ProcessHandler processHandler, Executor executor) {
+    protected AnAction @NotNull[] createActions(ConsoleView console, ProcessHandler processHandler, Executor executor) {
         return ArrayUtil.append(super.createActions(console, processHandler, executor), new ToggleAction("frobnicate") {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT; // FIXME ?!
+            }
+
             @Override
             public boolean isDumbAware() {
                 return true;

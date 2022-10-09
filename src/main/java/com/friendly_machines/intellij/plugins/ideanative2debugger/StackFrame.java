@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 public class StackFrame extends XStackFrame {
     private final Map<String, Object> myFrame;
@@ -33,6 +34,9 @@ public class StackFrame extends XStackFrame {
             String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
             p = VfsUtil.findFile(Path.of(file), false);
         }
+        if (p == null) {
+            return null;
+        }
 //    if (p != null && gdbFrame.containsKey("file")) {
 //      //String file = (String) gdbFrame.get("file");
 //
@@ -46,8 +50,11 @@ public class StackFrame extends XStackFrame {
 //        //p = psiFile.getVirtualFile();
 //      }
 //    }
-        String line = (String) gdbFrame.get("line");
-        return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
+        var line = Optional.ofNullable((String) gdbFrame.get("line")).map(Integer::parseInt);
+        if (line.isEmpty()) {
+            return null;
+        }
+        return XDebuggerUtil.getInstance().createPosition(p, line.get() - 1);
     }
 
     public StackFrame(String threadId, Map<String, Object> gdbFrame, DebugProcess debuggerSession) {

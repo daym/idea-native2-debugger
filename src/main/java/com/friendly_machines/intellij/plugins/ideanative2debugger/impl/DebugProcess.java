@@ -21,7 +21,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VFileProperty;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManagerEvent;
@@ -378,9 +378,26 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
+    /// Note: Prefers files in shallow nesting level
+    private @Nullable VirtualFile selectGoodFile(VirtualFile base, int fuel) {
+        for (var child : base.getChildren()) {
+            if (!child.isDirectory() && isFileExecutable(child) && child.getLength() > 0) {
+                return child;
+            }
+        }
+
+        if (fuel > 0) {
+            for (var child : base.getChildren()) {
+                if (child.isDirectory() && !child.is(VFileProperty.SYMLINK)) {
+                        return selectGoodFile(child, fuel - 1);
+                }
+            }
+        }
+        return null;
+    }
+
     @Nullable
     private VirtualFile getPreselectedExecutable(ExecutionEnvironment environment, @Nullable String path) {
-        @Nullable VirtualFile preselectedExecutable = null;
         @Nullable VirtualFile base = path != null ? LocalFileSystem.getInstance().findFileByPath(path) : null;
         if (base == null) {
             base = ProjectUtil.guessProjectDir(environment.getProject());
@@ -392,34 +409,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             if (base == null) {
                 return null;
             }
-            // see ./platform/lang-impl/src/com/intellij/find/impl/
-            List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
-            result.sort((Comparator) (o1, o2) -> {
-                // Sort by length and then by name
-                var a = ((VirtualFile) o1).getCanonicalPath();
-                var b = ((VirtualFile) o2).getCanonicalPath();
-                var al = a.length();
-                var bl = b.length();
-                if (al != bl)
-                    return Integer.compare(al, bl);
-                else
-                    return a.compareTo(b);
-            });
-            int count = 0;
-            for (VirtualFile virtualFile : result) {
-                if (isFileExecutable(virtualFile) && virtualFile.getLength() > 0) {
-                    if (preselectedExecutable == null) {
-                        preselectedExecutable = virtualFile;
-                    }
-                    //System.err.println("EXEC " + virtualFile.getPath());
-                    ++count;
-                }
-            }
-//                        if (count > 1) {
-//                            preselectedExecutable = null;
-//                        }
+            return selectGoodFile(base, 1000);
         }
-        return preselectedExecutable;
+        return null;
     }
 
     @Nullable

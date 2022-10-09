@@ -87,7 +87,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         if ((klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
             // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             try {
-                HashMap<String, Object> bkpt = (HashMap<String, Object>) attributes.get("bkpt");
+                @SuppressWarnings("unchecked")
+                var bkpt = (Map<String, Object>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
                 if (klass.equals("breakpoint-deleted")) {
                     myBreakpointManager.deleteBreakpointByGdbNumber(number);
@@ -130,12 +131,15 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
                 var tresponse = getThreadInfo();
                 if (tresponse.containsKey("threads")) {
+                    @SuppressWarnings("unchecked")
                     List<Object> threads = (List<Object>) tresponse.get("threads");
+                    @SuppressWarnings("unchecked")
                     String currentThreadId = (String) tresponse.get("current-thread-id");
 
                     SuspendContext context = generateSuspendContext(threads, currentThreadId);
                     if ("breakpoint-hit".equals(reason)) {
                         if (attributes.containsKey("bkptno")) {
+                            @SuppressWarnings("unchecked")
                             String bkptno = (String) attributes.get("bkptno");
                             Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(bkptno);
                             if (breakpointo.isPresent()) {
@@ -222,7 +226,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         reportError(s + ":" + e.toString());
     }
 
-    private static String getThreadName(HashMap<String, Object> thread, String id) {
+    private static String getThreadName(Map<String, Object> thread, String id) {
         String name = thread.containsKey("target-id") ? (String) thread.get("target-id") : id;
         String state = thread.containsKey("state") ? (String) thread.get("state") : "";
         if (state.length() > 0) {
@@ -234,15 +238,18 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return name;
     }
 
-    private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) {
+    private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) throws ClassCastException {
         ArrayList<ExecutionStack> stacks = new ArrayList<>();
         int activeStackId = -1;
 
         for (Object thread1 : threads) {
-            HashMap<String, Object> thread = (HashMap<String, Object>) thread1;
+            @SuppressWarnings("unchecked")
+            var thread = (Map<String, Object>) thread1;
+            @SuppressWarnings("unchecked")
             String id = (String) thread.get("id");
             String name = getThreadName(thread, id);
-            Optional<HashMap<String, Object>> topFrame = thread.containsKey("frame") ? Optional.of((HashMap<String, Object>) thread.get("frame")) : Optional.empty();
+            @SuppressWarnings("unchecked")
+            Optional<Map<String, Object>> topFrame = thread.containsKey("frame") ? Optional.of((Map<String, Object>) thread.get("frame")) : Optional.empty();
             //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
             ExecutionStack stack = new ExecutionStack(name, id, topFrame, this); // one per thread
             stacks.add(stack);
@@ -254,15 +261,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return context;
     }
 
-    public List<HashMap<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException {
-        ArrayList<HashMap<String, Object>> result = new ArrayList<>();
+    public List<Map<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException, ClassCastException {
+        ArrayList<Map<String, Object>> result = new ArrayList<>();
         // TODO: --simple-values and find stuff yourself.
         var q = gdbCall("-stack-list-variables", new String[]{"--thread", threadId, "--frame", frameId, "--all-values"}, new String[]{});
         if (q.containsKey("variables")) {
             try {
                 List<?> variables = (List<?>) q.get("variables");
                 for (Object variable1 : variables) {
-                    HashMap<String, Object> variable = (HashMap<String, Object>) variable1;
+                    @SuppressWarnings("unchecked")
+                    var variable = (Map<String, Object>) variable1;
                     result.add(variable);
                 }
             } catch (ClassCastException e) {
@@ -273,16 +281,19 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return result;
     }
 
-    public List<HashMap<String, Object>> getFrames(String threadId) throws GdbMiOperationException {
-        List<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
+    public List<Map<String, Object>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException {
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
         var q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
         if (q.containsKey("stack")) {
             try {
                 List<? extends Object> stack = (List<? extends Object>) q.get("stack");
                 for (Object frame1 : stack) {
+                    @SuppressWarnings("unchecked")
                     Map.Entry<String, Object> frame = (Map.Entry<String, Object>) frame1;
                     if ("frame".equals(frame.getKey())) {
-                        result.add((HashMap<String, Object>) frame.getValue());
+                        @SuppressWarnings("unchecked")
+                        var item = (Map<String, Object>) frame.getValue();
+                        result.add(item);
                     }
                 }
             } catch (ClassCastException e) {

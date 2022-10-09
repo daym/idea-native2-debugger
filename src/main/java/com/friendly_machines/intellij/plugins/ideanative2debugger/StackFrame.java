@@ -18,17 +18,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class StackFrame extends XStackFrame {
-    private final HashMap<String, Object> myFrame;
+    private final Map<String, Object> myFrame;
     private final DebugProcess myDebuggerSession;
     private final XSourcePosition myPosition;
     private final String myThreadId;
 
     @Nullable
-    public XSourcePosition createSourcePositionFromFrame(HashMap<String, Object> gdbFrame) {
+    public XSourcePosition createSourcePositionFromFrame(Map<String, Object> gdbFrame) {
         VirtualFile p = null;
         if (gdbFrame.containsKey("fullname")) {
             String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
@@ -51,7 +50,7 @@ public class StackFrame extends XStackFrame {
         return XDebuggerUtil.getInstance().createPosition(p, Integer.parseInt(line) - 1);
     }
 
-    public StackFrame(String threadId, HashMap<String, Object> gdbFrame, DebugProcess debuggerSession) {
+    public StackFrame(String threadId, Map<String, Object> gdbFrame, DebugProcess debuggerSession) {
         myThreadId = threadId;
         myFrame = gdbFrame;
         myDebuggerSession = debuggerSession;
@@ -100,11 +99,13 @@ public class StackFrame extends XStackFrame {
     public void computeChildren(@NotNull XCompositeNode node) {
         try {
             String level = (String) myFrame.get("level");
-            List<HashMap<String, Object>> variables = myDebuggerSession.getVariables(myThreadId, level);
+            var variables = myDebuggerSession.getVariables(myThreadId, level);
             final XValueChildrenList list = new XValueChildrenList();
-            for (HashMap<String, Object> variable : variables) {
+            for (var variable : variables) {
+                @SuppressWarnings("unchecked")
                 String name = (String) variable.get("name");
                 // TODO: optional
+                @SuppressWarnings("unchecked")
                 String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
                 list.add(name, new Value(name, value, variable.containsKey("arg")));
             }

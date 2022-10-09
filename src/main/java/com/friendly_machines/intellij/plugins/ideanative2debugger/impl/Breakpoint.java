@@ -16,16 +16,15 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProcess;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiOperationException;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Breakpoint {
     private final DebugProcess myDebugProcess;
     private XBreakpoint myXBreakpoint;
-    private HashMap<String, Object> myGdbBkpt; /* FIXME unroll.
+    private Map<String, Object> myGdbBkpt; /* TODO: unroll.
         Mandatory are:
         number
         type
@@ -109,7 +108,7 @@ public class Breakpoint {
         }
     }
 
-    public void setFromGdbBkpt(HashMap<String, Object> bkpt) {
+    public void setFromGdbBkpt(Map<String, Object> bkpt) {
         myGdbBkpt = bkpt;
     }
 

@@ -7,8 +7,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-import java.util.function.Supplier;
-
 /**
  * (c) 2020 Silent Forest AB
  * created: 06 August 2020
@@ -25,11 +23,5 @@ public class DebuggerBundle extends DynamicBundle {
     @NotNull
     public static @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object /*@NotNull*/... params) {
         return INSTANCE.getMessage(key, params);
-    }
-
-    @NotNull
-    public static Supplier</*@Nls*/ String> messagePointer(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,
-                                                           Object /*@NotNull*/... params) {
-        return INSTANCE.getLazyMessage(key, params);
     }
 }

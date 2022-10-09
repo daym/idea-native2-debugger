@@ -26,7 +26,7 @@ public class AttachDebugger implements XAttachDebugger {
         // FIXME
         /*PyAttachToProcessDebugRunner runner = new PyAttachToProcessDebugRunner(project, processInfo.getPid(), mySdkHome);
         runner.launch();*/
-        Runner runner = new Runner();
+        var runner = new Runner();
         // FIXME runner.execute(projec);
         // FIXME: How to create an execution environment
         //CommandLineState state = CommandLineState.create(myProject, mySdkPath, serverSocket.getLocalPort(), myPid);

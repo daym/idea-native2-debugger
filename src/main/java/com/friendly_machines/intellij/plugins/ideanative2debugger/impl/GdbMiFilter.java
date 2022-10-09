@@ -22,7 +22,7 @@ public class GdbMiFilter {
     //private final InputStream myChildOut;
     //private final GdbMiProducer myReaderThread;
 
-    public GdbMiFilter(DebugProcess process, @NotNull Project project, GdbOsProcessHandler childIO) throws IOException {
+    public GdbMiFilter(DebugProcess process, @NotNull Project project, GdbOsProcessHandler childIO) {
         myProcess = process;
         myProject = project;
         //myChildOut = childOut;
@@ -49,7 +49,6 @@ public class GdbMiFilter {
     }
 
     // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an input stream
-    @NotNull
     private static byte[] makeCString(byte[] text) {
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         s.write((byte) '"'); // quote
@@ -58,10 +57,10 @@ public class GdbMiFilter {
                 s.write((byte) ' '); // space
             } else if (b < 32 || b < 0 || b == (byte) '\\') {
                 s.write((byte) '\\');
-                // FIXME: Is that handled correctly for b < 0 ?
-                s.write(digit((byte) ((b >> 6) & 7)));
-                s.write(digit((byte) ((b >> 3) & 7)));
-                s.write(digit((byte) ((b >> 0) & 7)));
+                var bb = Byte.toUnsignedInt(b);
+                s.write(digit((byte) ((bb >> 6) & 7)));
+                s.write(digit((byte) ((bb >> 3) & 7)));
+                s.write(digit((byte) ((bb >> 0) & 7)));
             } else {
                 s.write(b);
             }
@@ -106,10 +105,7 @@ public class GdbMiFilter {
             myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
             myChildIn.flush();
             return readResponse();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }

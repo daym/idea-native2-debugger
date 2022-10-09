@@ -15,9 +15,9 @@ public class ProjectSettingsComponent {
     private final JPanel myMainPanel;
     private final TextFieldWithBrowseButton myGdbExecutable;
     private final TextFieldWithBrowseButton myGdbSysRoot;
-    private final JComboBox myGdbTargetType;
+    private final ComboBox<String> myGdbTargetType;
     private final JBTextField myGdbTargetArg;
-    private final JComboBox myGdbArch;
+    private final ComboBox<String> myGdbArch;
     private final TextFieldWithBrowseButton mySymbolFile;
 
     //  private final JBTextField myUserNameText = new JBTextField();
@@ -32,7 +32,7 @@ public class ProjectSettingsComponent {
 
     public ProjectSettingsComponent() {
         myGdbExecutable = new TextFieldWithBrowseButton();
-        myGdbExecutable.addBrowseFolderListener("GDB executable", "The GDB executable", null, new FileChooserDescriptor(true, false, false, false, false, false));
+        myGdbExecutable.addBrowseFolderListener("GDB Executable", "The GDB executable", null, new FileChooserDescriptor(true, false, false, false, false, false));
 
         myGdbSysRoot = new TextFieldWithBrowseButton();
 
@@ -40,12 +40,12 @@ public class ProjectSettingsComponent {
                 new FileChooserDescriptor(false, true, false, false, false, false));
 
         // TODO: Maybe don't hard-code
-        myGdbArch = new ComboBox(new String[]{"auto", "alpha", "armbe", "armle", "ia64", "mips32be", "mips32le", "mips64be", "mips64le", "ppc32", "ppc64", "V8", "sparc-v9", "x86-64", "x86"});
+        myGdbArch = new ComboBox<>(new String[]{"auto", "alpha", "armbe", "armle", "ia64", "mips32be", "mips32le", "mips64be", "mips64le", "ppc32", "ppc64", "V8", "sparc-v9", "x86-64", "x86"});
         // TODO: Maybe don't hard-code
-        myGdbTargetType = new ComboBox(new String[]{"native", "core", "exec", "extended-remote", "record-btrace", "record-core", "record-full", "remote", "tfile"});
+        myGdbTargetType = new ComboBox<>(new String[]{"native", "core", "exec", "extended-remote", "record-btrace", "record-core", "record-full", "remote", "tfile"});
         myGdbTargetArg = new JBTextField();
         mySymbolFile = new TextFieldWithBrowseButton();
-        mySymbolFile.addBrowseFolderListener("GDB executable", "The symbol table", null, new FileChooserDescriptor(true, false, false, false, false, false));
+        mySymbolFile.addBrowseFolderListener("GDB Executable", "The symbol table", null, new FileChooserDescriptor(true, false, false, false, false, false));
         myMainPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(new JBLabel("GDB executable: "), myGdbExecutable, 1, false)
                 .addLabeledComponent(new JBLabel("Sysroot: "), myGdbSysRoot, 1, false)

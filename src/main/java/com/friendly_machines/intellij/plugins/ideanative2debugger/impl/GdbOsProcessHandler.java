@@ -78,7 +78,11 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     public void startNotify() {
         super.startNotify();
         var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-        debugProcess.startDebugging();
+        if (debugProcess != null) {
+            debugProcess.startDebugging();
+        } else {
+            throw new RuntimeException("Debug process is missing");
+        }
     }
     @Override
     public void notifyTextAvailable(@NotNull String text, @NotNull Key outputType) {
@@ -116,7 +120,10 @@ public class GdbOsProcessHandler extends OSProcessHandler {
             // Move to UI thread.
             ApplicationManager.getApplication().invokeLater(() -> {
                 var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-                debugProcess.processAsync(token, scanner);
+                if (debugProcess != null) {
+                    debugProcess.processAsync(token, scanner);
+                } else { // too late
+                }
             });
         }
 //        println(Thread.currentThread().getId() + Thread.currentThread().getName() +"done notify");

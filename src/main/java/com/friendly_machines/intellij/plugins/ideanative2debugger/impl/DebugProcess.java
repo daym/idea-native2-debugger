@@ -247,9 +247,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             String id = (String) thread.get("id");
             String name = getThreadName(thread, id);
             @SuppressWarnings("unchecked")
-            Optional<Map<String, Object>> topFrame = thread.containsKey("frame") ? Optional.of((Map<String, Object>) thread.get("frame")) : Optional.empty();
-            //Native2ExecutionStack(@NlsContexts.ListItem String name, List<Map.Entry<String, Object>> frames, Native2DebugProcess debuggerSession) {
-            ExecutionStack stack = new ExecutionStack(name, id, topFrame, this); // one per thread
+            var topFrame = (Map<String, Object>) thread.get("frame"); // can be null
+            var stack = new ExecutionStack(name, id, topFrame, this); // one per thread
             stacks.add(stack);
             if (currentThreadId.equals(id)) {
                 activeStackId = stacks.size() - 1;
@@ -372,14 +371,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //            return true;
 //        }
         if (file.isInLocalFileSystem()) {
-            File f = new File(file.getPath());
-            if (f.canExecute()) {
-                return true;
-            }
+            var f = new File(file.getPath());
+            return f.canExecute();
         } else {
             return true; // TODO
         }
-        return false;
     }
 
     @Nullable
@@ -388,28 +384,26 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         @Nullable VirtualFile base = path != null ? LocalFileSystem.getInstance().findFileByPath(path) : null;
         if (base == null) {
             base = ProjectUtil.guessProjectDir(environment.getProject());
-            path = base.getPath();
         }
         if (base != null) {
             if (base.findFileByRelativePath("target") != null) { // Rust
                 base = base.findFileByRelativePath("target");
-                path = base.getPath();
+            }
+            if (base == null) {
+                return null;
             }
             // see ./platform/lang-impl/src/com/intellij/find/impl/
             List<VirtualFile> result = VfsUtil.collectChildrenRecursively(base);
-            result.sort(new Comparator() {
-                @Override
-                public int compare(Object o1, Object o2) {
-                    // Sort by length and then by name
-                    var a = ((VirtualFile) o1).getCanonicalPath();
-                    var b = ((VirtualFile) o2).getCanonicalPath();
-                    var al = a.length();
-                    var bl = b.length();
-                    if (al != bl)
-                        return Integer.compare(al, bl);
-                    else
-                        return a.compareTo(b);
-                }
+            result.sort((Comparator) (o1, o2) -> {
+                // Sort by length and then by name
+                var a = ((VirtualFile) o1).getCanonicalPath();
+                var b = ((VirtualFile) o2).getCanonicalPath();
+                var al = a.length();
+                var bl = b.length();
+                if (al != bl)
+                    return Integer.compare(al, bl);
+                else
+                    return a.compareTo(b);
             });
             int count = 0;
             for (VirtualFile virtualFile : result) {

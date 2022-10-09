@@ -33,6 +33,7 @@ public class ProjectSettingsConfigurable implements Configurable {
     public boolean isModified() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance();
         boolean modified = false;
+        //noinspection ConstantConditions
         modified |= !mySettingsComponent.getGdbExecutableNameText().equals(settings.gdbExecutableName);
         modified |= !mySettingsComponent.getGdbSysRootText().equals(settings.gdbSysRoot);
         modified |= !mySettingsComponent.getGdbArchText().equals(settings.gdbArch);

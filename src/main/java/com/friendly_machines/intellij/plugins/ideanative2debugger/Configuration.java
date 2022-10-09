@@ -39,6 +39,7 @@ public class Configuration extends LocatableConfigurationBase
         return group;
     }
 
+    @SuppressWarnings("RedundantThrows")
     @Override
     public @Nullable
     com.intellij.execution.configurations.RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {

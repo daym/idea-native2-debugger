@@ -10,6 +10,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.LocalTimeCounter;
+import com.intellij.xdebugger.XExpression;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.EvaluationMode;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
@@ -32,11 +33,11 @@ public class EditorsProvider extends XDebuggerEditorsProvider {
     @NotNull
     @Override
     public Document createDocument(@NotNull Project project,
-                                   @NotNull String text,
+                                   @NotNull XExpression expression,
                                    @Nullable XSourcePosition sourcePosition,
                                    @NotNull EvaluationMode mode) { // FIXME
         final PsiFile psiFile = PsiFileFactory.getInstance(project)
-                .createFileFromText("XPathExpr." + getFileType().getDefaultExtension(), getFileType(), text, LocalTimeCounter.currentTime(), true);
+                .createFileFromText("XPathExpr." + getFileType().getDefaultExtension(), getFileType(), expression.getExpression(), LocalTimeCounter.currentTime(), true);
 
 //    if (sourcePosition instanceof Native2SourcePosition && ((Native2SourcePosition)sourcePosition).getLocation() instanceof Debugger.StyleFrame) {
 //      final Debugger.Locatable location = ((Native2SourcePosition)sourcePosition).getLocation();

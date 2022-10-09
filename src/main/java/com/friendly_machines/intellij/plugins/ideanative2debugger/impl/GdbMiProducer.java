@@ -129,7 +129,7 @@ public class GdbMiProducer /*extends Thread*/ {
         scanner.next("\\{");
         var result = new java.util.HashMap<String, Object>();
         while (scanner.hasNext()) {
-            if (scanner.hasNext("\\}")) {
+            if (scanner.hasNext("}")) {
                 break;
             }
             String name = parseSymbol(scanner);
@@ -142,14 +142,14 @@ public class GdbMiProducer /*extends Thread*/ {
                 break;
             }
         }
-        scanner.next("\\}");
+        scanner.next("}");
         return result;
     }
 
     @NotNull
     private static List<Map.Entry<String, Object>> parseKeyValueList(@NotNull Scanner scanner) {
         List<Map.Entry<String, Object>> result = new ArrayList<>();
-        while (scanner.hasNext() && !scanner.hasNext("\\]")) {
+        while (scanner.hasNext() && !scanner.hasNext("]")) {
             String name = parseSymbol(scanner);
             scanner.next("=");
             Object value = parseValue(scanner);
@@ -160,14 +160,14 @@ public class GdbMiProducer /*extends Thread*/ {
                 break;
             }
         }
-        scanner.next("\\]");
+        scanner.next("]");
         return result;
     }
 
     @NotNull
     private static List<Object> parsePrimitiveList(@NotNull Scanner scanner) {
-        var result = new java.util.ArrayList<Object>();
-        while (scanner.hasNext() && !scanner.hasNext("\\]")) {
+        var result = new java.util.ArrayList<>();
+        while (scanner.hasNext() && !scanner.hasNext("]")) {
             Object value = parseValue(scanner);
             result.add(value);
             if (scanner.hasNext(",")) {
@@ -176,17 +176,17 @@ public class GdbMiProducer /*extends Thread*/ {
                 break;
             }
         }
-        scanner.next("\\]");
+        scanner.next("]");
         return result;
     }
 
     @NotNull
     private static List<?> parseList(@NotNull Scanner scanner) {
         scanner.next("\\[");
-        if (scanner.hasNext("\\]")) {
-            scanner.next("\\]");
-            return new java.util.ArrayList<Object>();
-        } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
+        if (scanner.hasNext("]")) {
+            scanner.next("]");
+            return new java.util.ArrayList<>();
+        } else if (scanner.hasNext("[a-zA-Z_-]")) { // name=value
             return parseKeyValueList(scanner);
         } else { // list of "value"s, not of "name=value"s
             return parsePrimitiveList(scanner);

@@ -6,8 +6,12 @@ import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiOper
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 // Per thread
 public class ExecutionStack extends XExecutionStack {
@@ -16,7 +20,7 @@ public class ExecutionStack extends XExecutionStack {
     private final StackFrame myTopFrame;
     private final String myThreadId;
 
-    public ExecutionStack(@NlsContexts.ListItem String name, String threadId, Optional<Map<String, Object>> topFrame, DebugProcess debuggerSession) {
+    public ExecutionStack(@NlsContexts.ListItem String name, String threadId, @Nullable Map<String, Object> topFrame, DebugProcess debuggerSession) {
         super(name);
         myDebuggerSession = debuggerSession;
         myThreadId = threadId;
@@ -25,8 +29,8 @@ public class ExecutionStack extends XExecutionStack {
 //        myFrames.add(new Native2StackFrame((Map<String, Object>) frame.getValue(), myDebuggerSession));
 //      }
 //    }
-        if (topFrame.isPresent()) {
-            myTopFrame = new StackFrame(threadId, topFrame.get(), myDebuggerSession);
+        if (topFrame != null) {
+            myTopFrame = new StackFrame(threadId, topFrame, myDebuggerSession);
         } else {
             myTopFrame = null;
         }

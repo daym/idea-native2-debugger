@@ -37,7 +37,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
      * This makes sure the Debug mode is executed and not run mode
      *
      * @param executorId DefaultDebugExecutor.EXECUTOR_ID or Run executor
-     * @param profile
+     * @param profile The profile
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {

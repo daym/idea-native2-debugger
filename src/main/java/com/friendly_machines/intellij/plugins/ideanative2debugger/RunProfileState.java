@@ -54,7 +54,7 @@ public class RunProfileState extends CommandLineState {
 //              commandLine.addParameter("gdbExecutableName"); // no window
 //        } else
         //Pty: GeneralCommandLine commandLine = new PtyCommandLine(Arrays.stream(new String[] { PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName) }).toList());
-        GeneralCommandLine commandLine = new GeneralCommandLine(new String[] { PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName) });
+        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
         // If using wsl.exe gdb ...
         //if (SystemInfo.isWindows) {
         //    commandLine.addParameter(gdbExecutableName);

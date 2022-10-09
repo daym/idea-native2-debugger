@@ -24,7 +24,10 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 // Note: one line can map to multiple actual addrs! (but that's GDB's business)
 public class BreakpointManager {
@@ -82,7 +85,7 @@ public class BreakpointManager {
                 gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition())});
             }
             String number = (String) gdbResponse.get("number");
-            myBreakpoints.add(new Breakpoint(myDebugProcess, key, (HashMap<String, Object>) gdbResponse.get("bkpt")));
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, (Map<String, Object>) gdbResponse.get("bkpt")));
             return true;
         } catch (GdbMiOperationException e) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");

@@ -3,7 +3,6 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class GdbMiProducer /*extends Thread*/ {
     //    private final BufferedReader myChildOut;
-    private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<GdbMiStateResponse>(1);
+    private final BlockingQueue<GdbMiStateResponse> myQueue = new LinkedBlockingDeque<>(1);
 
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to find the corresponding request to a response. Maybe use those.
     // But async outputs, so those starting with one of "*+=", will not have them.
@@ -39,7 +38,7 @@ public class GdbMiProducer /*extends Thread*/ {
         return scanner.next().charAt(0);
     }
 
-    private static String digits = "01234567";
+    private final static String digits = "01234567";
 
     @NotNull
     private static String parseDigitsIntoCode(Scanner scanner, int radix, int maxLength) {
@@ -57,7 +56,6 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     // Modifies RESULT.
-    @NotNull
     private static void interpretEscapeSequenceBody(@NotNull Scanner scanner, @NotNull Appendable result) throws IOException {
         if (scanner.hasNext("[0-7]")) {
             result.append(parseDigitsIntoCode(scanner, 8, 3));
@@ -146,9 +144,9 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @NotNull
-    private static HashMap<String, Object> parseTuple(@NotNull Scanner scanner) {
+    private static Map<String, Object> parseTuple(@NotNull Scanner scanner) {
         scanner.next("\\{");
-        HashMap<String, Object> result = new HashMap<String, Object>();
+        var result = new java.util.HashMap<String, Object>();
         while (scanner.hasNext()) {
             if (scanner.hasNext("\\}")) {
                 break;
@@ -186,8 +184,8 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @NotNull
-    private static ArrayList<Object> parsePrimitiveList(@NotNull Scanner scanner) {
-        ArrayList<Object> result = new ArrayList<Object>();
+    private static List<Object> parsePrimitiveList(@NotNull Scanner scanner) {
+        var result = new java.util.ArrayList<Object>();
         while (scanner.hasNext() && !scanner.hasNext("\\]")) {
             Object value = parseValue(scanner);
             result.add(value);
@@ -206,17 +204,14 @@ public class GdbMiProducer /*extends Thread*/ {
         scanner.next("\\[");
         if (scanner.hasNext("\\]")) {
             scanner.next("\\]");
-            return new ArrayList<Object>();
+            return new java.util.ArrayList<Object>();
         } else if (scanner.hasNext("[a-zA-Z-]")) { // name=value
-            List<Map.Entry<String, Object>> result = parseKeyValueList(scanner);
-            return result;
+            return parseKeyValueList(scanner);
         } else { // list of "value"s, not of "name=value"s
-            ArrayList<Object> result = parsePrimitiveList(scanner);
-            return result;
+            return parsePrimitiveList(scanner);
         }
     }
 
-    @Nullable
     public static Object parseValue(@NotNull Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"

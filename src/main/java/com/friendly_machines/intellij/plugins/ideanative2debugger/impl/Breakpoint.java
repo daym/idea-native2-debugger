@@ -18,7 +18,6 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Breakpoint {
@@ -76,7 +75,7 @@ public class Breakpoint {
 
     */
 
-    Breakpoint(DebugProcess debugProcess, XBreakpoint xBreakpoint, HashMap<String, Object> gdbResponse) {
+    Breakpoint(DebugProcess debugProcess, XBreakpoint xBreakpoint, Map<String, Object> gdbResponse) {
         myDebugProcess = debugProcess;
         myXBreakpoint = xBreakpoint;
         myGdbBkpt = gdbResponse;

@@ -82,7 +82,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return myMiFilter.gdbCall(operation, options, parameters);
     }
 
-    private void handleGdbMiNotifyAsyncOutput(String klass, HashMap<String, Object> attributes) {
+    private void handleGdbMiNotifyAsyncOutput(String klass, Map<String, Object> attributes) {
         if ((klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
             // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             try {
@@ -108,7 +108,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    private void handleGdbMiExecAsyncOutput(String klass, HashMap<String, Object> attributes) {
+    private void handleGdbMiExecAsyncOutput(String klass, Map<String, Object> attributes) {
         if (klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             // *stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
@@ -164,7 +164,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
         char mode = response.getMode();
         String klass = response.getKlass();
-        HashMap<String, Object> attributes = response.getAttributes();
+        var attributes = response.getAttributes();
         if (mode == '=') {
             handleGdbMiNotifyAsyncOutput(klass, attributes);
         } else if (mode == '*') {
@@ -213,7 +213,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void reportError(String s, GdbMiOperationException e) {
         GdbMiStateResponse details = e.getDetails();
         if (details != null) {
-            HashMap<String, Object> attributes = details.getAttributes();
+            var attributes = details.getAttributes();
             if (attributes != null) {
                 Object msg = attributes.get("msg");
                 if (msg != null) {

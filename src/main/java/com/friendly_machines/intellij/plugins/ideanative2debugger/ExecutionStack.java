@@ -22,7 +22,7 @@ public class ExecutionStack extends XExecutionStack {
         myThreadId = threadId;
 //    for (Map.Entry<String, Object> frame : frames) {
 //      if ("frame".equals(frame.getKey())) {
-//        myFrames.add(new Native2StackFrame((HashMap<String, Object>) frame.getValue(), myDebuggerSession));
+//        myFrames.add(new Native2StackFrame((Map<String, Object>) frame.getValue(), myDebuggerSession));
 //      }
 //    }
         if (topFrame.isPresent()) {

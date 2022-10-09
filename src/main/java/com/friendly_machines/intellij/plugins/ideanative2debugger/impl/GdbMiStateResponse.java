@@ -4,7 +4,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -12,9 +12,9 @@ public class GdbMiStateResponse {
     private final char myMode;
     private final Optional<String> myToken;
     private final String myKlass;
-    private final HashMap<String, Object> myAttributes;
+    private final Map<String, Object> myAttributes;
 
-    public GdbMiStateResponse(Optional<String> token, char mode, String klass, HashMap<String, Object> attributes) {
+    public GdbMiStateResponse(Optional<String> token, char mode, String klass, Map<String, Object> attributes) {
         myToken = token;
         myMode = mode;
         myKlass = klass;
@@ -28,7 +28,7 @@ public class GdbMiStateResponse {
         // "^": sync command result
         char mode = scanner.next().charAt(0);
         String klass = GdbMiProducer.parseKlass(scanner); // Note: not specified
-        HashMap<String, Object> result = new HashMap<String, Object>();
+        var result = new java.util.HashMap<String, Object>();
         while (scanner.hasNext(",")) {
             scanner.next(",");
             String name = GdbMiProducer.parseSymbol(scanner);
@@ -41,7 +41,7 @@ public class GdbMiStateResponse {
 
     public static GdbMiStateResponse errorResponse(Optional<String> token, char mode, String klass, String errorMessage) {
         // TODO: add error message somehow?
-        return new GdbMiStateResponse(token, mode, klass, new HashMap<>());
+        return new GdbMiStateResponse(token, mode, klass, new java.util.HashMap<>());
     }
 
     public char getMode() {
@@ -52,7 +52,7 @@ public class GdbMiStateResponse {
         return myKlass;
     }
 
-    public HashMap<String, Object> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return myAttributes;
     }
 

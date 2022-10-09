@@ -16,7 +16,7 @@ intellij {
     version.set("222.4167.29")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("org.rust.lang:0.4.179.4903-222"))
 }
 
 dependencies {

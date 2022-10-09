@@ -428,6 +428,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                     return isFileExecutable(file);
                 }
             };
+            descriptor.setTitle("Please select the executable to be debugged");
             Component parentComponent = null; // TODO
             FileChooserDialog chooser = FileChooserFactory.getInstance().createFileChooser(descriptor, environment.getProject(), parentComponent);
             // TODO: Make it open a useful directory (for example PATH)

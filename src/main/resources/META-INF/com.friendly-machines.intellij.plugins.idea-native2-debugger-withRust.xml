@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="org.rust">
+        <runConfigurationExtension implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.DebuggerRunConfigurationExtension"/>
+    </extensions>
+</idea-plugin>

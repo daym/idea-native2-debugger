@@ -4,6 +4,7 @@
     <name>Native2 Debugger</name>
     <id>com.friendly-machines.intellij.plugins.idea-native2-debugger</id>
     <category>C, C++, Go, Rust</category>
+    <depends optional="true" config-file="com.friendly-machines.intellij.plugins.idea-native2-debugger-withRust.xml">org.rust.lang</depends>
 
     <description><![CDATA[
     Allows interactive debugging of native executables using gdb.
@@ -41,6 +42,7 @@
         />
         <applicationService
                 serviceImplementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ProjectSettingsState"/>
+        <!-- <applicationService serviceImplementation="com.friendly_machines.intellij.plugins.ideanative2debugger.RunConfigurationExtensionManager"/> -->
     </extensions>
 
     <!--

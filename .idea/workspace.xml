@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="DebugProcess: Add &quot;jump&quot;.">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/META-INF/com.friendly-machines.intellij.plugins.idea-native2-debugger-withRust.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbMiProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/GdbOsProcessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,25 +87,29 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectId" id="2FP6WDlk3nuBhFDnM8l1D1Ojs0K" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
-    &quot;create.test.in.the.same.root&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/tmp/idea-native2-debugger-1.0-SNAPSHOT.zip&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.24168366&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.stepping&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaClassFindUsagesOptions.isSearchForTextOccurrences": "false",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "create.test.in.the.same.root": "true",
+    "last_opened_file_path": "/home/dannym/src/Oxide/idea/idea-native2-debugger",
+    "project.structure.last.edited": "Problems",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.24168366",
+    "settings.editor.selected.configurable": "Errors"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
@@ -259,41 +266,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1664381401707</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Make Pty even more pipe-like.">
-      <created>1664577896738</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1664577896738</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Try to make gdb interpreter the actual main pty thing (so &quot;--interpreter=mi3&quot; instead of &quot;new-ui mi3 ...&quot;)">
-      <created>1664577963725</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1664577963725</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Inline GdbOsReaderOptions.">
-      <created>1664578282302</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1664578282302</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Do console.attachToProcess in order for IDEA to create a pty.">
-      <created>1664579723981</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1664579723981</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Remove our Pty classes.">
-      <created>1664579871579</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1664579871579</updated>
     </task>
     <task id="LOCAL-00006" summary="Remove STATE userdata.">
       <created>1664580003174</created>
@@ -498,7 +470,147 @@
       <option name="project" value="LOCAL" />
       <updated>1664798082528</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="GdbOsProcessHandler: If there's a timeout trying to consume from the BlockingPipe, destroy the process.">
+      <created>1664828117923</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1664828117923</updated>
+    </task>
+    <task id="LOCAL-00036" summary="DebugProcess: Add more stepping wrappers, notably &quot;stepInstruction&quot; and &quot;nextInstruction&quot;.">
+      <created>1665269938575</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1665269938575</updated>
+    </task>
+    <task id="LOCAL-00037" summary="DebugProcess: Factor out &quot;until&quot;.">
+      <created>1665270174181</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1665270174181</updated>
+    </task>
+    <task id="LOCAL-00038" summary="DebugProcess: Add gdbShow.">
+      <created>1665271643004</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1665271643004</updated>
+    </task>
+    <task id="LOCAL-00039" summary="DebugProcess: Update comments.">
+      <created>1665271931776</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1665271931776</updated>
+    </task>
+    <task id="LOCAL-00040" summary="DebugProcess: Add &quot;jump&quot;.">
+      <created>1665272153865</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1665272153865</updated>
+    </task>
+    <task id="LOCAL-00041" summary="DebugProcess: Add &quot;listFeatures&quot;, &quot;infoGdbMiCommand&quot;.">
+      <created>1665273123477</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1665273123477</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Suppress &quot;unchecked cast&quot; warnings where safe.">
+      <created>1665274477494</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1665274477495</updated>
+    </task>
+    <task id="LOCAL-00043" summary="DebugProcess: Fix some warnings.">
+      <created>1665275250550</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1665275250550</updated>
+    </task>
+    <task id="LOCAL-00044" summary="DebugProcess: Fix some warnings.">
+      <created>1665275514966</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1665275514966</updated>
+    </task>
+    <task id="LOCAL-00045" summary="DebugProcess: Fix some warnings.">
+      <created>1665275580411</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1665275580411</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Fix some more warnings.">
+      <created>1665276205321</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1665276205321</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Fix some more warnings, part 2.">
+      <created>1665276473019</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1665276473019</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Fix some more warnings, part 3.">
+      <created>1665277510678</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1665277510678</updated>
+    </task>
+    <task id="LOCAL-00049" summary="GdbMiProducer: Use new-style switch in interpretEscapeSequenceBody.">
+      <created>1665277915644</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1665277915644</updated>
+    </task>
+    <task id="LOCAL-00050" summary="GdbMiProducer: Use StringBuilder in parseSymbol.">
+      <created>1665278082137</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1665278082139</updated>
+    </task>
+    <task id="LOCAL-00051" summary="GdbMiProducer: Use StringBuilder in parseToken.">
+      <created>1665278186985</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1665278186986</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Clean up warnings.">
+      <created>1665348452511</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1665348452512</updated>
+    </task>
+    <task id="LOCAL-00053" summary="DebugProcess: Simplify getPreselectedExecutable.">
+      <created>1665349409530</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1665349409530</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Clean up warnings.">
+      <created>1665351259283</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1665351259283</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -513,23 +625,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Remove MI_FILTER userdata." />
-    <MESSAGE value="Remove DEBUG_PROCESS userdata." />
-    <MESSAGE value="Move GdbOsProcessHandler to impl." />
-    <MESSAGE value="Add &quot;Run IDE with plugin&quot;." />
-    <MESSAGE value="Factor out and fix startDebugging." />
-    <MESSAGE value="Handle async messages." />
-    <MESSAGE value="Show 'target' messages inside a bubble, too" />
-    <MESSAGE value="Make automatic search for executable better." />
-    <MESSAGE value="Make async message handling happen in UI thread." />
-    <MESSAGE value="Replace &quot;new Integer compareTo&quot; by &quot;Integer.compare&quot;." />
-    <MESSAGE value="Ignore empty message on notifications." />
-    <MESSAGE value="Exit gdb when debugged program exits" />
-    <MESSAGE value="GdbMi: Allow &quot;_&quot; in symbols." />
-    <MESSAGE value="GdbMiProducer: Rename &quot;parseString&quot; to &quot;parseSymbol&quot;." />
-    <MESSAGE value="GdbOsProcessHandler: Synthesize error response if there is an error in parsing the Gdb Mi response." />
-    <MESSAGE value="Add AssemblyView, MemoryView." />
-    <MESSAGE value="Add test for GdbMiStateResponse." />
     <MESSAGE value="* GdbOsProcessHandler: Remove double-startup." />
     <MESSAGE value="RunProfileState: Add comment on how to use Pty if required." />
     <MESSAGE value="AssemblyView: Fix size." />
@@ -538,21 +633,53 @@
     <MESSAGE value="RunProfileState: Fix" />
     <MESSAGE value="Remove debugging messages." />
     <MESSAGE value="Split out CpuRegistersView." />
-    <option name="LAST_COMMIT_MESSAGE" value="Split out CpuRegistersView." />
+    <MESSAGE value="GdbOsProcessHandler: If there's a timeout trying to consume from the BlockingPipe, destroy the process." />
+    <MESSAGE value="DebugProcess: Add more stepping wrappers, notably &quot;stepInstruction&quot; and &quot;nextInstruction&quot;." />
+    <MESSAGE value="DebugProcess: Factor out &quot;until&quot;." />
+    <MESSAGE value="DebugProcess: Add gdbShow." />
+    <MESSAGE value="DebugProcess: Update comments." />
+    <MESSAGE value="DebugProcess: Add &quot;listFeatures&quot;, &quot;infoGdbMiCommand&quot;." />
+    <MESSAGE value="Suppress &quot;unchecked cast&quot; warnings where safe." />
+    <MESSAGE value="DebugProcess: Add &quot;jump&quot;." />
+    <MESSAGE value="DebugProcess: Fix some warnings." />
+    <MESSAGE value="Fix some more warnings." />
+    <MESSAGE value="Fix some more warnings, part 2." />
+    <MESSAGE value="Fix some more warnings, part 3." />
+    <MESSAGE value="GdbMiProducer: Use new-style switch in interpretEscapeSequenceBody." />
+    <MESSAGE value="GdbMiProducer: Use StringBuilder in parseSymbol." />
+    <MESSAGE value="GdbMiProducer: Use StringBuilder in parseToken." />
+    <MESSAGE value="DebugProcess: Simplify getPreselectedExecutable." />
+    <MESSAGE value="Clean up warnings." />
+    <option name="LAST_COMMIT_MESSAGE" value="Clean up warnings." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/CpuAssemblyView.java</url>
-          <line>77</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-222.4167.29-sources.jar!/com/intellij/util/io/BaseDataReader.java</url>
           <line>155</line>
           <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java</url>
+          <line>21</line>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java</url>
+          <line>41</line>
+          <option name="timeStamp" value="42" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java</url>
+          <line>46</line>
+          <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/20b2316f0038ec4b5853ee0725f05df46b6aa206/ideaIC-222.4167.29/lib/pty4j.jar!/com/pty4j/unix/Pty.class</url>
@@ -563,8 +690,43 @@
           </properties>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
+        <breakpoint type="java-wildcard-method">
+          <properties class="org.rust.cargo.runconfig.test.CargoTestEventsConverter" method="recursivelyInitContainingSuite">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="33" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-wildcard-method">
+          <properties class="ActionMenuItem" method="fireActionPerformed">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="46" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-wildcard-method">
+          <properties class="JPopupMenu" method="show">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="50" />
+        </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="com.intellij.openapi.actionSystem.impl.ActionMenuItem" memberName="handler" />
+        <PinnedItemInfo parentTag="com.intellij.execution.runners.ExecutionEnvironment" memberName="myRunnerAndConfigurationSettings" />
+        <PinnedItemInfo parentTag="com.intellij.execution.testframework.sm.runner.SMTestProxy" memberName="value" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="GradleRunConfiguration">
+        <watch expression="environment.getExecutor()" />
+        <watch expression="dataContext" />
+        <watch expression="component" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
@@ -572,5 +734,15 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/idea_native2_debugger$Run_Plugin.ic" NAME="Run Plugin Coverage Results" MODIFIED="1664407190664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+  <component name="regexState">
+    <option name="map">
+      <map>
+        <entry key="flags" value="0" />
+        <entry key="mode" value="0" />
+        <entry key="regex" value="(19||20)\d\d([- /.])(0[1-9]||1[012])\2(0[1-9]||[12][0-9]||3[01])" />
+        <entry key="text" value="1900-01-01 2007/08/13 1900.01.01 1900 01 01 1900-01.01 1900 13 01 1900 02 31" />
+      </map>
+    </option>
   </component>
 </project>

@@ -22,13 +22,14 @@ public class GdbMiProducer /*extends Thread*/ {
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to find the corresponding request to a response. Maybe use those.
     // But async outputs, so those starting with one of "*+=", will not have them.
     public static Optional<String> parseToken(@NotNull Scanner scanner) {
-        String result = "";
+        var result = new StringBuilder();
         while (scanner.hasNext("[0-9]")) {
-            String part = scanner.next("[0-9]");
-            result = result + part;
+            char c = consume(scanner);
+            result.append(c);
         }
-        if (result.length() > 0)
-            return Optional.of(result);
+        String resultString = result.toString();
+        if (resultString.length() > 0)
+            return Optional.of(resultString);
         else
             return Optional.empty();
     }

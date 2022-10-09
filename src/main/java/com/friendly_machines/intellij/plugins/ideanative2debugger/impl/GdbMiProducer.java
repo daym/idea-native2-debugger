@@ -107,13 +107,15 @@ public class GdbMiProducer /*extends Thread*/ {
     // Not specified in GDB manual
     @NotNull
     public static String parseSymbol(@NotNull Scanner scanner) {
-        String result = scanner.next("[a-zA-Z_-]");
+        var prefix = scanner.next("[a-zA-Z_-]");
+        var result = new StringBuilder();
+        result.append(prefix);
 
         while (scanner.hasNext("[a-zA-Z0-9_-]")) {
             char c = consume(scanner);
-            result += c;
+            result.append(c);
         }
-        return result;
+        return result.toString();
     }
 
     @NotNull

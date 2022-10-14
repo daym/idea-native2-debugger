@@ -7,12 +7,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="DebugProcess: Add &quot;jump&quot;.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/TestConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/TestStatusListener.java" afterDir="false" />
+    <list default="true" id="5280dd0f-24ed-46b6-9610-44f98df72690" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/com.friendly-machines.intellij.plugins.idea-native2-debugger-withRust.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/com.friendly-machines.intellij.plugins.idea-native2-debugger-withRust.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/TestStatusListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/TestStatusListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +69,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="kotlin" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -137,7 +135,7 @@
       <command value="gradle buildPlugin" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.idea-native2-debugger [buildPlugin]">
+  <component name="RunManager" selected="Gradle.Run Plugin">
     <configuration name="Run Plugin" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <log_file alias="idea.log" path="$PROJECT_DIR$/build/idea-sandbox/system/log/idea.log" />
       <ExternalSystemSettings>
@@ -255,8 +253,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="Gradle.Run Plugin" />
+        <item itemvalue="Gradle.idea-native2-debugger [buildPlugin]" />
         <item itemvalue="JUnit.GdbMiStateResponseTest" />
         <item itemvalue="Gradle.idea-native2-debugger [buildSearchableOptions]" />
         <item itemvalue="JUnit.GdbMiStateResponseTest.decode" />
@@ -271,13 +269,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1664381401707</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Remove STATE userdata.">
-      <created>1664580003174</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1664580003174</updated>
     </task>
     <task id="LOCAL-00007" summary="Remove MI_FILTER userdata.">
       <created>1664580185016</created>
@@ -615,7 +606,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665351259283</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="Add TestStatusListener.">
+      <created>1665706129525</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1665706129525</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -654,8 +652,8 @@
     <MESSAGE value="GdbMiProducer: Use StringBuilder in parseToken." />
     <MESSAGE value="DebugProcess: Simplify getPreselectedExecutable." />
     <MESSAGE value="Clean up warnings." />
-    <MESSAGE value="OutputStream wrapped using PrintStream; more exceptions thrown (explicitly)" />
-    <option name="LAST_COMMIT_MESSAGE" value="OutputStream wrapped using PrintStream; more exceptions thrown (explicitly)" />
+    <MESSAGE value="Add TestStatusListener." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add TestStatusListener." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -686,6 +684,16 @@
           <line>46</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java</url>
+          <line>79</line>
+          <option name="timeStamp" value="60" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-222.4167.29-sources.jar!/com/intellij/execution/executors/DefaultDebugExecutor.java</url>
+          <line>83</line>
+          <option name="timeStamp" value="61" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/20b2316f0038ec4b5853ee0725f05df46b6aa206/ideaIC-222.4167.29/lib/pty4j.jar!/com/pty4j/unix/Pty.class</url>
           <line>198</line>
@@ -694,6 +702,15 @@
             <option name="WATCH_EXIT" value="false" />
           </properties>
           <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/222.4167.29/4b60fbe5ec19e8ac21f7b5727ac4ed17279f9eba/ideaIC-222.4167.29-sources.jar!/com/intellij/execution/executors/DefaultDebugExecutor.java</url>
+          <line>82</line>
+          <properties class="com.intellij.execution.executors.DefaultDebugExecutor" method="getDebugExecutorInstance">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="62" />
         </line-breakpoint>
         <breakpoint type="java-wildcard-method">
           <properties class="org.rust.cargo.runconfig.test.CargoTestEventsConverter" method="recursivelyInitContainingSuite">
@@ -721,6 +738,7 @@
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="com.intellij.openapi.actionSystem.impl.ActionMenuItem" memberName="handler" />
+        <PinnedItemInfo parentTag="com.friendly_machines.intellij.plugins.ideanative2debugger.TestStatusListener" memberName="myProject" />
         <PinnedItemInfo parentTag="com.intellij.execution.runners.ExecutionEnvironment" memberName="myRunnerAndConfigurationSettings" />
         <PinnedItemInfo parentTag="com.intellij.execution.testframework.sm.runner.SMTestProxy" memberName="value" />
       </pinned-members>
@@ -731,6 +749,8 @@
         <watch expression="dataContext" />
         <watch expression="component" />
         <watch expression="event" />
+        <watch expression="suite" />
+        <watch expression="environment.getState()" />
       </configuration>
     </watches-manager>
   </component>

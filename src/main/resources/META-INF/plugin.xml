@@ -42,6 +42,7 @@
         />
         <applicationService
                 serviceImplementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ProjectSettingsState"/>
+
         <!-- <applicationService serviceImplementation="com.friendly_machines.intellij.plugins.ideanative2debugger.RunConfigurationExtensionManager"/> -->
     </extensions>
 

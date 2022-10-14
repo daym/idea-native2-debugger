@@ -2,4 +2,9 @@
     <extensions defaultExtensionNs="org.rust">
         <runConfigurationExtension implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.DebuggerRunConfigurationExtension"/>
     </extensions>
+    <projectListeners>
+        <listener
+                class="com.friendly_machines.intellij.plugins.ideanative2debugger.TestStatusListener"
+                topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
+    </projectListeners>
 </idea-plugin>

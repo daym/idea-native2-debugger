@@ -22,6 +22,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,15 +78,15 @@ public class BreakpointManager {
         try {
             Map<String, ?> gdbResponse;
             if (key.isLogMessage()) {
-                gdbResponse = myDebugProcess.dprintfInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition()), "Breakpointhit"});
+                gdbResponse = myDebugProcess.dprintfInsert(options, List.of(fileLineReference(key.getSourcePosition()), "Breakpointhit"));
             } else {
-                gdbResponse = myDebugProcess.breakInsert(options.toArray(new String[0]), new String[]{fileLineReference(key.getSourcePosition())});
+                gdbResponse = myDebugProcess.breakInsert(options, List.of(fileLineReference(key.getSourcePosition())));
             }
             @SuppressWarnings("unchecked")
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt));
             return true;
-        } catch (GdbMiOperationException | ClassCastException e) {
+        } catch (GdbMiOperationException | ClassCastException | IOException | InterruptedException e) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
             return false;
         }
@@ -121,6 +122,9 @@ public class BreakpointManager {
                 return true;
             } catch (GdbMiOperationException e) {
                 myDebugProcess.reportError("Breakpoint could not be deleted in GDB", e);
+                return false;
+            } catch (IOException | InterruptedException e) {
+                myDebugProcess.reportError("GDB communication error, " + e.toString());
                 return false;
             }
         } else {

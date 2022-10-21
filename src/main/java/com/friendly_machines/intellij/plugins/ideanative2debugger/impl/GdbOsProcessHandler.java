@@ -10,9 +10,9 @@ import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class GdbOsProcessHandler extends OSProcessHandler {
@@ -60,7 +60,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     }
 
     public GdbMiStateResponse readResponse() throws InterruptedException {
-        GdbMiStateResponse result = myProducer.consume();
+        var result = myProducer.consume();
         if (result == null) { // timeout
             this.destroyProcess();
             throw new RuntimeException("timeout while waiting for response from GDB/MI");
@@ -79,7 +79,11 @@ public class GdbOsProcessHandler extends OSProcessHandler {
         super.startNotify();
         var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
         if (debugProcess != null) {
-            debugProcess.startDebugging();
+            try {
+                debugProcess.startDebugging();
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             throw new RuntimeException("Debug process is missing");
         }
@@ -90,7 +94,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
 //        println(Thread.currentThread().getId() + Thread.currentThread().getName() + " notifyTextAvailable: " + text);
         var scanner = new Scanner(text);
         scanner.useDelimiter(""); // character by character mode
-        Optional<String> token = GdbMiProducer.parseToken(scanner);
+        var token = GdbMiProducer.parseToken(scanner);
         if (scanner.hasNext("\\^")) { // sync response
             if (token.isPresent()) {
                 try {
@@ -121,7 +125,12 @@ public class GdbOsProcessHandler extends OSProcessHandler {
             ApplicationManager.getApplication().invokeLater(() -> {
                 var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
                 if (debugProcess != null) {
-                    debugProcess.processAsync(token, scanner);
+                    try {
+                        debugProcess.processAsync(token, scanner);
+                    } catch (IOException | InterruptedException e) {
+                        // pucgenie: So who catches this?
+                        throw new RuntimeException(e);
+                    }
                 } else { // too late
                 }
             });

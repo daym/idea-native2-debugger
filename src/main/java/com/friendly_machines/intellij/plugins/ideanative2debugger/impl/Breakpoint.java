@@ -18,12 +18,13 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class Breakpoint {
     private final DebugProcess myDebugProcess;
     private final XBreakpoint myXBreakpoint;
-    private Map<String, Object> myGdbBkpt; /* TODO: unroll.
+    private Map<String, ?> myGdbBkpt; /* TODO: unroll.
         Mandatory are:
         number
         type
@@ -75,7 +76,7 @@ public class Breakpoint {
 
     */
 
-    Breakpoint(DebugProcess debugProcess, XBreakpoint xBreakpoint, Map<String, Object> gdbResponse) {
+    Breakpoint(DebugProcess debugProcess, XBreakpoint xBreakpoint, Map<String, ?> gdbResponse) {
         myDebugProcess = debugProcess;
         myXBreakpoint = xBreakpoint;
         myGdbBkpt = gdbResponse;
@@ -92,22 +93,22 @@ public class Breakpoint {
         return (String) myGdbBkpt.get("number");
     }
 
-    public void setEnabled(boolean b) {
+    public void setEnabled(boolean b) throws IOException, InterruptedException {
         String number = getNumber();
         try {
             if (b) {
                 myDebugProcess.breakEnable(number);
-                myGdbBkpt.put("enabled", "y");
+                ((Map<String, String>) myGdbBkpt).put("enabled", "y");
             } else {
                 myDebugProcess.breakDisable(number);
-                myGdbBkpt.put("enabled", "n");
+                ((Map<String, String>) myGdbBkpt).put("enabled", "n");
             }
         } catch (GdbMiOperationException e) {
             myDebugProcess.reportError("could not enable/disable breakpoint in GDB", e);
         }
     }
 
-    public void setFromGdbBkpt(Map<String, Object> bkpt) {
+    public void setFromGdbBkpt(Map<String, ?> bkpt) {
         myGdbBkpt = bkpt;
     }
 

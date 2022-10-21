@@ -74,20 +74,20 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             new BreakpointHandler(this, BreakpointType.class),
     };
 
-    private GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+    private GdbMiStateResponse gdbSend(String operation, Collection<String> options, Collection<String> parameters) throws IOException, InterruptedException {
         return myMiFilter.gdbSend(operation, options, parameters);
     }
 
-    private Map<String, ?> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
+    private Map<String, ?> gdbCall(String operation, Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return myMiFilter.gdbCall(operation, options, parameters);
     }
 
-    private void handleGdbMiNotifyAsyncOutput(String klass, Map<String, Object> attributes) {
+    private void handleGdbMiNotifyAsyncOutput(String klass, Map<String, ?> attributes) {
         if ((klass.equals("breakpoint-modified") || klass.equals("breakpoint-created") || klass.equals("breakpoint-deleted")) && attributes.containsKey("bkpt")) {
             // Note: if a breakpoint is emitted in the result record of a command, then it will not also be emitted in an async record.
             try {
                 @SuppressWarnings("unchecked")
-                var bkpt = (Map<String, Object>) attributes.get("bkpt");
+                var bkpt = (Map<String, ?>) attributes.get("bkpt");
                 String number = (String) bkpt.get("number");
                 if (klass.equals("breakpoint-deleted")) {
                     myBreakpointManager.deleteBreakpointByGdbNumber(number);
@@ -108,7 +108,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    private void handleGdbMiExecAsyncOutput(String klass, Map<String, Object> attributes) {
+    private void handleGdbMiExecAsyncOutput(String klass, Map<String, ?> attributes) throws IOException, InterruptedException {
         if (klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
             // *stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x00007ffff7b53857",func="amd_host_image_builder::main",args=[],file="src/main.rs",fullname="/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs",line="2469",arch="i386:x86-64"},thread-id="1",stopped-threads="all",core="4"
@@ -160,7 +160,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public void handleGdbMiStateOutput(GdbMiStateResponse response) {
+    public void handleGdbMiStateOutput(GdbMiStateResponse response) throws IOException, InterruptedException {
         // =breakpoint-modified{bkpt={number=1, times=0, original-location=/home/dannym/src/Oxide/main/amd-host-image-builder/src/main.rs:2472, locations=[{number=1.1, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b538d4, enabled=y}, {number=1.2, thread-groups=[i1], file=src/main.rs, func=amd_host_image_builder::main, line=2472, fullname=/home/dannym/src/Oxide/crates/main/amd-host-image-builder/src/main.rs, addr=0x00007ffff7b53a70, enabled=y}], type=breakpoint, addr=<MULTIPLE>, disp=keep, enabled=y}}
         char mode = response.getMode();
         String klass = response.getKlass();
@@ -238,7 +238,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     private SuspendContext generateSuspendContext(List<Object> threads, String currentThreadId) throws ClassCastException {
-        ArrayList<ExecutionStack> stacks = new ArrayList<>();
+        final var stacks = new ArrayList<ExecutionStack>();
         int activeStackId = -1;
 
         for (Object thread1 : threads) {
@@ -257,102 +257,95 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return new SuspendContext(this, stacks.toArray(new ExecutionStack[0]), activeStackId);
     }
 
-    public List<Map<String, Object>> getVariables(String threadId, String frameId) throws GdbMiOperationException, ClassCastException {
-        ArrayList<Map<String, Object>> result = new ArrayList<>();
+    public List<Map<String, ?>> getVariables(String threadId, String frameId) throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
         // TODO: --simple-values and find stuff yourself.
-        var q = gdbCall("-stack-list-variables", new String[]{"--thread", threadId, "--frame", frameId, "--all-values"}, new String[]{});
-        if (q.containsKey("variables")) {
-            try {
-                List<?> variables = (List<?>) q.get("variables");
-                for (Object variable1 : variables) {
-                    @SuppressWarnings("unchecked")
-                    var variable = (Map<String, Object>) variable1;
-                    result.add(variable);
-                }
-            } catch (ClassCastException e) {
-                e.printStackTrace();
+        var q = gdbCall("-stack-list-variables", List.of("--thread", threadId, "--frame", frameId, "--all-values"), Collections.emptyList());
+        try {
+            var variables = (Collection<Map<String, ?>>) q.get("variables");
+            if (variables == null) {
+                return Collections.emptyList();
             }
+            // pucgenie: Why even copy?
+            return new ArrayList<Map<String, ?>>(variables);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return result;
     }
 
-    public List<Map<String, Object>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException {
-        List<Map<String, Object>> result = new ArrayList<>();
-        var q = gdbCall("-stack-list-frames", new String[]{"--thread", threadId}, new String[0]);
-        if (q.containsKey("stack")) {
-            try {
-                List<?> stack = (List<?>) q.get("stack");
-                for (Object frame1 : stack) {
-                    @SuppressWarnings("unchecked")
-                    Map.Entry<String, Object> frame = (Map.Entry<String, Object>) frame1;
-                    if ("frame".equals(frame.getKey())) {
-                        @SuppressWarnings("unchecked")
-                        var item = (Map<String, Object>) frame.getValue();
-                        result.add(item);
-                    }
-                }
-            } catch (ClassCastException e) {
-                // Note: This can be because it was a [] that was interpreted as List<String>
-                e.printStackTrace();
-            }
-        } else {
+    public List<Map<String, ?>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
+        var q = gdbCall("-stack-list-frames", List.of("--thread", threadId), Collections.emptyList());
+        final var result = new ArrayList<Map<String, ?>>();
+
+        var stack = (Collection<Map.Entry<String, Map<String, ?>>>) q.get("stack");
+        if (stack == null) {
             reportError("could not get stack frames of thread");
+            return Collections.emptyList();
+        }
+        try {
+            for (var frame : stack) {
+                if ("frame".equals(frame.getKey())) {
+                    result.add(frame.getValue());
+                }
+            }
+        } catch (ClassCastException e) {
+            // Note: This can be because it was a [] that was interpreted as List<String>
+            e.printStackTrace();
         }
         return result;
     }
 
-    private Map<String, ?> getThreadInfo() throws GdbMiOperationException { // TODO return type ?
-        return gdbCall("-thread-info", new String[]{}, new String[0]);
+    private Map<String, ?> getThreadInfo() throws GdbMiOperationException, IOException, InterruptedException { // TODO return type ?
+        return gdbCall("-thread-info", Collections.emptyList(), Collections.emptyList());
     }
 
-    private void loadSymbols(String filename) throws GdbMiOperationException {
-        gdbCall("-file-symbol-file", new String[]{filename}, new String[0]);
+    private void loadSymbols(String filename) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-file-symbol-file", List.of(filename), Collections.emptyList());
     }
 
-    private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException {
-        gdbCall("-target-select", new String[]{gdbTargetType, gdbTargetArg}, new String[]{});
+    private void gdbTarget(String gdbTargetType, String gdbTargetArg) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-target-select", List.of(gdbTargetType, gdbTargetArg), Collections.emptyList());
     }
 
-    private void gdbTarget(String gdbTargetType) throws GdbMiOperationException {
-        gdbCall("-target-select", new String[]{gdbTargetType}, new String[]{});
+    private void gdbTarget(String gdbTargetType) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-target-select", List.of(gdbTargetType), Collections.emptyList());
     }
 
-    private void gdbSet(String key, String value) throws GdbMiOperationException {
-        gdbCall("-gdb-set", new String[]{key, value}, new String[]{});
+    private void gdbSet(String key, String value) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-gdb-set", List.of(key, value), Collections.emptyList());
     }
-    private Object gdbShow(String key) throws GdbMiOperationException {
-        var result = gdbCall("-gdb-show", new String[]{key}, new String[]{});
+    private Object gdbShow(String key) throws GdbMiOperationException, IOException, InterruptedException {
+        var result = gdbCall("-gdb-show", List.of(key), Collections.emptyList());
         return result.get("value");
     }
 
-    public Map<String, ?> dprintfInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, ?> dprintfInsert(Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-dprintf-insert", options, parameters);
     }
 
-    public Map<String, ?> breakInsert(String[] options, String[] parameters) throws GdbMiOperationException {
+    public Map<String, ?> breakInsert(Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-break-insert", options, parameters);
     }
 
-    public void breakDelete(String number) throws GdbMiOperationException {
-        gdbCall("-break-delete", new String[]{number}, new String[]{});
+    public void breakDelete(String number) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-break-delete", List.of(number), Collections.emptyList());
     }
 
-    public void breakEnable(String number) throws GdbMiOperationException {
-        gdbCall("-break-enable", new String[]{number}, new String[]{});
+    public void breakEnable(String number) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-break-enable", List.of(number), Collections.emptyList());
     }
 
-    public void breakDisable(String number) throws GdbMiOperationException {
-        gdbCall("-break-disable", new String[]{number}, new String[]{});
+    public void breakDisable(String number) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-break-disable", List.of(number), Collections.emptyList());
     }
 
-    public Map<String, ?> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException {
-        return gdbCall("-data-evaluate-expression", new String[]{"--thread", threadId, "--frame", frameId, expr}, new String[0]);
+    public Map<String, ?> evaluate(String expr, String threadId, String frameId) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-data-evaluate-expression", List.of("--thread", threadId, "--frame", frameId, expr), Collections.emptyList());
     }
 
-    private void execRun() throws GdbMiOperationException {
+    private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         System.err.println("EXEC RUN");
-        gdbCall("-exec-run", new String[] {"--start"}, new String[0]); // FIXME optional "--start"
+        gdbCall("-exec-run", List.of("--start"), Collections.emptyList()); // FIXME optional "--start"
     }
 
     private static boolean isFileExecutable(VirtualFile file) {
@@ -443,7 +436,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return configuredExecutableName;
     }
 
-    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) {
+    private void loadExecutable(ExecutionEnvironment environment, String configuredExecutableName) throws IOException, InterruptedException {
         configuredExecutableName = completeConfiguredExecutableName(environment, configuredExecutableName);
         try {
             if (configuredExecutableName != null && !configuredExecutableName.isEmpty()) {
@@ -462,7 +455,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    private void setUpGdb(ExecutionEnvironment environment) {
+    private void setUpGdb(ExecutionEnvironment environment) throws IOException, InterruptedException {
         ProjectSettingsState projectSettings = ProjectSettingsState.getInstance();
         try {
             gdbSet("mi-async", "on");
@@ -470,7 +463,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             reportError("mi-async on failed", e);
         }
         //gdbSet("interactive-mode", "on"); // just in case we use a pipe for communicating with gdb: force pty-like communication
-        gdbSend("-enable-frame-filters", new String[]{}, new String[0]);
+        gdbSend("-enable-frame-filters", Collections.emptyList(), Collections.emptyList());
         try {
             gdbSet("sysroot", projectSettings.gdbSysRoot);
         } catch (GdbMiOperationException e) {
@@ -559,44 +552,46 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return myEditorsProvider;
     }
 
-    public void step(boolean reverse) throws GdbMiOperationException {
-        gdbCall("-exec-step", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    public void step(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-step", reverse ? List.of("--reverse") : Collections.emptyList(), Collections.emptyList());
     }
-    public void next(boolean reverse) throws GdbMiOperationException {
-        gdbCall("-exec-next", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    public void next(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-next", reverse ? List.of("--reverse") : Collections.emptyList(), Collections.emptyList());
     }
-    public void stepInstruction(boolean reverse) throws GdbMiOperationException {
-        gdbCall("-exec-step-instruction", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    public void stepInstruction(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-step-instruction", reverse ? List.of("--reverse") : Collections.emptyList(), Collections.emptyList());
     }
-    public void nextInstruction(boolean reverse) throws GdbMiOperationException {
-        gdbCall("-exec-next-instruction", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    public void nextInstruction(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-next-instruction", reverse ? List.of("--reverse") : Collections.emptyList(), Collections.emptyList());
     }
 
-    public void finish(boolean reverse) throws GdbMiOperationException {
-        gdbCall("-exec-finish", reverse ? new String[] { "--reverse" } : new String[] { }, new String[0]);
+    public void finish(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-finish", reverse ? List.of("--reverse") : Collections.emptyList(), Collections.emptyList());
     }
-    public void until(Optional<String> location) throws GdbMiOperationException {
-        gdbCall("-exec-until", location.map(x -> new String[] { x }).orElse(new String[] { }), new String[0]);
+    public void until(Optional<String> location) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-until", location.map(List::of).orElse(Collections.emptyList()), Collections.emptyList());
     }
-    public void jump(String location) throws GdbMiOperationException {
-        gdbCall("-exec-jump", new String[] { location }, new String[0]);
+    public void jump(String location) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-jump", List.of(location), Collections.emptyList());
     }
-    public List<String> listFeatures() throws GdbMiOperationException, ClassCastException {
+    public List<String> listFeatures() throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
         // For example, GDB 12.1 has ^done,features=["frozen-varobjs","pending-breakpoints","thread-info","data-read-memory-bytes","breakpoint-notifications","ada-task-info","language-option","info-gdb-mi-command","undefined-command-error-code","exec-run-start-option","data-disassemble-a-option","python"]
-        @SuppressWarnings("unchecked")
-        var result = (List<String>) gdbCall("-list-features", new String[] {}, new String[0]).get("features");
-        return result;
+        return (List<String>) gdbCall("-list-features", Collections.emptyList(), Collections.emptyList()).get("features");
     }
-    public Object infoGdbMiCommand(String commandName) throws GdbMiOperationException {
-        return gdbCall("-info-gdb-mi-command", new String[] { commandName }, new String[0]).get("command");
+    public Object infoGdbMiCommand(String commandName) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-info-gdb-mi-command", List.of(commandName), Collections.emptyList()).get("command");
     }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
         try {
             next(false);
-        } catch (GdbMiOperationException e) {
+        } catch (GdbMiOperationException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
         }
     }
 
@@ -604,9 +599,13 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void startStepInto(@Nullable XSuspendContext context) {
         try {
             step(false);
-        } catch (GdbMiOperationException e) {
+        } catch (GdbMiOperationException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
         }
     }
 
@@ -614,35 +613,47 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void startStepOut(@Nullable XSuspendContext context) {
         try {
             finish(false);
-        } catch (GdbMiOperationException e) {
+        } catch (GdbMiOperationException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
         }
     }
 
     @Override
     public void startPausing() {
-        gdbSend("-exec-interrupt", new String[0], new String[0]);
+        try {
+            gdbSend("-exec-interrupt", Collections.emptyList(), Collections.emptyList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
+        }
         //getSession().pause();
     }
 
-    public Object dataReadMemoryBytes(int byteOffset, String addressExpr, int countBytes) throws GdbMiOperationException {
-        return gdbCall("-data-read-memory-bytes", new String[] { "-o", Integer.toString(byteOffset), addressExpr, Integer.toString(countBytes) }, new String[] {});
+    public Object dataReadMemoryBytes(int byteOffset, String addressExpr, int countBytes) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-data-read-memory-bytes", List.of( "-o", Integer.toString(byteOffset), addressExpr, Integer.toString(countBytes) ), Collections.emptyList());
     }
 
     private final static char[] hexdigits = "0123456789abcdef".toCharArray();
 
-    public Object dataWriteMemoryBytes(String addressExpr, byte[] contents) throws GdbMiOperationException {
+    public Object dataWriteMemoryBytes(String addressExpr, byte[] contents) throws GdbMiOperationException, IOException, InterruptedException {
         var contentsStream = new StringBuilder();
         for (byte item : contents) {
             contentsStream.append(hexdigits[(item >> 4) & 0xF]);
             contentsStream.append(hexdigits[(item >> 0) & 0xF]);
         }
-        return gdbCall("-data-write-memory-bytes", new String[] { addressExpr, contentsStream.toString() }, new String[] {});
+        return gdbCall("-data-write-memory-bytes", List.of( addressExpr, contentsStream.toString() ), Collections.emptyList());
     }
     @SuppressWarnings("unchecked")
-    public List<String> dataListChangedRegisters() throws GdbMiOperationException, ClassCastException {
-        var result = gdbCall("-data-list-changed-registers", new String[] {}, new String[] {});
+    public List<String> dataListChangedRegisters() throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
+        var result = gdbCall("-data-list-changed-registers", Collections.emptyList(), Collections.emptyList());
         // ^done,changed-registers=[...]
         if (result.containsKey("changed-registers")) {
             return (List<String>) result.get("changed-registers");
@@ -651,8 +662,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
     @SuppressWarnings("unchecked")
-    public List<String> dataListRegisterNames() throws GdbMiOperationException, ClassCastException {
-        var result = gdbCall("-data-list-register-names", new String[]{}, new String[]{});
+    public List<String> dataListRegisterNames() throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
+        var result = gdbCall("-data-list-register-names", Collections.emptyList(), Collections.emptyList());
         if (result.containsKey("register-names")) {
             return (List<String>) result.get("register-names");
         } else {
@@ -662,8 +673,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     // TODO: Arg: list of registers
     @SuppressWarnings("unchecked")
-    public List<Map<String, ?>> dataListRegisterValues(String fmt) throws GdbMiOperationException, ClassCastException {
-        var result = gdbCall("-data-list-register-values", new String[] { fmt }, new String[]{});
+    public List<Map<String, ?>> dataListRegisterValues(String fmt) throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
+        var result = gdbCall("-data-list-register-values", List.of( fmt ), Collections.emptyList());
         if (result.containsKey("register-values")) {
             return (List<Map<String, ?>>) result.get("register-values");
         } else {
@@ -671,25 +682,38 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public Map<String, ?> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException {
-        return gdbCall("-data-disassemble", new String[] { "-s", beginningAddress, "-e", endAddress }, new String[]{ Integer.toString(mode.code()) });
+    public Map<String, ?> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-data-disassemble", List.of( "-s", beginningAddress, "-e", endAddress ), List.of( Integer.toString(mode.code()) ));
     }
 
     // FIXME: allow specifying endAddress
-    public Map<String, ?> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException {
-        var options = new ArrayList<String>(List.of("-f", filename, "-l", Integer.toString(linenum)));
+    public Map<String, ?> dataDisassembleFile(String filename, int linenum, Optional<Integer> lineCount, boolean includeHighlevelSource) throws GdbMiOperationException, IOException, InterruptedException {
+        var options = new ArrayList<String>();
+        options.add("-f");
+        options.add(filename);
+
+        options.add("-l");
+        options.add(Integer.toString(linenum));
         lineCount.ifPresent(x -> {
             options.add("-n");
             options.add(Integer.toString(x));
         });
-        return gdbCall("-data-list-register-values", options.toArray(new String[0]), new String[]{ includeHighlevelSource ? "1" : "0" });
+
+        return gdbCall("-data-list-register-values", options, List.of( includeHighlevelSource ? "1" : "0" ));
     }
 
     @Override
     public void stop() {
         // Note: IDEA usually calls this AFTER the process was already terminated.
         if (!myProcessHandler.isProcessTerminated()) {
-            gdbSend("-gdb-exit", new String[0], new String[0]);
+            try {
+                gdbSend("-gdb-exit", Collections.emptyList(), Collections.emptyList());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                // pucgenie: Most probably interrupted by the IDE.
+                //throw new RuntimeException(e);
+            }
         }
     }
 
@@ -702,7 +726,15 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        gdbSend("-exec-continue", new String[0], new String[0]);
+        try {
+            gdbSend("-exec-continue", Collections.emptyList(), Collections.emptyList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -713,7 +745,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
         try {
             until(Optional.of(BreakpointManager.fileLineReference(position)));
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
 //            e.printStackTrace();
 //            final PsiFile psiFile = PsiManager.getInstance(getSession().getProject()).findFile(position.getFile());
 //            assert psiFile != null;
@@ -722,10 +754,14 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             reportError("Cannot run to that position");
         } catch (GdbMiOperationException e) {
             reportError("Cannot run to that position", e);
+        } catch (InterruptedException e) {
+            // pucgenie: Most probably interrupted by the IDE.
+            e.printStackTrace();
+            //throw new RuntimeException(e);
         }
     }
 
-    public void startDebugging() {
+    public void startDebugging() throws IOException, InterruptedException {
         isGDBconnected = true; // FIXME
         myMiFilter.startReaderThread();
         setUpGdb(myEnvironment);
@@ -737,7 +773,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public void processAsync(Optional<String> token, @NotNull Scanner scanner) {
+    public void processAsync(Optional<String> token, @NotNull Scanner scanner) throws IOException, InterruptedException {
         myMiFilter.processAsync(token, scanner);
     }
 

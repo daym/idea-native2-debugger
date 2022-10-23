@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -107,11 +108,11 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                     try {
                         myProducer.produce(item2);
                     } catch (InterruptedException ex) {
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
                         throw new RuntimeException(ex);
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     throw new RuntimeException(e); // FIXME
                 }
             } else {
@@ -127,8 +128,10 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                 if (debugProcess != null) {
                     try {
                         debugProcess.processAsync(token, scanner);
-                    } catch (IOException | InterruptedException e) {
+                    } catch (IOException e) {
                         // pucgenie: So who catches this?
+                        throw new UncheckedIOException(e);
+                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 } else { // too late

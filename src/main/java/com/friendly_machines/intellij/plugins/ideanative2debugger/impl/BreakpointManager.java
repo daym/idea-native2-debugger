@@ -20,6 +20,7 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public boolean addBreakpoint(XLineBreakpoint<XBreakpointProperties> key) {
+    public boolean addBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> key) throws InterruptedException {
         // TODO: Just store our Breakpoint in the user data of KEY and then you don't need myBreakpoints in the first place.
         final XSourcePosition sourcePosition = key.getSourcePosition();
         if (sourcePosition == null || !sourcePosition.getFile().exists() || !sourcePosition.getFile().isValid()) {
@@ -86,7 +87,7 @@ public class BreakpointManager {
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt));
             return true;
-        } catch (GdbMiOperationException | ClassCastException | IOException | InterruptedException e) {
+        } catch (GdbMiOperationException | ClassCastException | IOException e) {
             myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint position");
             return false;
         }
@@ -111,7 +112,7 @@ public class BreakpointManager {
         return Optional.empty();
     }
 
-    public boolean deleteBreakpoint(XBreakpoint key) {
+    public boolean deleteBreakpoint(XBreakpoint key) throws InterruptedException {
         Optional<Breakpoint> breakpointo = getBreakpoint(key);
         if (breakpointo.isPresent()) {
             Breakpoint breakpoint = breakpointo.get();
@@ -123,7 +124,7 @@ public class BreakpointManager {
             } catch (GdbMiOperationException e) {
                 myDebugProcess.reportError("Breakpoint could not be deleted in GDB", e);
                 return false;
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 myDebugProcess.reportError("GDB communication error, " + e.toString());
                 return false;
             }

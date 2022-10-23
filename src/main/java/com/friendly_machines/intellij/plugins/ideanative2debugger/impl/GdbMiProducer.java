@@ -194,7 +194,7 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @SuppressWarnings("unchecked")
-    public static <X> X parseValue(@NotNull Scanner scanner) {
+    public static <X> @NotNull X parseValue(@NotNull Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"
         list ==> "[]"

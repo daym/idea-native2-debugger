@@ -50,7 +50,7 @@ public class GdbMiFilter {
         return (byte) ((byte) '0' + value);
     }
 
-    // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an input stream
+    // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an output stream
     private static void makeCString(byte[] text, OutputStream s) throws IOException {
         s.write((byte) '"'); // quote
         for (byte b : text) {
@@ -110,7 +110,10 @@ public class GdbMiFilter {
 
     public Map<String, ?> gdbCall(String operation, Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         var response = gdbSend(operation, options, parameters);
-        assert response.getMode() == '^';
+        if (response.getMode() != '^') {
+            // pucgenie: I don't like that repacking just for adding an error message. Data is lost too (see com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponse#errorResponse ).
+            throw new GdbMiOperationException(GdbMiStateResponse.errorResponse(response.getToken(), response.getMode(), response.getKlass(), "Invalid response mode, expected '^'."));
+        }
         // "connected" is returned by -target-select only; "running" is by exec-run
         switch (response.getKlass()) {
             case "done":

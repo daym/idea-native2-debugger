@@ -18,7 +18,12 @@ public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreak
     @Override
     public void registerBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
-        manager.addBreakpoint(breakpoint);
+        try {
+            manager.addBreakpoint(breakpoint);
+        } catch (InterruptedException e) {
+            // pucgenie: Can't really do much more.
+            e.printStackTrace();
+        }
         //      final XDebugSession session = myNative2DebugProcess.getSession();
         //      session.reportMessage(Native2DebuggerBundle.message("notification.content.target.vm.not.responding.breakpoint.can.not.be.set"), MessageType.ERROR);
         //      session.setBreakpointInvalid(breakpoint, "Target VM is not responding. Breakpoint can not be set");
@@ -42,7 +47,12 @@ public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreak
 //                breakpoint.setEnabled(false);
 //            }
 //        } else {
-        manager.deleteBreakpoint(key);
+        try {
+            manager.deleteBreakpoint(key);
+        } catch (InterruptedException e) {
+            // pucgenie: Can't really do much more.
+            e.printStackTrace();
+        }
 //        }
     }
 }

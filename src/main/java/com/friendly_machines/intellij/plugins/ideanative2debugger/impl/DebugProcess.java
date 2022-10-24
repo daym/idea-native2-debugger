@@ -267,7 +267,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     public List<Map<String, ?>> getVariables(String threadId, String frameId) throws GdbMiOperationException, IOException, InterruptedException {
         // TODO: --simple-values and find stuff yourself.
-        var q = gdbCall("-stack-list-variables", List.of("--thread", threadId, "--frame", frameId), List.of("all-values"));
+        var q = gdbCall("-stack-list-variables", List.of("--thread", threadId, "--frame", frameId, "--all-values"));
         var variables = (Collection<Map<String, ?>>) q.get("variables");
         if (variables == null) {
             return Collections.emptyList();
@@ -277,7 +277,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public List<Map<String, ?>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
-        var q = gdbCall("-stack-list-frames", Collections.emptyList(), List.of("thread", threadId));
+        var q = gdbCall("-stack-list-frames", List.of("--thread", threadId));
         final var result = new ArrayList<Map<String, ?>>();
 
         var stack = (Collection<Map.Entry<String, Map<String, ?>>>) q.get("stack");
@@ -343,7 +343,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         System.err.println("EXEC RUN");
-        gdbCall("-exec-run", Collections.emptyList(), List.of("start")); // FIXME optional "--start"
+        gdbCall("-exec-run", List.of("--start")); // FIXME optional "--start"
     }
 
     private static boolean isFileExecutable(VirtualFile file) {
@@ -551,20 +551,20 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     public void step(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
-        gdbCall("-exec-step", Collections.emptyList(), reverse ? List.of("reverse") : Collections.emptyList());
+        gdbCall("-exec-step", reverse ? List.of("--reverse") : Collections.emptyList());
     }
     public void next(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
-        gdbCall("-exec-next", Collections.emptyList(), reverse ? List.of("reverse") : Collections.emptyList());
+        gdbCall("-exec-next", reverse ? List.of("--reverse") : Collections.emptyList());
     }
     public void stepInstruction(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
-        gdbCall("-exec-step-instruction", Collections.emptyList(), reverse ? List.of("reverse") : Collections.emptyList());
+        gdbCall("-exec-step-instruction", reverse ? List.of("--reverse") : Collections.emptyList());
     }
     public void nextInstruction(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
-        gdbCall("-exec-next-instruction", Collections.emptyList(), reverse ? List.of("reverse") : Collections.emptyList());
+        gdbCall("-exec-next-instruction", reverse ? List.of("--reverse") : Collections.emptyList());
     }
 
     public void finish(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
-        gdbCall("-exec-finish", Collections.emptyList(), reverse ? List.of("reverse") : Collections.emptyList());
+        gdbCall("-exec-finish", reverse ? List.of("--reverse") : Collections.emptyList());
     }
     public void until(Optional<String> location) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-exec-until", location.map(List::of).orElse(Collections.emptyList()));

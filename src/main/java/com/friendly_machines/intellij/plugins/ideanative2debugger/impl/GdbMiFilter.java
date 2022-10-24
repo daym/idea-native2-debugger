@@ -97,6 +97,7 @@ public class GdbMiFilter {
             maybeEscape(option.getBytes(StandardCharsets.UTF_8), myChildIn);
         }
         if (!parameters.isEmpty()) {
+            // mind the space being PREfixed to all following parameters
             myChildIn.print(" --");
             for (var parameterStr : parameters) {
                 myChildIn.print(" ");

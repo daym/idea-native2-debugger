@@ -78,16 +78,24 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     public void startNotify() {
         super.startNotify();
         var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-        if (debugProcess != null) {
-            try {
-                debugProcess.startDebugging();
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+        if (debugProcess == null) {
             throw new RuntimeException("Debug process is missing");
         }
+        try {
+            debugProcess.startDebugging();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // just stop
+        }
     }
+
+    /**
+     * Don't throw any exception to the caller - it would break the whole communication channel to the process/GDB.
+     * @param text
+     * @param outputType
+     */
     @Override
     public void notifyTextAvailable(@NotNull String text, @NotNull Key outputType) {
         // Note: Runs in "output stream of gdb" thread.
@@ -108,15 +116,26 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                         myProducer.produce(item2);
                     } catch (InterruptedException ex) {
                         //ex.printStackTrace();
-                        throw new RuntimeException("Error occurred while trying to inform about error.", ex);
+                        Thread.currentThread().interrupt();
+                        return;
                     }
                 } catch (InterruptedException e) {
                     //e.printStackTrace();
-                    throw new RuntimeException(e); // FIXME
+                    Thread.currentThread().interrupt();
+                    return;
                 }
             } else {
                 // a sync response we didn't wait for
-                System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +": ignored unknown sync response");
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+                    var errMsg = "ignored unknown sync response: " + text;
+                    if (debugProcess == null) {
+                        // Pech gehabt.
+                        System.err.println(errMsg);
+                        return;
+                    }
+                    debugProcess.reportError(errMsg);
+                });
             }
 
             // For async response handling, see GdbMiFilter

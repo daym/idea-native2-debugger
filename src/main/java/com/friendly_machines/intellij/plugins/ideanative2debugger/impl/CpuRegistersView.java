@@ -4,7 +4,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.intellij.xdebugger.XDebugSession;
 
 import javax.swing.*;
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 
 public class CpuRegistersView extends BorderLayoutPanel {
@@ -17,7 +17,7 @@ public class CpuRegistersView extends BorderLayoutPanel {
         btnRefresh.addActionListener(e -> {
             txtRegisters.setText("");
             try {
-                List<String> registerNames = process.dataListRegisterNames();
+                var registerNames = process.dataListRegisterNames();
                 var registerValues = process.dataListRegisterValues("x");
                 for (Map<String, ?> entry: registerValues) {
                     String numberString = (String) entry.get("number");
@@ -29,8 +29,15 @@ public class CpuRegistersView extends BorderLayoutPanel {
                     txtRegisters.append(" = ");
                     txtRegisters.append(value.toString());
                 }
-            } catch (GdbMiOperationException | RuntimeException e2) {
+            } catch (GdbMiOperationException e2) {
                 e2.printStackTrace();
+                process.reportError("Failed getting registers", e2);
+            } catch (RuntimeException | IOException e3) {
+                e3.printStackTrace();
+                process.reportError(e3.toString());
+            } catch (InterruptedException e4) {
+                // just stop
+                return;
             }
             txtRegisters.revalidate();
 

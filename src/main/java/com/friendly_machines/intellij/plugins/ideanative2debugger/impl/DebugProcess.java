@@ -78,11 +78,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return myMiFilter.gdbSend(operation, Collections.emptyList(), Collections.emptyList());
     }
 
-    private Map<String, ?> gdbCall(String operation, Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
+    private Map<String, ?> gdbCall(String operation, Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return myMiFilter.gdbCall(operation, options, parameters);
     }
 
-    private Map<String, ?> gdbCall(String operation, Collection<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+    private Map<String, ?> gdbCall(String operation, Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall(operation, options, Collections.emptyList());
     }
 
@@ -316,11 +316,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return result.get("value");
     }
 
-    public Map<String, ?> dprintfInsert(Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String, ?> dprintfInsert(Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-dprintf-insert", options, parameters);
     }
 
-    public Map<String, ?> breakInsert(Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String, ?> breakInsert(Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-break-insert", options, parameters);
     }
 
@@ -342,6 +342,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         System.err.println("EXEC RUN");
+        // -zwetschgenroester
         gdbCall("-exec-run", List.of("--start")); // FIXME optional "--start"
     }
 

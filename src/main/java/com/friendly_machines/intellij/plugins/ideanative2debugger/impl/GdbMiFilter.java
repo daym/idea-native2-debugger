@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
@@ -87,7 +86,7 @@ public class GdbMiFilter {
         }
     }
 
-    public GdbMiStateResponse gdbSend(String operation, Collection<String> options, Collection<String> parameters) throws IOException, InterruptedException {
+    public GdbMiStateResponse gdbSend(String operation, Iterable<String> options, Iterable<String> parameters) throws IOException, InterruptedException {
 //        println("gdbSend " + operation);
         ++requestId;
         myChildIn.print(Integer.toString(requestId));
@@ -96,7 +95,8 @@ public class GdbMiFilter {
             myChildIn.print(" ");
             maybeEscape(option.getBytes(StandardCharsets.UTF_8), myChildIn);
         }
-        if (!parameters.isEmpty()) {
+        // pucgenie: Maybe just use this one iterator instead of creating a second one...
+        if (parameters.iterator().hasNext()) {
             // mind the space being PREfixed to all following parameters
             myChildIn.print(" --");
             for (var parameterStr : parameters) {
@@ -109,7 +109,7 @@ public class GdbMiFilter {
         return readResponse();
     }
 
-    public Map<String, ?> gdbCall(String operation, Collection<String> options, Collection<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String, ?> gdbCall(String operation, Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         var response = gdbSend(operation, options, parameters);
         if (response.getMode() != '^') {
             // pucgenie: I don't like that repacking just for adding an error message. Data is lost too (see com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponse#errorResponse ).

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -107,17 +108,22 @@ public class StackFrame extends XStackFrame {
     public void computeChildren(@NotNull XCompositeNode node) {
         try {
             String level = (String) myFrame.get("level");
-            var variables = myDebuggerSession.getVariables(myThreadId, level);
+            var variables = (List<Map<String, String>>) (List<?>) myDebuggerSession.getVariables(myThreadId, level);
             final XValueChildrenList list = new XValueChildrenList();
             for (var variable : variables) {
-                String name = (String) variable.get("name");
-                // TODO: optional
-                String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
+                String name = variable.get("name");
+                String value = variable.getOrDefault("value", "?");
                 list.add(name, new Value(name, value, variable.containsKey("arg")));
             }
             node.addChildren(list, true);
-        } catch (IOException | ClassCastException | GdbMiOperationException | InterruptedException e) {
+        } catch (GdbMiOperationException e) {
             e.printStackTrace();
+            myDebuggerSession.reportError("Failed evaluating variable", e);
+        } catch (IOException | ClassCastException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
         }
     }
 

@@ -50,10 +50,16 @@ public class ExecutionStack extends XExecutionStack {
             for (var gframe : gframes) {
                 frames.add(new StackFrame(myThreadId, gframe, myDebuggerSession));
             }
-        } catch (GdbMiOperationException | IOException | InterruptedException e) {
+        } catch (GdbMiOperationException e) {
             frames.add(myTopFrame);
             e.printStackTrace();
+            myDebuggerSession.reportError("Failed computing Stack Frames", e);
+        } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
+        } catch (InterruptedException ex) {
+            // just stop
+            return;
         }
 
         if (firstFrameIndex <= frames.size()) {

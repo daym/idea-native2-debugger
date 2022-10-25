@@ -41,7 +41,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        System.err.println("native canRun executor: " + executorId + ", profile: " + profile + " " + profile.getClass());
+        //System.err.println("native canRun executor: " + executorId + ", profile: " + profile + " " + profile.getClass());
         return (DefaultDebugExecutor.EXECUTOR_ID.equals(executorId)); // && profile instanceof Configuration);
     }
 

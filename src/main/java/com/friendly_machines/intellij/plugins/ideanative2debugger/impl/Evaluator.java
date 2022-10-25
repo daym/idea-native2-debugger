@@ -9,6 +9,8 @@ import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+
 public class Evaluator extends XDebuggerEvaluator {
     private final StackFrame myFrame;
     private final DebugProcess mySession;
@@ -17,12 +19,17 @@ public class Evaluator extends XDebuggerEvaluator {
     public void evaluate(@NotNull String s, @NotNull XEvaluationCallback xEvaluationCallback, @Nullable XSourcePosition xSourcePosition) {
         try {
             var result = mySession.evaluate(s, myFrame.getThreadId(), myFrame.getLevel());
-            String value = (String) result.get("value");
+            var value = (String) result.get("value");
             xEvaluationCallback.evaluated(new Value("eval", value, false));
         } catch (GdbMiOperationException e) {
             xEvaluationCallback.errorOccurred(e.getDetails().getAttributes().toString());
         } catch (ClassCastException e) {
             xEvaluationCallback.errorOccurred("Could not evaluate " + s);
+        } catch (IOException e) {
+            e.printStackTrace();
+            xEvaluationCallback.errorOccurred(e.toString());
+        } catch (InterruptedException e) {
+            // just stop
         }
     }
 

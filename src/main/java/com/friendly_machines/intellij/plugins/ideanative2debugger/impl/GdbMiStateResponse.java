@@ -12,9 +12,9 @@ public class GdbMiStateResponse {
     private final char myMode;
     private final Optional<String> myToken;
     private final String myKlass;
-    private final Map<String, Object> myAttributes;
+    private final Map<String, ?> myAttributes;
 
-    public GdbMiStateResponse(Optional<String> token, char mode, String klass, Map<String, Object> attributes) {
+    public GdbMiStateResponse(Optional<String> token, char mode, String klass, Map<String, ?> attributes) {
         myToken = token;
         myMode = mode;
         myKlass = klass;
@@ -31,9 +31,9 @@ public class GdbMiStateResponse {
         var result = new java.util.HashMap<String, Object>();
         while (scanner.hasNext(",")) {
             scanner.next(",");
-            String name = GdbMiProducer.parseSymbol(scanner);
+            var name = GdbMiProducer.parseSymbol(scanner);
             scanner.next("=");
-            Object value = GdbMiProducer.parseValue(scanner);
+            var value = GdbMiProducer.parseValue(scanner);
             result.put(name, value);
         }
         return new GdbMiStateResponse(token, mode, klass, result);
@@ -52,7 +52,7 @@ public class GdbMiStateResponse {
         return myKlass;
     }
 
-    public Map<String, Object> getAttributes() {
+    public Map<String, ?> getAttributes() {
         return myAttributes;
     }
 

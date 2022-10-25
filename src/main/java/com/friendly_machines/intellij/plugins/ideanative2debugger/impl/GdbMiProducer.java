@@ -22,16 +22,15 @@ public class GdbMiProducer /*extends Thread*/ {
     // Both requests and responses have an optional "id" token in front (a numeral) which can be used to find the corresponding request to a response. Maybe use those.
     // But async outputs, so those starting with one of "*+=", will not have them.
     public static Optional<String> parseToken(@NotNull Scanner scanner) {
-        var result = new StringBuilder();
+        final var result = new StringBuilder();
         while (scanner.hasNext("[0-9]")) {
             char c = consume(scanner);
             result.append(c);
         }
-        String resultString = result.toString();
-        if (resultString.length() > 0)
-            return Optional.of(resultString);
-        else
+        if (result.isEmpty()) {
             return Optional.empty();
+        }
+        return Optional.of(result.toString());
     }
 
     // Consume one character and give that one back
@@ -44,7 +43,8 @@ public class GdbMiProducer /*extends Thread*/ {
     @NotNull
     private static String parseDigitsIntoCode(Scanner scanner, int radix, int maxLength) {
         int result = 0;
-        for (; maxLength > 0; --maxLength) {
+        // pucgenie: xP
+        while (maxLength --> 0) {
             char c = consume(scanner);
             int digit = digits.indexOf(c);
             if (digit == -1 || digit >= radix) { // error
@@ -61,7 +61,7 @@ public class GdbMiProducer /*extends Thread*/ {
         if (scanner.hasNext("[0-7]")) {
             result.append(parseDigitsIntoCode(scanner, 8, 3));
         } else {
-            char c = consume(scanner);
+            final char c = consume(scanner);
             switch (c) {
                 case 'a' -> result.append((char) 0x7);
                 case 'b' -> result.append((char) 0x8);
@@ -109,7 +109,7 @@ public class GdbMiProducer /*extends Thread*/ {
     @NotNull
     public static String parseSymbol(@NotNull Scanner scanner) {
         var prefix = scanner.next("[a-zA-Z_-]");
-        var result = new StringBuilder();
+        final var result = new StringBuilder();
         result.append(prefix);
 
         while (scanner.hasNext("[a-zA-Z0-9_-]")) {
@@ -125,16 +125,16 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @NotNull
-    private static Map<String, Object> parseTuple(@NotNull Scanner scanner) {
+    private static Map<String, ?> parseTuple(@NotNull Scanner scanner) {
         scanner.next("\\{");
         var result = new java.util.HashMap<String, Object>();
         while (scanner.hasNext()) {
             if (scanner.hasNext("}")) {
                 break;
             }
-            String name = parseSymbol(scanner);
+            var name = parseSymbol(scanner);
             scanner.next("=");
-            Object value = parseValue(scanner);
+            var value = parseValue(scanner);
             result.put(name, value);
             if (scanner.hasNext(",")) {
                 scanner.next();
@@ -147,12 +147,12 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @NotNull
-    private static List<Map.Entry<String, Object>> parseKeyValueList(@NotNull Scanner scanner) {
-        List<Map.Entry<String, Object>> result = new ArrayList<>();
+    private static List<Map.Entry<String, ?>> parseKeyValueList(@NotNull Scanner scanner) {
+        final var result = new ArrayList<Map.Entry<String, ?>>();
         while (scanner.hasNext() && !scanner.hasNext("]")) {
-            String name = parseSymbol(scanner);
+            var name = parseSymbol(scanner);
             scanner.next("=");
-            Object value = parseValue(scanner);
+            var value = parseValue(scanner);
             result.add(new AbstractMap.SimpleEntry<>(name, value));
             if (scanner.hasNext(",")) {
                 scanner.next();
@@ -165,10 +165,10 @@ public class GdbMiProducer /*extends Thread*/ {
     }
 
     @NotNull
-    private static List<Object> parsePrimitiveList(@NotNull Scanner scanner) {
-        var result = new java.util.ArrayList<>();
+    private static List<?> parsePrimitiveList(@NotNull Scanner scanner) {
+        var result = new java.util.ArrayList<Object>();
         while (scanner.hasNext() && !scanner.hasNext("]")) {
-            Object value = parseValue(scanner);
+            var value = parseValue(scanner);
             result.add(value);
             if (scanner.hasNext(",")) {
                 scanner.next();
@@ -193,7 +193,8 @@ public class GdbMiProducer /*extends Thread*/ {
         }
     }
 
-    public static Object parseValue(@NotNull Scanner scanner) {
+    @SuppressWarnings("unchecked")
+    public static <X> @NotNull X parseValue(@NotNull Scanner scanner) {
         /* c-string | tuple | list
         tuple ==> "{}" | "{" result ( "," result )* "}"
         list ==> "[]"
@@ -203,11 +204,11 @@ public class GdbMiProducer /*extends Thread*/ {
         value ==> const | tuple | list
         */
         if (scanner.hasNext("\\{")) {
-            return parseTuple(scanner);
+            return (X) parseTuple(scanner);
         } else if (scanner.hasNext("\\[")) {
-            return parseList(scanner);
+            return (X) parseList(scanner);
         } else {
-            return parseCString(scanner);
+            return (X) parseCString(scanner);
         }
     }
 

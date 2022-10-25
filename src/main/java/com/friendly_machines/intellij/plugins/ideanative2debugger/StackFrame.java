@@ -17,18 +17,20 @@ import com.intellij.xdebugger.frame.XValueChildrenList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class StackFrame extends XStackFrame {
-    private final Map<String, Object> myFrame;
+    private final Map<String, ?> myFrame;
     private final DebugProcess myDebuggerSession;
     private final XSourcePosition myPosition;
     private final String myThreadId;
 
     @Nullable
-    public XSourcePosition createSourcePositionFromFrame(Map<String, Object> gdbFrame) {
+    public XSourcePosition createSourcePositionFromFrame(Map<String, ?> gdbFrame) {
         VirtualFile p = null;
         if (gdbFrame.containsKey("fullname")) {
             String file = (String) gdbFrame.get("fullname"); // TODO: or "file"--but that's relative
@@ -57,7 +59,7 @@ public class StackFrame extends XStackFrame {
         return XDebuggerUtil.getInstance().createPosition(p, line.get() - 1);
     }
 
-    public StackFrame(String threadId, Map<String, Object> gdbFrame, DebugProcess debuggerSession) {
+    public StackFrame(String threadId, Map<String, ?> gdbFrame, DebugProcess debuggerSession) {
         myThreadId = threadId;
         myFrame = gdbFrame;
         myDebuggerSession = debuggerSession;
@@ -106,17 +108,22 @@ public class StackFrame extends XStackFrame {
     public void computeChildren(@NotNull XCompositeNode node) {
         try {
             String level = (String) myFrame.get("level");
-            var variables = myDebuggerSession.getVariables(myThreadId, level);
+            var variables = (List<Map<String, String>>) (List<?>) myDebuggerSession.getVariables(myThreadId, level);
             final XValueChildrenList list = new XValueChildrenList();
             for (var variable : variables) {
-                String name = (String) variable.get("name");
-                // TODO: optional
-                String value = variable.containsKey("value") ? (String) variable.get("value") : "?";
+                String name = variable.get("name");
+                String value = variable.getOrDefault("value", "?");
                 list.add(name, new Value(name, value, variable.containsKey("arg")));
             }
             node.addChildren(list, true);
-        } catch (ClassCastException | GdbMiOperationException e) {
+        } catch (GdbMiOperationException e) {
             e.printStackTrace();
+            myDebuggerSession.reportError("Failed evaluating variable", e);
+        } catch (IOException | ClassCastException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
         }
     }
 

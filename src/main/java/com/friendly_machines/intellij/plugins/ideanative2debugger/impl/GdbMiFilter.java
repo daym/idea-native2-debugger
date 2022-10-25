@@ -6,9 +6,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.Scanner;
 public class GdbMiFilter {
     private final DebugProcess myProcess;
     private final Project myProject;
-    private final OutputStream myChildIn;
+    private final PrintStream myChildIn;
     private final GdbOsProcessHandler myChildOut;
     //private final InputStream myChildOut;
     //private final GdbMiProducer myReaderThread;
@@ -28,7 +28,8 @@ public class GdbMiFilter {
         //myChildOut = childOut;
         //Native2DebugProcess process = Native2DebugProcess.getInstance(myOsProcessHandler);
         myChildOut = childIO;
-        myChildIn = childIO.getProcessInput();
+        // pucgenie: It is 7-bit ASCII per mi3 specification, so... use US_ASCII instead?
+        myChildIn = new PrintStream(childIO.getProcessInput(), false, StandardCharsets.UTF_8);
         //myReaderThread = new GdbMiProducer(new BufferedReader(new InputStreamReader(childIO.getInputStream(), StandardCharsets.UTF_8), 1), process);
 
         // TODO: PipedReader, PipedWriter
@@ -48,9 +49,8 @@ public class GdbMiFilter {
         return (byte) ((byte) '0' + value);
     }
 
-    // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an input stream
-    private static byte[] makeCString(byte[] text) {
-        ByteArrayOutputStream s = new ByteArrayOutputStream();
+    // Given TEXT, escapes it into a C string so you can use it as an GDB parameter in an output stream
+    private static void makeCString(byte[] text, OutputStream s) throws IOException {
         s.write((byte) '"'); // quote
         for (byte b : text) {
             if (b == (byte) ' ') {
@@ -66,11 +66,10 @@ public class GdbMiFilter {
             }
         }
         s.write((byte) '"'); // quote
-        return s.toByteArray();
     }
 
     // Given TEXT, escapes it (if necessary) into a C string so you can use it as an GDB parameter in an input stream
-    private static byte[] maybeEscape(byte[] text) {
+    private static void maybeEscape(byte[] text, OutputStream out) throws IOException {
         boolean escaping_needed = false;
         for (byte b : text) {
             if (b <= 32 || b < 0 || b == (byte) '\\') {
@@ -79,45 +78,52 @@ public class GdbMiFilter {
             }
         }
         if (escaping_needed) {
-            return makeCString(text);
+            makeCString(text, out);
+            return;
         } else {
-            return text;
+            out.write(text);
+            return;
         }
     }
 
-    public GdbMiStateResponse gdbSend(String operation, String[] options, String[] parameters) {
+    public GdbMiStateResponse gdbSend(String operation, Iterable<String> options, Iterable<String> parameters) throws IOException, InterruptedException {
 //        println("gdbSend " + operation);
-        try {
-            ++requestId;
-            myChildIn.write(Integer.toString(requestId).getBytes(StandardCharsets.UTF_8));
-            myChildIn.write(operation.getBytes(StandardCharsets.UTF_8));
-            for (String option : options) {
-                myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                myChildIn.write(maybeEscape(option.getBytes(StandardCharsets.UTF_8)));
-            }
-            if (parameters.length > 0) {
-                myChildIn.write(" --".getBytes(StandardCharsets.UTF_8));
-                for (String parameter : parameters) {
-                    myChildIn.write(" ".getBytes(StandardCharsets.UTF_8));
-                    myChildIn.write(maybeEscape(parameter.getBytes(StandardCharsets.UTF_8)));
-                }
-            }
-            myChildIn.write("\r\n".getBytes(StandardCharsets.UTF_8));
-            myChildIn.flush();
-            return readResponse();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        ++requestId;
+        myChildIn.print(Integer.toString(requestId));
+        myChildIn.print(operation);
+        for (String option : options) {
+            myChildIn.print(" ");
+            maybeEscape(option.getBytes(StandardCharsets.UTF_8), myChildIn);
         }
+        // pucgenie: Maybe just use this one iterator instead of creating a second one...
+        if (parameters.iterator().hasNext()) {
+            // mind the space being PREfixed to all following parameters
+            myChildIn.print(" --");
+            for (var parameterStr : parameters) {
+                myChildIn.print(" ");
+                maybeEscape(parameterStr.getBytes(StandardCharsets.UTF_8), myChildIn);
+            }
+        }
+        myChildIn.print("\r\n");
+        myChildIn.flush();
+        return readResponse();
     }
 
-    public Map<String, Object> gdbCall(String operation, String[] options, String[] parameters) throws GdbMiOperationException {
-        GdbMiStateResponse response = gdbSend(operation, options, parameters);
-        assert response.getMode() == '^';
-        if (!"done".equals(response.getKlass()) && !"connected".equals(response.getKlass()) && !"running".equals(response.getKlass())) { // "connected" is returned by -target-select only; "running" is by exec-run
-            throw new GdbMiOperationException(response);
+    public Map<String, ?> gdbCall(String operation, Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
+        var response = gdbSend(operation, options, parameters);
+        if (response.getMode() != '^') {
+            // pucgenie: I don't like that repacking just for adding an error message. Data is lost too (see com.friendly_machines.intellij.plugins.ideanative2debugger.impl.GdbMiStateResponse#errorResponse ).
+            throw new GdbMiOperationException(GdbMiStateResponse.errorResponse(response.getToken(), response.getMode(), response.getKlass(), "Invalid response mode, expected '^'."));
         }
-        return response.getAttributes();
+        // "connected" is returned by -target-select only; "running" is by exec-run
+        switch (response.getKlass()) {
+            case "done":
+            case "connected":
+            case "running":
+                return response.getAttributes();
+            default:
+                throw new GdbMiOperationException(response);
+        }
     }
 
     public void startReaderThread() {
@@ -127,7 +133,7 @@ public class GdbMiFilter {
     private static char consume(Scanner scanner) {
         return scanner.next().charAt(0);
     }
-    public void processAsync(@Nullable Optional<String> token, @NotNull Scanner scanner) {
+    public void processAsync(@Nullable Optional<String> token, @NotNull Scanner scanner) throws IOException, InterruptedException {
         scanner.useDelimiter(""); // character by character mode
         //Optional<String> token = parseToken(scanner);
         // "+": contains on-going status information about the progress of a slow operation.

@@ -8,9 +8,9 @@ import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 // Per thread
@@ -44,7 +44,7 @@ public class ExecutionStack extends XExecutionStack {
     @Override
     public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
 //    if (myDebuggerSession.getCurrentState() == Debugger.State.SUSPENDED) {
-        final List<XStackFrame> frames = new ArrayList<>();
+        final var frames = new ArrayList<XStackFrame>();
         try {
             var gframes = myDebuggerSession.getFrames(myThreadId);
             for (var gframe : gframes) {
@@ -53,7 +53,13 @@ public class ExecutionStack extends XExecutionStack {
         } catch (GdbMiOperationException e) {
             frames.add(myTopFrame);
             e.printStackTrace();
+            myDebuggerSession.reportError("Failed computing Stack Frames", e);
+        } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
+        } catch (InterruptedException ex) {
+            // just stop
+            return;
         }
 
         if (firstFrameIndex <= frames.size()) {

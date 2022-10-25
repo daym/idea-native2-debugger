@@ -10,9 +10,9 @@ import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class GdbOsProcessHandler extends OSProcessHandler {
@@ -60,7 +60,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     }
 
     public GdbMiStateResponse readResponse() throws InterruptedException {
-        GdbMiStateResponse result = myProducer.consume();
+        var result = myProducer.consume();
         if (result == null) { // timeout
             this.destroyProcess();
             throw new RuntimeException("timeout while waiting for response from GDB/MI");
@@ -78,19 +78,31 @@ public class GdbOsProcessHandler extends OSProcessHandler {
     public void startNotify() {
         super.startNotify();
         var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-        if (debugProcess != null) {
-            debugProcess.startDebugging();
-        } else {
+        if (debugProcess == null) {
             throw new RuntimeException("Debug process is missing");
         }
+        try {
+            debugProcess.startDebugging();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            // just stop
+        }
     }
+
+    /**
+     * Don't throw any exception to the caller - it would break the whole communication channel to the process/GDB.
+     * @param text
+     * @param outputType
+     */
     @Override
     public void notifyTextAvailable(@NotNull String text, @NotNull Key outputType) {
         // Note: Runs in "output stream of gdb" thread.
 //        println(Thread.currentThread().getId() + Thread.currentThread().getName() + " notifyTextAvailable: " + text);
         var scanner = new Scanner(text);
         scanner.useDelimiter(""); // character by character mode
-        Optional<String> token = GdbMiProducer.parseToken(scanner);
+        var token = GdbMiProducer.parseToken(scanner);
         if (scanner.hasNext("\\^")) { // sync response
             if (token.isPresent()) {
                 try {
@@ -103,16 +115,27 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                     try {
                         myProducer.produce(item2);
                     } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                        throw new RuntimeException(ex);
+                        //ex.printStackTrace();
+                        Thread.currentThread().interrupt();
+                        return;
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e); // FIXME
+                    //e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    return;
                 }
             } else {
                 // a sync response we didn't wait for
-                System.err.println(Thread.currentThread().getId() + Thread.currentThread().getName() +": ignored unknown sync response");
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
+                    var errMsg = "ignored unknown sync response: " + text;
+                    if (debugProcess == null) {
+                        // Pech gehabt.
+                        System.err.println(errMsg);
+                        return;
+                    }
+                    debugProcess.reportError(errMsg);
+                });
             }
 
             // For async response handling, see GdbMiFilter
@@ -120,9 +143,18 @@ public class GdbOsProcessHandler extends OSProcessHandler {
             // Move to UI thread.
             ApplicationManager.getApplication().invokeLater(() -> {
                 var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-                if (debugProcess != null) {
+                if (debugProcess == null) {
+                    // too late
+                    return;
+                }
+                try {
                     debugProcess.processAsync(token, scanner);
-                } else { // too late
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    debugProcess.getSession().reportError(e.toString());
+                } catch (InterruptedException e) {
+                    //throw new RuntimeException(e);
+                    // just stop
                 }
             });
         }

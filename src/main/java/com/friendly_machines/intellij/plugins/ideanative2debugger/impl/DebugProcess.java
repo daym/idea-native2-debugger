@@ -341,9 +341,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
-        System.err.println("EXEC RUN");
-        // -zwetschgenroester
-        gdbCall("-exec-run", List.of("--start")); // FIXME optional "--start"
+        //System.err.println("EXEC RUN"); // timing problems? enable debug messages.
+        Map<String, ?> stringMap = gdbCall("-exec-run", List.of("--start"));// FIXME optional "--start"
+        if (!stringMap.isEmpty()) {
+            reportMessage("GDB protocol changed, please update plugin", MessageType.INFO);
+        }
     }
 
     private static boolean isFileExecutable(VirtualFile file) {

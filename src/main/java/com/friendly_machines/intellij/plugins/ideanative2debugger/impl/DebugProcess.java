@@ -44,8 +44,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
+// TODO: All-stop mode https://sourceware.org/gdb/onlinedocs/gdb/All_002dStop-Mode.html#All_002dStop-Mode
+// TODO: -exec-return
 // TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
-// TODO: -environment-cd, -environment-directory, -environment-pwd
+// TODO: -environment-cd, -environment-directory, -environment-pwd, -environment-path, -environment-pwd
 // TODO: -thread-info, -thread-list-ids, -thread-select
 // TODO: -stack-info-frame
 // TODO: fixed variable object, floating variable object, -var-create, -var-delete, -var-info-type, -var-info-expression, -var-info-path-expression, -var-show-attributes, -var-evaluate-expression, -var-assign, -var-update, -var-set-frozen, -var-set-update-range
@@ -53,6 +55,7 @@ import java.util.*;
 // TODO: public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remote it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
 // TODO: -info-os [processes]
 // TODO: -list-thread-groups [--available] [--recurse 1] [group ...] and cache results
+// TODO: -target-attach, --target-detach, -target-disconnect, -target-download, -target-flash-erase, -target-select, -target-file-put, -target-file-get, -target-file-delete
 // ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
@@ -342,6 +345,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         //System.err.println("EXEC RUN"); // timing problems? enable debug messages.
+        // TODO: --all, --thread-group N
         Map<String, ?> stringMap = gdbCall("-exec-run", List.of("--start"));// FIXME optional "--start"
         if (!stringMap.isEmpty()) {
             reportMessage("GDB protocol changed, please update plugin", MessageType.INFO);
@@ -576,6 +580,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void until(Optional<String> location) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-exec-until", location.map(List::of).orElse(Collections.emptyList()));
     }
+    // TODO: Add UI
     public void jump(String location) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-exec-jump", List.of(location));
     }
@@ -644,7 +649,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void startPausing() {
         try {
-            gdbSend("-exec-interrupt");
+            gdbSend("-exec-interrupt"); // TODO: --all, --thread-group N
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -745,7 +750,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void resume(@Nullable XSuspendContext context) {
         try {
-            gdbSend("-exec-continue");
+            gdbSend("-exec-continue"); // TODO: optional --reverse, --all, --thread-group N
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {

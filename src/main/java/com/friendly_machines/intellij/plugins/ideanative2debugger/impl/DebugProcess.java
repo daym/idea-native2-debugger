@@ -488,6 +488,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         } catch (GdbMiOperationException e) {
             e.printStackTrace();
         }
+        try {
+            reportMessage(listTargetFeatures().toString(), MessageType.INFO);
+        } catch (GdbMiOperationException e) {
+            e.printStackTrace();
+        }
 //        try {
 //            reportMessage(infoGdbMiCommand("quux").toString(), MessageType.INFO);
 //        } catch (GdbMiOperationException e) {
@@ -577,6 +582,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public List<String> listFeatures() throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
         // For example, GDB 12.1 has ^done,features=["frozen-varobjs","pending-breakpoints","thread-info","data-read-memory-bytes","breakpoint-notifications","ada-task-info","language-option","info-gdb-mi-command","undefined-command-error-code","exec-run-start-option","data-disassemble-a-option","python"]
         return (List<String>) gdbCall("-list-features", Collections.emptyList()).get("features");
+    }
+    public List<String> listTargetFeatures() throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
+        return (List<String>) gdbCall("-list-target-features", Collections.emptyList()).get("features");
     }
 
     /**

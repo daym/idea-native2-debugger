@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -109,7 +108,7 @@ public class GdbOsProcessHandler extends OSProcessHandler {
                         myProducer.produce(item2);
                     } catch (InterruptedException ex) {
                         //ex.printStackTrace();
-                        throw new RuntimeException(ex);
+                        throw new RuntimeException("Error occurred while trying to inform about error.", ex);
                     }
                 } catch (InterruptedException e) {
                     //e.printStackTrace();
@@ -125,16 +124,18 @@ public class GdbOsProcessHandler extends OSProcessHandler {
             // Move to UI thread.
             ApplicationManager.getApplication().invokeLater(() -> {
                 var debugProcess = (DebugProcess) GdbOsProcessHandler.this.getUserData(DebugProcess.DEBUG_PROCESS_KEY);
-                if (debugProcess != null) {
-                    try {
-                        debugProcess.processAsync(token, scanner);
-                    } catch (IOException e) {
-                        // pucgenie: So who catches this?
-                        throw new UncheckedIOException(e);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else { // too late
+                if (debugProcess == null) {
+                    // too late
+                    return;
+                }
+                try {
+                    debugProcess.processAsync(token, scanner);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    debugProcess.getSession().reportError(e.toString());
+                } catch (InterruptedException e) {
+                    //throw new RuntimeException(e);
+                    // just stop
                 }
             });
         }

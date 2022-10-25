@@ -4,6 +4,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.intellij.xdebugger.XDebugSession;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class CpuAssemblyView extends BorderLayoutPanel {
         btnDisassemble.addActionListener(ev -> {
             txtRegisters.setText("");
             try {
-                List<String> registerNames = process.dataListRegisterNames();
+                var registerNames = process.dataListRegisterNames();
                 var registerValues = process.dataListRegisterValues("x");
                 for (Map<String, ?> entry: registerValues) {
                     String numberString = (String) entry.get("number");
@@ -44,16 +45,19 @@ public class CpuAssemblyView extends BorderLayoutPanel {
                     txtRegisters.append(" = ");
                     txtRegisters.append(value.toString());
                 }
-            } catch (GdbMiOperationException |  RuntimeException e2) {
+            } catch (GdbMiOperationException e2) {
                 e2.printStackTrace();
+                process.reportError("Failed reading registers", e2);
+            } catch (RuntimeException | IOException | InterruptedException e3) {
+                e3.printStackTrace();
+                process.reportError(e3.toString());
+                return; // FIXME
             }
             txtRegisters.revalidate();
             try {
                 // FIXME: spnCount
-                var result = process.dataDisassemble(txtBeginning.getText(), "$pc+16", GdbMiDisassemblyMode.MixedSourceAndDisassembly);
-                if (result.containsKey("asm_insns")) {
-                    @SuppressWarnings("unchecked")
-                    var asm_insns = (List<Map.Entry<String, Object>>) result.get("asm_insns");
+                var asm_insns = process.dataDisassemble(txtBeginning.getText(), "$pc+16", GdbMiDisassemblyMode.MixedSourceAndDisassembly).get("asm_insns");
+                if (asm_insns != null) {
                     for (var asm_insn : asm_insns) {
                         if ("src_and_asm_line".equals(asm_insn.getKey())) {
                             @SuppressWarnings("unchecked")
@@ -91,7 +95,7 @@ public class CpuAssemblyView extends BorderLayoutPanel {
             } catch (GdbMiOperationException ex) {
                 ex.printStackTrace();
                 myProcess.reportError("Assembly error", ex);
-            } catch (RuntimeException ex) {
+            } catch (RuntimeException | IOException | InterruptedException ex) {
                 ex.printStackTrace();
                 myProcess.reportError("Assembly error");
             }
@@ -100,8 +104,14 @@ public class CpuAssemblyView extends BorderLayoutPanel {
         stepInstructionButton.addActionListener(e -> {
             try {
                 process.stepInstruction(false);
-            } catch (GdbMiOperationException | RuntimeException ex) {
+            } catch (GdbMiOperationException ex) {
+                process.reportError("Failed stepping", ex);
                 ex.printStackTrace();
+            } catch (RuntimeException | IOException ex) {
+                process.reportError(ex.toString());
+                ex.printStackTrace();
+            } catch (InterruptedException ex) {
+                // just stop
             }
         });
     }

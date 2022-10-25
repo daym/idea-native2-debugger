@@ -689,8 +689,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
-    public Map<String, ?> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException, IOException, InterruptedException {
-        return gdbCall("-data-disassemble", List.of( "-s", beginningAddress, "-e", endAddress ), List.of( Integer.toString(mode.code()) ));
+    public Map<String, List<Map.Entry<String, ?>>> dataDisassemble(String beginningAddress, String endAddress, GdbMiDisassemblyMode mode) throws GdbMiOperationException, IOException, InterruptedException {
+        return (Map<String, List<Map.Entry<String, ?>>>) gdbCall("-data-disassemble", List.of( "-s", beginningAddress, "-e", endAddress ), List.of( Integer.toString(mode.code()) ));
     }
 
     // FIXME: allow specifying endAddress

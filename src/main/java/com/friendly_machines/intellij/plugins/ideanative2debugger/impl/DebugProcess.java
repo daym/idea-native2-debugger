@@ -268,12 +268,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public List<Map<String, ?>> getVariables(String threadId, String frameId) throws GdbMiOperationException, IOException, InterruptedException {
         // TODO: --simple-values and find stuff yourself.
         var q = gdbCall("-stack-list-variables", List.of("--thread", threadId, "--frame", frameId, "--all-values"));
-        var variables = (Collection<Map<String, ?>>) q.get("variables");
+        var variables = (List<Map<String, ?>>) q.get("variables");
         if (variables == null) {
             return Collections.emptyList();
         }
-        // pucgenie: Why even copy?
-        return new ArrayList<Map<String, ?>>(variables);
+        return variables;
     }
 
     public List<Map<String, ?>> getFrames(String threadId) throws GdbMiOperationException, ClassCastException, IOException, InterruptedException {
@@ -578,16 +577,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
 
     /**
-     * What's the expected return type, what is it used for?
+     *
+     * https://github.com/daym/idea-native2-debugger/pull/6#discussion_r1002783308
      * @param commandName
-     * @return
-     * @param <X>
+     * @return Map{"exists":true/false}
      * @throws GdbMiOperationException
      * @throws IOException
      * @throws InterruptedException
      */
-    public <X> X infoGdbMiCommand(String commandName) throws GdbMiOperationException, IOException, InterruptedException {
-        return (X) gdbCall("-info-gdb-mi-command", List.of(commandName)).get("command");
+    public Map<String, ?> infoGdbMiCommand(String commandName) throws GdbMiOperationException, IOException, InterruptedException {
+        return ((Map<String, Map<String, ?>>) gdbCall("-info-gdb-mi-command", commandName)).get("command");
     }
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {

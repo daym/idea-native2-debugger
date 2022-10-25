@@ -14,7 +14,7 @@ public class GdbMiStateResponse {
     private final String myKlass;
     private final Map<String, ?> myAttributes;
 
-    public GdbMiStateResponse(Optional<String> token, char mode, String klass, Map<String, Object> attributes) {
+    public GdbMiStateResponse(Optional<String> token, char mode, String klass, Map<String, ?> attributes) {
         myToken = token;
         myMode = mode;
         myKlass = klass;

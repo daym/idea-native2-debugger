@@ -62,7 +62,6 @@ tasks {
     }
 
     buildSearchableOptions {
-        // TODO: make this work
-        isEnabled = false
+        projectExecutable.set("java")
     }
 }

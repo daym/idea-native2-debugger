@@ -10,10 +10,19 @@ repositories {
     mavenCentral()
 }
 
+//java {
+//    toolchain {
+//        languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.toString()))
+//        // Temporarily disabling use of JBR due to build exceptions: org.gradle.internal.resolve.ModuleVersionResolveException: Could not resolve com.jetbrains:jbre:jbr_jcef-17.0.4.1-windows-x64-b653.1
+//        //vendor.set(determineJvmVendor(defaultFallbackSpec = JvmVendorSpec.ADOPTOPENJDK))
+//        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
+//    }
+//}
+
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("222.4167.29")
+    version.set("2022.2.2") // 222.4167.29
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("org.rust.lang:0.4.179.4903-222"))
@@ -49,13 +58,11 @@ tasks {
     }
 
     runIde {
-        //jbrVersion.set("jbr_jcef-11_0_10-osx-aarch64-b1145.96")
+        projectExecutable.set("java")
     }
 
     buildSearchableOptions {
         // TODO: make this work
         isEnabled = false
-        //jbrVersion.set("qqq")
-        //jbrVariant.set("sdk")
     }
 }

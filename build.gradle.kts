@@ -59,6 +59,7 @@ tasks {
 
     runIde {
         projectExecutable.set("java")
+        autoReloadPlugins.set(true)
     }
 
     buildSearchableOptions {

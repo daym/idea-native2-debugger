@@ -17,7 +17,7 @@ import java.util.List;
 public class AttachDebuggerProvider implements XAttachDebuggerProvider {
     @Override
     public boolean isAttachHostApplicable(@NotNull XAttachHost xAttachHost) {
-        return xAttachHost instanceof LocalAttachHost;
+        return xAttachHost instanceof LocalAttachHost || xAttachHost instanceof AttachHost;
     }
 
     @Override

@@ -18,18 +18,17 @@ public class AttachDebugger implements XAttachDebugger {
     @Override
     public @NotNull
     @Nls String getDebuggerDisplayName() {
-        return "Native2 debugger";
+        return "Native2 attach debugger";
     }
 
     @Override
     public void attachDebugSession(@NotNull Project project, @NotNull XAttachHost xAttachHost, @NotNull ProcessInfo processInfo) throws ExecutionException {
         // FIXME
-        /*PyAttachToProcessDebugRunner runner = new PyAttachToProcessDebugRunner(project, processInfo.getPid(), mySdkHome);
-        runner.launch();*/
-        var runner = new Runner();
+        //var runner = new Runnner();
+        // var configuration = new Configuration(project, factory);
+        //var state = new RunProfileState(configuration, environment, console builder);
         // FIXME runner.execute(projec);
         // FIXME: How to create an execution environment
-        //CommandLineState state = CommandLineState.create(myProject, mySdkPath, serverSocket.getLocalPort(), myPid);
         //final ExecutionResult result = state.execute(state.getEnvironment().getExecutor(), this);
     }
 }

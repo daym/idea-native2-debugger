@@ -60,30 +60,45 @@
                 class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReturnAction"
                 text="Return Immediately" description="Return from this function immediately">
             <add-to-group group-id="DebuggingActionsGroup" anchor="last"/>
-            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar" relative-to-action="StepInto" anchor="after"/>
-            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar3" relative-to-action="StepInto" anchor="after"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar" relative-to-action="StepOut" anchor="after"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar3" relative-to-action="StepOut" anchor="after"/>
 
             <keyboard-shortcut keymap="$default" first-keystroke="shift F7"/>
         </action>
         <action id="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseResumeAction"
                 class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseResumeAction"
                 text="Reverse Resume" description="Resume in the reverse direction">
+            <add-to-group group-id="DebuggingActionsGroup" anchor="last"/>
+            <add-to-group group-id="XDebugger.ToolWindow.LeftToolbar" relative-to-action="Resume" anchor="after"/>
+
             <keyboard-shortcut keymap="$default" first-keystroke="shift F8"/>
         </action>
         <action id="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOutAction"
                 class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOutAction"
                 text="Reverse Step Out" description="Step out in the reverse direction">
+            <add-to-group group-id="DebuggingActionsGroup" anchor="last"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar" relative-to-action="StepOut" anchor="after"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar3" relative-to-action="StepOut" anchor="after"/>
+
             <keyboard-shortcut keymap="$default" first-keystroke="shift F7"/>
-        </action>
-        <action id="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOverAction"
-                class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOverAction"
-                text="Reverse Step Over" description="Step over in the reverse direction">
-            <keyboard-shortcut keymap="$default" first-keystroke="shift F6"/>
         </action>
         <action id="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepIntoAction"
                 class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepIntoAction"
                 text="Reverse Step Into" description="Step into in the reverse direction">
+            <add-to-group group-id="DebuggingActionsGroup" anchor="last"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar" relative-to-action="StepInto" anchor="after"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar3" relative-to-action="StepInto" anchor="after"/>
+
             <keyboard-shortcut keymap="$default" first-keystroke="shift F5"/>
+        </action>
+        <action id="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOverAction"
+                class="com.friendly_machines.intellij.plugins.ideanative2debugger.ReverseStepOverAction"
+                text="Reverse Step Over" description="Step over in the reverse direction">
+            <add-to-group group-id="DebuggingActionsGroup" anchor="last"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar" relative-to-action="StepOver" anchor="after"/>
+            <add-to-group group-id="XDebugger.ToolWindow.TopToolbar3" relative-to-action="StepOver" anchor="after"/>
+
+            <keyboard-shortcut keymap="$default" first-keystroke="shift F6"/>
         </action>
     </actions>
 </idea-plugin>

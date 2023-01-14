@@ -36,6 +36,7 @@ public class ReturnAction extends XDebuggerActionBase {
                     var process = (DebugProcess) debugProcess;
                     try {
                         process.return_();
+                        process.continue_(false);
                     } catch (GdbMiOperationException | IOException e) {
                         throw new RuntimeException(e); // FIXME dialog box?
                     } catch (InterruptedException e) {

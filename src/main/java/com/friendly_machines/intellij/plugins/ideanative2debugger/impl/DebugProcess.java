@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.*;
 
 // TODO: All-stop mode https://sourceware.org/gdb/onlinedocs/gdb/All_002dStop-Mode.html#All_002dStop-Mode
-// TODO: -exec-return
 // TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load
 // TODO: -environment-cd, -environment-directory, -environment-pwd, -environment-path, -environment-pwd
 // TODO: -thread-info, -thread-list-ids, -thread-select
@@ -577,6 +576,12 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void finish(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-exec-finish", reverse ? List.of("--reverse") : Collections.emptyList());
     }
+    public void return_() throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-return", Collections.emptyList());
+    }
+    public void continue_(boolean reverse) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-continue", reverse ? List.of("--reverse") : Collections.emptyList());
+    }
     public void until(Optional<String> location) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-exec-until", location.map(List::of).orElse(Collections.emptyList()));
     }
@@ -750,8 +755,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     @Override
     public void resume(@Nullable XSuspendContext context) {
         try {
-            gdbSend("-exec-continue"); // TODO: optional --reverse, --all, --thread-group N
-        } catch (IOException e) {
+            continue_(false); // TODO: optional --all, --thread-group N
+        } catch (GdbMiOperationException | IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             // pucgenie: Most probably interrupted by the IDE.
@@ -883,6 +888,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //leftToolbar.add(Separator.getInstance());
         //leftToolbar.add(Separator.getInstance());
         // TODO: ToggleAction
+
+        // FIXME: topToolbar.add(new ReturnAction());
 
     }
 }

@@ -47,8 +47,15 @@ public class ReverseStepIntoAction extends XDebuggerActionBase {
             }
 
             @Override
-            public boolean isEnabled(@NotNull Project project, AnActionEvent event) {
-                return super.isEnabled(project, event);
+            protected boolean isEnabled(@NotNull XDebugSession session, DataContext dataContext) {
+                final XDebugProcess debugProcess = session.getDebugProcess();
+                if (debugProcess instanceof DebugProcess) {
+                    var process = (DebugProcess) debugProcess;
+                    if (!process.hasRecording()) {
+                        return false;
+                    }
+                }
+                return super.isEnabled(session, dataContext);
             }
         };
 

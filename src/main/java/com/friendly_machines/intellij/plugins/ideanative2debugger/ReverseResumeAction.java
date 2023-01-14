@@ -17,6 +17,7 @@ import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProc
 import java.io.IOException;
 
 /// Action that maps to immediate return
+// TODO: XDebuggerSuspendedActionHandler
 public class ReverseResumeAction extends XDebuggerActionBase {
     private final XDebuggerSuspendedActionHandler myHandler;
     @Override
@@ -47,8 +48,15 @@ public class ReverseResumeAction extends XDebuggerActionBase {
             }
 
             @Override
-            public boolean isEnabled(@NotNull Project project, AnActionEvent event) {
-                return super.isEnabled(project, event);
+            protected boolean isEnabled(@NotNull XDebugSession session, DataContext dataContext) {
+                final XDebugProcess debugProcess = session.getDebugProcess();
+                if (debugProcess instanceof DebugProcess) {
+                    var process = (DebugProcess) debugProcess;
+                    if (!process.hasRecording()) {
+                        return false;
+                    }
+                }
+                return super.isEnabled(session, dataContext);
             }
         };
 

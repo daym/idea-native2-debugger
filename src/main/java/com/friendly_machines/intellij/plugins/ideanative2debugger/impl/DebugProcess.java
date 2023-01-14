@@ -892,4 +892,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         // FIXME: topToolbar.add(new ReturnAction());
 
     }
+
+    /* Whether we have a recording and are replaying it */
+    public boolean hasRecording() {
+        return false; // TODO
+    }
 }

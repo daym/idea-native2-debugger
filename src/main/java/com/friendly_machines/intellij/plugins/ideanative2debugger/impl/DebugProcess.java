@@ -74,6 +74,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new BreakpointHandler(this, BreakpointType.class),
+            new ThrowedCatchpointHandler(this, ThrowedCatchpointType.class),
     };
 
     private GdbMiStateResponse gdbSend(String operation) throws IOException, InterruptedException {
@@ -326,6 +327,16 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-break-insert", options, parameters);
     }
 
+    public Map<String,?> catchThrow(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-catch-throw", options);
+    }
+    public Map<String,?> catchRethrow(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-catch-rethrow", options);
+    }
+    public Map<String,?> catchCatch(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-catch-catch", options);
+    }
+
     public void breakDelete(String number) throws GdbMiOperationException, IOException, InterruptedException {
         gdbCall("-break-delete", number);
     }
@@ -345,6 +356,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         //System.err.println("EXEC RUN"); // timing problems? enable debug messages.
         // TODO: --all, --thread-group N
+        // TODO: check "exec-run-start-option" in listFeatures() result
         Map<String, ?> stringMap = gdbCall("-exec-run", List.of("--start"));// FIXME optional "--start"
         if (!stringMap.isEmpty()) {
             reportMessage("GDB protocol changed, please update plugin", MessageType.INFO);
@@ -890,4 +902,5 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public boolean hasRecording() {
         return false; // TODO
     }
+
 }

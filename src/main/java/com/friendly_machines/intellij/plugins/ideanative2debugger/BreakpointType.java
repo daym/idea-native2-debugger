@@ -20,7 +20,8 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     private final EditorsProvider myMyEditorsProvider1 = new EditorsProvider();
 
     public BreakpointType() {
-        super("native2", DebuggerBundle.message("title.native2.breakpoints"));
+        super("native2-breakpoint", DebuggerBundle.message("title.native2.breakpoints"));
+        // TODO: Bundle.message("debugger.line.breakpoint.type"), new PyDebuggerEditorsProvider()
     }
 
     @Override

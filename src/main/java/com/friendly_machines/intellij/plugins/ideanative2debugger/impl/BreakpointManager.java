@@ -16,6 +16,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrowedCatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.SuspendPolicy;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
@@ -41,6 +42,32 @@ public class BreakpointManager {
 
     public static String fileLineReference(XSourcePosition position) {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
+    }
+
+    public boolean addThrowedCatchpoint(XBreakpoint<ThrowedCatchpointProperties> key) throws InterruptedException {
+        var options = new ArrayList<String>();
+//        if (key.isTemporary()) // FIXME: MISSING!
+//            options.add("-t");
+        switch (key.getSuspendPolicy()) {
+            case NONE:
+                break;
+            // TODO: the others
+        }
+        Map<String, ?> gdbResponse;
+        // TODO: key.isLogMessage()
+        try {
+            gdbResponse = myDebugProcess.catchThrow(options);
+            var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
+            if (!key.isEnabled()) {
+                // TODO: -break-disable it immediately and fixup bkpt
+            }
+
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
+            return true;
+        } catch (GdbMiOperationException | ClassCastException | IOException e) { // TODO
+            // TODO: doesn't work: myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint");
+            return false;
+        }
     }
 
     public boolean addBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> key) throws InterruptedException {
@@ -119,6 +146,7 @@ public class BreakpointManager {
         return Optional.empty();
     }
 
+    // Or catchpoint.
     public boolean deleteBreakpoint(XBreakpoint key) throws InterruptedException {
         Optional<Breakpoint> breakpointo = getBreakpoint(key);
         if (breakpointo.isPresent()) {
@@ -153,4 +181,5 @@ public class BreakpointManager {
         } else
             return false;
     }
+
 }

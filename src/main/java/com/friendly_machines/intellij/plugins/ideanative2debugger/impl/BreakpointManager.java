@@ -16,7 +16,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxExceptionCatchpointProperties2;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrownCatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -43,7 +43,7 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public boolean addThrownCatchpoint(XBreakpoint<CxxExceptionCatchpointProperties2> key) throws InterruptedException {
+    public boolean addCxxThrownCatchpoint(XBreakpoint<ThrownCatchpointProperties> key) throws InterruptedException {
         var options = new ArrayList<String>();
 //        if (key.isTemporary()) // FIXME: MISSING!
 //            options.add("-t");
@@ -52,13 +52,15 @@ public class BreakpointManager {
                 break;
             // TODO: the others
         }
-        Map<String, ?> gdbResponse;
         // TODO: key.isLogMessage()
         try {
-            gdbResponse = myDebugProcess.catchThrow(options);
+            var gdbResponse = myDebugProcess.catchThrow(options);
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             if (!key.isEnabled()) {
-                // TODO: -break-disable it immediately and fixup bkpt
+                // Note: I think this is never reached
+                String number = (String) bkpt.get("number");
+                myDebugProcess.breakDisable(number);
+                bkpt.put("enabled", "n");
             }
 
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.

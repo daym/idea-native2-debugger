@@ -55,6 +55,8 @@ public class BreakpointManager {
         // TODO: key.isLogMessage()
         try {
             var properties = (CxxCatchpointProperties) key.getProperties();
+            options.add("-r");
+            options.add(properties.myExceptionRegexp);
             var gdbResponse = switch (properties.myCatchType) {
                 case Throw -> myDebugProcess.catchThrow(options);
                 case Rethrow -> myDebugProcess.catchRethrow(options);

@@ -2,7 +2,7 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrownCatchpointType;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointType;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class CxxCatchpointHandler extends XBreakpointHandler<XBreakpoint<CxxCatchpointProperties>> {
     private final DebugProcess myDebugProcess;
 
-    public CxxCatchpointHandler(DebugProcess debugProcess, final Class<? extends ThrownCatchpointType> typeClass) {
+    public CxxCatchpointHandler(DebugProcess debugProcess, final Class<? extends CxxCatchpointType> typeClass) {
         super(typeClass);
         myDebugProcess = debugProcess;
     }

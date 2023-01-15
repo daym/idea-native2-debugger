@@ -74,7 +74,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new BreakpointHandler(this, BreakpointType.class),
-            new CxxCatchpointHandler(this, ThrownCatchpointType.class),
+            new CxxCatchpointHandler(this, CxxCatchpointType.class),
     };
 
     private GdbMiStateResponse gdbSend(String operation) throws IOException, InterruptedException {

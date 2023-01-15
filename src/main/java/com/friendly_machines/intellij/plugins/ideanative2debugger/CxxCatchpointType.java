@@ -17,26 +17,30 @@ import com.intellij.icons.AllIcons;
 
 import javax.swing.*;
 
-public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpointProperties>, CxxCatchpointProperties> {
+public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpointProperties>, CxxCatchpointProperties> {
     private static final String ANY_EXCEPTION = ".*";
-    protected ThrownCatchpointType() {
-        super("native2-throwed-catchpoint", "C++ Exception Thrown Breakpoints");
+    protected CxxCatchpointType() {
+        super("native2-cxx-catchpoint", "C++ Exception Breakpoints");
     }
 
-    protected ThrownCatchpointType(@NonNls @NotNull String id, @Nls @NotNull String title, boolean suspendThreadSupported) {
+    protected CxxCatchpointType(@NonNls @NotNull String id, @Nls @NotNull String title, boolean suspendThreadSupported) {
         super(id, title, suspendThreadSupported);
     }
 
     @Override
     public @Nls String getDisplayText(XBreakpoint<CxxCatchpointProperties> breakpoint) {
         var properties = breakpoint.getProperties();
+        var subject = "?";
         if (properties != null) {
             if (ANY_EXCEPTION.equals(properties.myExceptionRegexp))
-                return "Any exception";
+                subject = "any exception";
             else
-                return properties.myExceptionRegexp;
+                subject = properties.myExceptionRegexp;
+            return switch (properties.myCatchType) {
+                case Throw -> "Throw " + subject;
+            };
         } else {
-            return "throw()";
+            return "?";
         }
     }
 

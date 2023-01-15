@@ -883,14 +883,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public void registerAdditionalActions(@NotNull DefaultActionGroup leftToolbar, @NotNull DefaultActionGroup topToolbar, @NotNull DefaultActionGroup settings) {
         super.registerAdditionalActions(leftToolbar, topToolbar, settings);
         //     settings.add(new WatchReturnValuesAction(this));
-        //    settings.add(new PyVariableViewSettings.SimplifiedView(this));
-        //    settings.add(new PyVariableViewSettings.VariablesPolicyGroup());
-        //leftToolbar.add(Separator.getInstance());
-        //leftToolbar.add(Separator.getInstance());
         // TODO: ToggleAction
-
-        // FIXME: topToolbar.add(new ReturnAction());
-
     }
 
     /* Whether we have a recording and are replaying it */

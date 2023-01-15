@@ -9,6 +9,8 @@ public class CxxCatchpointProperties extends CxxCatchpointPropertiesHelper<CxxCa
         myCatchType = catchType;
         myExceptionRegexp = regexp;
     }
+    public CxxCatchpointProperties() { // for serialization
+    }
 
     @Override
     public @Nullable CxxCatchpointProperties getState() {

@@ -1,5 +1,6 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.CxxCatchpointCatchType;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.xdebugger.XDebuggerManager;
@@ -16,8 +17,8 @@ import com.intellij.icons.AllIcons;
 
 import javax.swing.*;
 
-public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<ThrownCatchpointProperties>, ThrownCatchpointProperties> {
-    private final String ANY_EXCEPTION = ".*";
+public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpointProperties>, CxxCatchpointProperties> {
+    private static final String ANY_EXCEPTION = ".*";
     protected ThrownCatchpointType() {
         super("native2-throwed-catchpoint", "C++ Exception Thrown Breakpoints");
     }
@@ -27,7 +28,7 @@ public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<ThrownCatc
     }
 
     @Override
-    public @Nls String getDisplayText(XBreakpoint<ThrownCatchpointProperties> breakpoint) {
+    public @Nls String getDisplayText(XBreakpoint<CxxCatchpointProperties> breakpoint) {
         var properties = breakpoint.getProperties();
         if (properties != null) {
             if (ANY_EXCEPTION.equals(properties.myExceptionRegexp))
@@ -52,8 +53,8 @@ public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<ThrownCatc
     }
 
     @Override
-    public ThrownCatchpointProperties createProperties() {
-        return new ThrownCatchpointProperties(ANY_EXCEPTION);
+    public CxxCatchpointProperties createProperties() {
+        return new CxxCatchpointProperties(CxxCatchpointCatchType.Throw, ANY_EXCEPTION);
     }
 
     @Override
@@ -62,14 +63,14 @@ public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<ThrownCatc
     }
 
     @Override
-    public XBreakpoint<ThrownCatchpointProperties> addBreakpoint(final Project project, JComponent parentComponent) {
-        // dialog...
+    public XBreakpoint<CxxCatchpointProperties> addBreakpoint(final Project project, JComponent parentComponent) {
+        // FIXME: Show dialog with the possible CatchpointCatchType and a regexp field here...
         //dialog.showDialog();
         //dialog.getSelected()
 
         // on ok
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new ThrownCatchpointProperties("qq")));
+                .addBreakpoint(this, new CxxCatchpointProperties(CxxCatchpointCatchType.Throw, "qq")));
     }
 
 //    @Override
@@ -79,26 +80,26 @@ public class ThrownCatchpointType extends XBreakpointType<XBreakpoint<ThrownCatc
 
     @Nullable
     @Override
-    public XDebuggerEditorsProvider getEditorsProvider(@NotNull XBreakpoint<ThrownCatchpointProperties> breakpoint,
+    public XDebuggerEditorsProvider getEditorsProvider(@NotNull XBreakpoint<CxxCatchpointProperties> breakpoint,
                                                        @NotNull Project project) {
         return null; // TODO: DebuggerEditorsProvider();
     }
 
-    private static ThrownCatchpointProperties createDefaultBreakpointProperties() {
-        var p = new ThrownCatchpointProperties(".*");
+    private static CxxCatchpointProperties createDefaultBreakpointProperties() {
+        var p = new CxxCatchpointProperties(CxxCatchpointCatchType.Throw, ANY_EXCEPTION);
         return p;
     }
 
     @Override
-    public XBreakpoint<ThrownCatchpointProperties> createDefaultBreakpoint(@NotNull XBreakpointCreator<ThrownCatchpointProperties> creator) {
-        final XBreakpoint<ThrownCatchpointProperties> breakpoint = creator.createBreakpoint(createDefaultBreakpointProperties());
+    public XBreakpoint<CxxCatchpointProperties> createDefaultBreakpoint(@NotNull XBreakpointCreator<CxxCatchpointProperties> creator) {
+        final XBreakpoint<CxxCatchpointProperties> breakpoint = creator.createBreakpoint(createDefaultBreakpointProperties());
         breakpoint.setEnabled(true);
         return breakpoint;
     }
 
 
     @Override
-    public XBreakpointCustomPropertiesPanel<XBreakpoint<ThrownCatchpointProperties>> createCustomPropertiesPanel(@NotNull Project project
+    public XBreakpointCustomPropertiesPanel<XBreakpoint<CxxCatchpointProperties>> createCustomPropertiesPanel(@NotNull Project project
     ) {
         return null;
     }

@@ -16,7 +16,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrownCatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -43,7 +43,7 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public boolean addCxxThrownCatchpoint(XBreakpoint<ThrownCatchpointProperties> key) throws InterruptedException {
+    public boolean addCxxCatchpoint(XBreakpoint<CxxCatchpointProperties> key) throws InterruptedException {
         var options = new ArrayList<String>();
 //        if (key.isTemporary()) // FIXME: MISSING!
 //            options.add("-t");
@@ -54,7 +54,10 @@ public class BreakpointManager {
         }
         // TODO: key.isLogMessage()
         try {
-            var gdbResponse = myDebugProcess.catchThrow(options);
+            var properties = (CxxCatchpointProperties) key.getProperties();
+            var gdbResponse = switch (properties.myCatchType) {
+                case Throw -> myDebugProcess.catchThrow(options);
+            };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             if (!key.isEnabled()) {
                 // Note: I think this is never reached

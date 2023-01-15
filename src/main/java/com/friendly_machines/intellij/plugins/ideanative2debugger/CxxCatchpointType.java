@@ -37,7 +37,9 @@ public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpoint
             else
                 subject = properties.myExceptionRegexp;
             return switch (properties.myCatchType) {
-                case Throw -> "Throw " + subject;
+                case Throw -> "Throw for " + subject;
+                case Rethrow -> "Rethrow for " + subject;
+                case Catch -> "Catch handler for " + subject;
             };
         } else {
             return "?";

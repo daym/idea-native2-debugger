@@ -57,6 +57,8 @@ public class BreakpointManager {
             var properties = (CxxCatchpointProperties) key.getProperties();
             var gdbResponse = switch (properties.myCatchType) {
                 case Throw -> myDebugProcess.catchThrow(options);
+                case Rethrow -> myDebugProcess.catchRethrow(options);
+                case Catch -> myDebugProcess.catchCatch(options);
             };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             if (!key.isEnabled()) {

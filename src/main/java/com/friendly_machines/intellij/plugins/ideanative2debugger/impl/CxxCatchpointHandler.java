@@ -1,25 +1,25 @@
 // Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the COPYING file.
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrownCatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrownCatchpointType;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class ThrownCatchpointHandler extends XBreakpointHandler<XBreakpoint<ThrownCatchpointProperties>> {
+public class CxxCatchpointHandler extends XBreakpointHandler<XBreakpoint<CxxCatchpointProperties>> {
     private final DebugProcess myDebugProcess;
 
-    public ThrownCatchpointHandler(DebugProcess debugProcess, final Class<? extends ThrownCatchpointType> typeClass) {
+    public CxxCatchpointHandler(DebugProcess debugProcess, final Class<? extends ThrownCatchpointType> typeClass) {
         super(typeClass);
         myDebugProcess = debugProcess;
     }
 
     @Override
-    public void registerBreakpoint(@NotNull XBreakpoint<ThrownCatchpointProperties> breakpoint) {
+    public void registerBreakpoint(@NotNull XBreakpoint<CxxCatchpointProperties> breakpoint) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
         try {
-            manager.addCxxThrownCatchpoint(breakpoint);
+            manager.addCxxCatchpoint(breakpoint);
         } catch (InterruptedException e) {
             // pucgenie: Can't really do much more.
             e.printStackTrace();
@@ -35,7 +35,7 @@ public class ThrownCatchpointHandler extends XBreakpointHandler<XBreakpoint<Thro
      *                   {@code temporary} is {@code true}
      */
     @Override
-    public void unregisterBreakpoint(@NotNull XBreakpoint<ThrownCatchpointProperties> key, final boolean temporary) {
+    public void unregisterBreakpoint(@NotNull XBreakpoint<CxxCatchpointProperties> key, final boolean temporary) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
         try {
             manager.deleteBreakpoint(key);

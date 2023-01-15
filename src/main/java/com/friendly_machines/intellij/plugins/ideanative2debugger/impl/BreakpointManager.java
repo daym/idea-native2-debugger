@@ -17,6 +17,7 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.intellij.xdebugger.XSourcePosition;
+import com.intellij.xdebugger.breakpoints.SuspendPolicy;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
@@ -61,10 +62,9 @@ public class BreakpointManager {
         ArrayList<String> options = new ArrayList<>();
         // TODO: "-h" for hardware breakpoint
         // TODO: "-f" for creating a pending breakpoint if necessary
-        // TODO: "-a" for a tracepoint (see GDB page 193)
         // TODO: "-i ignore-count"
         // TODO: "-p thread-id"
-        // TODO: -break-watch [-r|-a] <variable>
+        // TODO: -break-watch [-r | -a] <variable>
         // TODO: -break-passcount <tracepoint-id> <passcount>
         if (key.isTemporary())
             options.add("-t");
@@ -75,6 +75,13 @@ public class BreakpointManager {
             options.add("-c");
             options.add(condition);
         }
+        switch (key.getSuspendPolicy()) {
+        case NONE:
+            // options.add("-a"); // tracepoints are not that well-supported and it also doesn't do what we want
+            break;
+        // TODO: the others
+        }
+        // TODO: key.getProperties().getCOUNT_FILTER();
         // TODO: breakpoint.isLogStack()
         try {
             Map<String, ?> gdbResponse;

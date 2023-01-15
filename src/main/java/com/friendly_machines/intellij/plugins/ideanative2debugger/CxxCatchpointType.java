@@ -30,12 +30,8 @@ public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpoint
     @Override
     public @Nls String getDisplayText(XBreakpoint<CxxCatchpointProperties> breakpoint) {
         var properties = breakpoint.getProperties();
-        var subject = "?";
         if (properties != null) {
-            if (ANY_EXCEPTION.equals(properties.myExceptionRegexp))
-                subject = "any exception";
-            else
-                subject = properties.myExceptionRegexp;
+            var subject = (ANY_EXCEPTION.equals(properties.myExceptionRegexp)) ? "any exception" : properties.myExceptionRegexp;
             return switch (properties.myCatchType) {
                 case Throw -> "Throw for " + subject;
                 case Rethrow -> "Rethrow for " + subject;

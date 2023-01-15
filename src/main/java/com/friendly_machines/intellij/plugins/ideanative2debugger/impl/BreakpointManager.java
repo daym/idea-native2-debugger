@@ -16,9 +16,8 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.ThrowedCatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxExceptionCatchpointProperties2;
 import com.intellij.xdebugger.XSourcePosition;
-import com.intellij.xdebugger.breakpoints.SuspendPolicy;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
@@ -44,7 +43,7 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public boolean addThrowedCatchpoint(XBreakpoint<ThrowedCatchpointProperties> key) throws InterruptedException {
+    public boolean addThrowedCatchpoint(XBreakpoint<CxxExceptionCatchpointProperties2> key) throws InterruptedException {
         var options = new ArrayList<String>();
 //        if (key.isTemporary()) // FIXME: MISSING!
 //            options.add("-t");

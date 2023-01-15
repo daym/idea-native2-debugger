@@ -26,6 +26,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <xdebugger.breakpointType
                 implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.BreakpointType"/>
+        <xdebugger.breakpointType
+            implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ThrowedCatchpointType"/>
         <xdebugger.attachDebuggerProvider
                 implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.AttachDebuggerProvider"/>
         <xdebugger.attachHostProvider implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.AttachHostProvider">

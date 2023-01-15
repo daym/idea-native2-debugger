@@ -43,7 +43,7 @@ public class BreakpointManager {
         return position.getFile().getPath() + ":" + (position.getLine() + 1);
     }
 
-    public boolean addThrowedCatchpoint(XBreakpoint<CxxExceptionCatchpointProperties2> key) throws InterruptedException {
+    public boolean addThrownCatchpoint(XBreakpoint<CxxExceptionCatchpointProperties2> key) throws InterruptedException {
         var options = new ArrayList<String>();
 //        if (key.isTemporary()) // FIXME: MISSING!
 //            options.add("-t");

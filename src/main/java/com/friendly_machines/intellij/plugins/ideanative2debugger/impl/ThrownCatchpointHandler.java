@@ -19,7 +19,7 @@ public class ThrownCatchpointHandler extends XBreakpointHandler<XBreakpoint<CxxE
     public void registerBreakpoint(@NotNull XBreakpoint<CxxExceptionCatchpointProperties2> breakpoint) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
         try {
-            manager.addThrowedCatchpoint(breakpoint);
+            manager.addThrownCatchpoint(breakpoint);
         } catch (InterruptedException e) {
             // pucgenie: Can't really do much more.
             e.printStackTrace();

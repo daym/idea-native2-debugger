@@ -1,6 +1,5 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.DebuggerBundle;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.AdaCatchpointCatchType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -14,6 +13,7 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
     private JPanel myPanel;
     private JComboBox myBreakOnComboBox;
     private JTextField myExceptionField;
+    private JTextField myCondition;
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
@@ -38,6 +38,8 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
         super(project, true);
         setTitle(DebuggerBundle.message("exception.adding.title"));
         init();
+        // TODO: On myBreakOnComboBox selecting index 2 (check getCatchpointType), disable myExceptionField
+
     }
 
     public Optional<AdaCatchpointCatchType> getCatchpointType() {
@@ -51,5 +53,8 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
             default:
                 return Optional.empty();
         }
+    }
+    public String getCondition() {
+        return myCondition.getText();
     }
 }

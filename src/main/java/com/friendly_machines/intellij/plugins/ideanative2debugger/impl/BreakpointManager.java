@@ -91,6 +91,10 @@ public class BreakpointManager {
         // TODO: key.isLogMessage()
         try {
             var properties = (AdaCatchpointProperties) key.getProperties();
+            if (!properties.myCondition.isEmpty()) {
+                options.add("-c");
+                options.add(properties.myCondition);
+            }
             if (properties.myException.isEmpty()) {
                 switch (properties.myCatchType) {
                     case Exception:

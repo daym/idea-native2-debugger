@@ -31,9 +31,9 @@ public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpoint
     public @Nls String getDisplayText(XBreakpoint<CxxCatchpointProperties> breakpoint) {
         var properties = breakpoint.getProperties();
         if (properties != null) {
-            var subject = (ANY_EXCEPTION.equals(properties.myExceptionRegexp)) ? "any exception" : properties.myExceptionRegexp;
+            var subject = (ANY_EXCEPTION.equals(properties.myExceptionRegexp)) ? DebuggerBundle.message("debugger.exception.breakpoint.any.exception") : properties.myExceptionRegexp;
             return switch (properties.myCatchType) {
-                case Throw -> "Throw for " + subject;
+                case Throw -> "Throw for " + subject; // TODO: i18n
                 case Rethrow -> "Rethrow for " + subject;
                 case Catch -> "Catch handler for " + subject;
             };

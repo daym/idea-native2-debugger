@@ -60,7 +60,7 @@ Note: Tracepoints are currently not exposed to IntelliJ users:
     - -trace-start
     - -trace-save
 
-Note: I'd have expected IntelliJ to expose a "current working directory" in the runner settings somewhere--not this stuff.
+Note: The following are for managing GDB's environment and so it's not really necessary for us to manipulate:
     - -environment-cd
     - -environment-directory
     - -environment-pwd

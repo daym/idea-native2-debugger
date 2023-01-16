@@ -66,13 +66,13 @@ public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpoint
 
     @Override
     public XBreakpoint<CxxCatchpointProperties> addBreakpoint(final Project project, JComponent parentComponent) {
-        // FIXME: Show dialog with the possible CatchpointCatchType and a regexp field here...
-        //dialog.showDialog();
-        //dialog.getSelected()
+        final var dialog = new CxxCatchpointAddingDialog(project);
+        if (!dialog.showAndGet()) {
+            return null;
+        }
 
-        // on ok
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new CxxCatchpointProperties(CxxCatchpointCatchType.Throw, "qq")));
+                .addBreakpoint(this, new CxxCatchpointProperties(dialog.getCatchpointType().get(), dialog.getExceptionRegexp())));
     }
 
 //    @Override

@@ -129,7 +129,7 @@ public class BreakpointManager {
             if (!key.isEnabled()) {
                 options.add("-d");
             }
-            options.add(properties.myLibraryNameRegexp); // TODO: test whether that should go into arguments instead
+            options.add(properties.myLibraryNameRegexp);
             var gdbResponse = switch (properties.myCatchType) {
                 case Load -> myDebugProcess.catchLoad(options);
                 case Unload -> myDebugProcess.catchUnload(options);

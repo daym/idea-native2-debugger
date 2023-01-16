@@ -4,21 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Add CxxCatchpointAddingDialog.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointProperties.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointPropertiesHelper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AdaCatchpointCatchType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AdaCatchpointHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointType.java" afterDir="false" />
+    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Add AdaCatchpoint*.">
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -316,7 +305,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673827917287</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Add AdaCatchpoint*.">
+      <created>1673830124718</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1673830124718</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -372,7 +368,8 @@
     <MESSAGE value="CxxCatchpointProperties: Allow serialization." />
     <MESSAGE value="Fix intellij warning." />
     <MESSAGE value="Add CxxCatchpointAddingDialog." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add CxxCatchpointAddingDialog." />
+    <MESSAGE value="Add AdaCatchpoint*." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add AdaCatchpoint*." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

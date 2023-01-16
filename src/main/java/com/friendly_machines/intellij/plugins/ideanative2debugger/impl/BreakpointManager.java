@@ -98,14 +98,14 @@ public class BreakpointManager {
                 options.add("-e");
                 options.add(properties.myException);
             }
+            if (!key.isEnabled()) {
+                options.add("-d");
+            }
             var gdbResponse = switch (properties.myCatchType) {
                 case Exception -> myDebugProcess.catchException(options);
                 case Handlers -> myDebugProcess.catchHandlers(options);
             };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
-            if (!key.isEnabled()) {
-                options.add("-d");
-            }
 
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
             return true;
@@ -126,15 +126,15 @@ public class BreakpointManager {
         // TODO: key.isLogMessage()
         try {
             var properties = (ShlibCatchpointProperties) key.getProperties();
+            if (!key.isEnabled()) {
+                options.add("-d");
+            }
             options.add(properties.myLibraryNameRegexp); // TODO: test whether that should go into arguments instead
             var gdbResponse = switch (properties.myCatchType) {
                 case Load -> myDebugProcess.catchLoad(options);
                 case Unload -> myDebugProcess.catchUnload(options);
             };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
-            if (!key.isEnabled()) {
-                options.add("-d");
-            }
 
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
             return true;

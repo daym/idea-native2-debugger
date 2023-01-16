@@ -46,13 +46,13 @@ import java.util.*;
 
 /*
 Note: There are apparently no GDB/MI commands for those useful GDB commands:
-    - exec
-    - syscall
-    - fork
-    - vfork
-    - signal
+    - catch exec
+    - catch syscall
+    - catch fork
+    - catch vfork
+    - catch signal
 
-Note: Tracepoints are currently not exposed to IntelliJ users. Also, they only work on special targets anyway.
+Note: Tracepoints are currently not exposed to IntelliJ users:
     - -trace-find
     - -trace-define-variable
     - -trace-frame-collected
@@ -394,6 +394,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     public Map<String, ?> breakInsert(Iterable<String> options, Iterable<String> parameters) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-break-insert", options, parameters);
+    }
+
+    public Map<String, ?> breakWatch(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-break-watch", options);
     }
 
     public Map<String,?> catchThrow(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {

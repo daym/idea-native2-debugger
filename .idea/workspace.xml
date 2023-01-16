@@ -4,16 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Ada: Add Assertion entry.">
+    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Update comment block.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/WatchpointAddingDialog.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/WatchpointAddingDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/WatchpointProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/WatchpointPropertiesHelper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/WatchpointType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/WatchpointHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointPropertiesHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointPropertiesHelper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -384,7 +388,28 @@
       <option name="project" value="LOCAL" />
       <updated>1673833336927</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Ada: Handle condition.">
+      <created>1673833762401</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1673833762401</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Ada: Add comment.">
+      <created>1673833837134</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1673833837134</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Update comment block.">
+      <created>1673835113176</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1673835113176</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -422,9 +447,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add actions: ReturnAction, ReverseResumeAction, ReverseStepIntoAction, ReverseStepOutAction, ReverseStepOverAction" />
-    <MESSAGE value="Fix action order" />
-    <MESSAGE value="Only enable &quot;reverse&quot; debugger actions if recording is available." />
     <MESSAGE value="Update comments." />
     <MESSAGE value="Hint on how to check Suspend Policy" />
     <MESSAGE value="Add catchThrow, catchRethrow, catchCatch." />
@@ -447,7 +469,10 @@
     <MESSAGE value="Fix addShlibCatchpoint, addAdaCatchpoint." />
     <MESSAGE value="Remove TODO." />
     <MESSAGE value="Ada: Add Assertion entry." />
-    <option name="LAST_COMMIT_MESSAGE" value="Ada: Add Assertion entry." />
+    <MESSAGE value="Ada: Handle condition." />
+    <MESSAGE value="Ada: Add comment." />
+    <MESSAGE value="Update comment block." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update comment block." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -484,7 +509,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java</url>
-          <line>196</line>
+          <line>228</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>

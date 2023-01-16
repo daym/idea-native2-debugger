@@ -74,6 +74,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 
     private final XBreakpointHandler<?>[] myXBreakpointHandlers = new XBreakpointHandler<?>[]{
             new BreakpointHandler(this, BreakpointType.class),
+            new AdaCatchpointHandler(this, AdaCatchpointType.class),
             new CxxCatchpointHandler(this, CxxCatchpointType.class),
     };
 
@@ -335,6 +336,14 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     }
     public Map<String,?> catchCatch(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-catch-catch", options);
+    }
+
+    public Map<String,?> catchException(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
+        return gdbCall("-catch-exception", options);
+    }
+
+    public Map<String,?> catchHandlers(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
+        return gdbCall("-catch-handlers", options);
     }
 
     public void breakDelete(String number) throws GdbMiOperationException, IOException, InterruptedException {
@@ -902,5 +911,4 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     public boolean hasRecording() {
         return false; // TODO
     }
-
 }

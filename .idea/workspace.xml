@@ -4,13 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Fix intellij warning.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointAddingDialog.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointAddingDialog.java" afterDir="false" />
+    <list default="true" id="0b3eff22-6b6a-4df1-b912-d72e991150e3" name="Changes" comment="Add CxxCatchpointAddingDialog.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointAddingDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointPropertiesHelper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/AdaCatchpointType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AdaCatchpointCatchType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/AdaCatchpointHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/CxxCatchpointType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/DebuggerRunConfigurationExtension.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/Runner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/DebugProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/Native2DebuggerBundle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -80,18 +87,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/tmp/slt-0.1.0.zip&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/home/dannym/src/idea/idea-native2-debugger/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/b",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.impl" />
       <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/b" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl.b" />
+      <recent name="$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.friendly_machines.intellij.plugins.ideanative2debugger.b" />
     </key>
   </component>
   <component name="RunManager">
@@ -293,7 +309,14 @@
       <option name="project" value="LOCAL" />
       <updated>1673790717869</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add CxxCatchpointAddingDialog.">
+      <created>1673827917286</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1673827917287</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -312,7 +335,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="debug-test" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -336,7 +371,8 @@
     <MESSAGE value="BreakpointManager: Pass regexp for CxxCatchpoint." />
     <MESSAGE value="CxxCatchpointProperties: Allow serialization." />
     <MESSAGE value="Fix intellij warning." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix intellij warning." />
+    <MESSAGE value="Add CxxCatchpointAddingDialog." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add CxxCatchpointAddingDialog." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -373,7 +409,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/friendly_machines/intellij/plugins/ideanative2debugger/impl/BreakpointManager.java</url>
-          <line>112</line>
+          <line>148</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>

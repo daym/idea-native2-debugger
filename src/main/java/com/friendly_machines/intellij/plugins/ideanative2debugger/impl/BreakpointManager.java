@@ -16,6 +16,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.AdaCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
@@ -68,6 +69,41 @@ public class BreakpointManager {
                 String number = (String) bkpt.get("number");
                 myDebugProcess.breakDisable(number);
                 bkpt.put("enabled", "n");
+            }
+
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
+            return true;
+        } catch (GdbMiOperationException | ClassCastException | IOException e) { // TODO
+            // TODO: doesn't work: myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint");
+            return false;
+        }
+    }
+    public boolean addAdaCatchpoint(XBreakpoint<AdaCatchpointProperties> key) throws InterruptedException {
+        var options = new ArrayList<String>();
+//        if (key.isTemporary()) // FIXME: MISSING!
+//            options.add("-t");
+        switch (key.getSuspendPolicy()) {
+            case NONE:
+                break;
+            // TODO: the others
+        }
+        // TODO: key.isLogMessage()
+        try {
+            var properties = (AdaCatchpointProperties) key.getProperties();
+            if (properties.myException.isEmpty()) {
+                // TODO: Doesn't make a lot of sense to do that for catchHandlers.
+                options.add("-u");
+            } else {
+                options.add("-e");
+                options.add(properties.myException);
+            }
+            var gdbResponse = switch (properties.myCatchType) {
+                case Exception -> myDebugProcess.catchException(options);
+                case Handlers -> myDebugProcess.catchHandlers(options);
+            };
+            var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
+            if (!key.isEnabled()) {
+                options.add("-d");
             }
 
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
@@ -189,5 +225,6 @@ public class BreakpointManager {
         } else
             return false;
     }
+
 
 }

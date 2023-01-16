@@ -44,18 +44,85 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
+/*
+Note: There are apparently no GDB/MI commands for those useful GDB commands:
+    - exec
+    - syscall
+    - fork
+    - vfork
+    - signal
+
+Note: Tracepoints are currently not exposed to IntelliJ users. Also, they only work on special targets anyway.
+    - -trace-find
+    - -trace-define-variable
+    - -trace-frame-collected
+    - -trace-list-variables
+    - -trace-start
+    - -trace-save
+
+Note: I'd have expected IntelliJ to expose a "current working directory" in the runner settings somewhere--not this stuff.
+    - -environment-cd
+    - -environment-directory
+    - -environment-pwd
+    - -environment-path
+    - -environment-pwd
+
+Note: For threads, we'd have the following unexposed commands:
+    - -thread-info
+    - -thread-list-ids
+    - -thread-select
+    - -list-thread-groups [--available] [--recurse 1] [group ...] and cache results
+
+Note: For processes, we'd have the following unexposed commands:
+    - -info-os [processes]
+
+Note: For breakpoints, we'd have the following unexposed commands:
+    - -break-condition
+    - -break-list
+    - -break-delete
+    - -break-disable
+    - -break-enable
+    - -break-passcount
+    - -break-watch
+
+Note: For target management, we'd have the following unexposed commands:
+    - -target-attach
+    - -target-detach
+    - -target-disconnect
+    - -target-download
+    - -target-flash-erase
+    - -target-flash-erase
+    - -target-select
+    - -target-file-put
+    - -target-file-get
+    - -target-file-delete
+
+Note: For fixed/floating variable objects, we'd have the following unexposed commands:
+    - -var-create
+    - -var-delete
+    - -var-info-type
+    - -var-info-expression
+    - -var-info-path-expression
+    - -var-show-attributes
+    - -var-evaluate-expression
+    - -var-assign
+    - -var-update
+    - -var-set-frozen
+    - -var-set-update-range
+public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remove it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
+
+Note: We'd have the following unexposed commands for symbol table lookup:
+    - -symbol-info-functions
+    - -symbol-info-module-functions
+    - -symbol-info-module-variables
+    - -symbol-info-modules
+    - -symbol-info-types
+    - -symbol-info-variables
+    - -symbol-list-lines
+*/
+
 // TODO: All-stop mode https://sourceware.org/gdb/onlinedocs/gdb/All_002dStop-Mode.html#All_002dStop-Mode
-// TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-assert
-// TODO: -environment-cd, -environment-directory, -environment-pwd, -environment-path, -environment-pwd
-// TODO: -thread-info, -thread-list-ids, -thread-select
 // TODO: -stack-info-frame
-// TODO: fixed variable object, floating variable object, -var-create, -var-delete, -var-info-type, -var-info-expression, -var-info-path-expression, -var-show-attributes, -var-evaluate-expression, -var-assign, -var-update, -var-set-frozen, -var-set-update-range
-// TODO: tracepoints, -trace-find, -trace-define-variable, -trace-frame-collected, -trace-list-variables, -trace-start, -trace-save
-// TODO: public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remote it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
-// TODO: -info-os [processes]
-// TODO: -list-thread-groups [--available] [--recurse 1] [group ...] and cache results
-// TODO: -target-attach, --target-detach, -target-disconnect, -target-download, -target-flash-erase, -target-select, -target-file-put, -target-file-get, -target-file-delete
-// ?: -symbol-info-functions, -symbol-info-module-functions, -symbol-info-module-variables, -symbol-info-modules, -symbol-info-types, -symbol-info-variables, -symbol-list-lines
 
 // See <https://dploeger.github.io/intellij-api-doc/com/intellij/xdebugger/XDebugProcess.html>
 public class DebugProcess extends XDebugProcess implements Disposable {

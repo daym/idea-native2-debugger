@@ -76,6 +76,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
             new BreakpointHandler(this, BreakpointType.class),
             new AdaCatchpointHandler(this, AdaCatchpointType.class),
             new CxxCatchpointHandler(this, CxxCatchpointType.class),
+            new ShlibCatchpointHandler(this, ShlibCatchpointType.class),
     };
 
     private GdbMiStateResponse gdbSend(String operation) throws IOException, InterruptedException {
@@ -328,22 +329,30 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-break-insert", options, parameters);
     }
 
-    public Map<String,?> catchThrow(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String,?> catchThrow(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-catch-throw", options);
     }
-    public Map<String,?> catchRethrow(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String,?> catchRethrow(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-catch-rethrow", options);
     }
-    public Map<String,?> catchCatch(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException {
+    public Map<String,?> catchCatch(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException {
         return gdbCall("-catch-catch", options);
     }
 
-    public Map<String,?> catchException(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
+    public Map<String,?> catchException(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
         return gdbCall("-catch-exception", options);
     }
 
-    public Map<String,?> catchHandlers(ArrayList<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
+    public Map<String,?> catchHandlers(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
         return gdbCall("-catch-handlers", options);
+    }
+
+    public Map<String,?> catchLoad(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Shlib
+        return gdbCall("-catch-load", options);
+    }
+
+    public Map<String,?> catchUnload(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Shlib
+        return gdbCall("-catch-unload", options);
     }
 
     public void breakDelete(String number) throws GdbMiOperationException, IOException, InterruptedException {

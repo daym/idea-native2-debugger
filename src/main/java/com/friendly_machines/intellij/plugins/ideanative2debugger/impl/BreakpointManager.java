@@ -18,6 +18,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
 import com.friendly_machines.intellij.plugins.ideanative2debugger.AdaCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.ShlibCatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -100,6 +101,35 @@ public class BreakpointManager {
             var gdbResponse = switch (properties.myCatchType) {
                 case Exception -> myDebugProcess.catchException(options);
                 case Handlers -> myDebugProcess.catchHandlers(options);
+            };
+            var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
+            if (!key.isEnabled()) {
+                options.add("-d");
+            }
+
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
+            return true;
+        } catch (GdbMiOperationException | ClassCastException | IOException e) { // TODO
+            // TODO: doesn't work: myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint");
+            return false;
+        }
+    }
+    public boolean addShlibCatchpoint(XBreakpoint<ShlibCatchpointProperties> key) throws InterruptedException {
+        var options = new ArrayList<String>();
+//        if (key.isTemporary()) // FIXME: MISSING!
+//            options.add("-t");
+        switch (key.getSuspendPolicy()) {
+            case NONE:
+                break;
+            // TODO: the others
+        }
+        // TODO: key.isLogMessage()
+        try {
+            var properties = (ShlibCatchpointProperties) key.getProperties();
+            options.add(properties.myLibraryNameRegexp); // TODO: test whether that should go into arguments instead
+            var gdbResponse = switch (properties.myCatchType) {
+                case Load -> myDebugProcess.catchLoad(options);
+                case Unload -> myDebugProcess.catchUnload(options);
             };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             if (!key.isEnabled()) {
@@ -225,6 +255,4 @@ public class BreakpointManager {
         } else
             return false;
     }
-
-
 }

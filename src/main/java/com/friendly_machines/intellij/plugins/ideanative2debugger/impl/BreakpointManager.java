@@ -215,7 +215,6 @@ public class BreakpointManager {
         // TODO: "-f" for creating a pending breakpoint if necessary
         // TODO: "-i ignore-count"
         // TODO: "-p thread-id"
-        // TODO: -break-watch [-r | -a] <variable>
         // TODO: -break-passcount <tracepoint-id> <passcount>
         if (key.isTemporary())
             options.add("-t");

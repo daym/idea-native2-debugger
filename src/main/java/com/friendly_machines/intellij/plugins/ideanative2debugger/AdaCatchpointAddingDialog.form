@@ -28,7 +28,8 @@
         <properties>
           <model>
             <item value="Exception"/>
-            <item value="Handlers"/>
+            <item value="Exception handlers"/>
+            <item value="Assertion"/>
           </model>
         </properties>
       </component>

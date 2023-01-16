@@ -34,6 +34,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
             return switch (properties.myCatchType) {
                 case Exception -> "Exception for " + subject; // TODO: i18n
                 case Handlers -> "Handlers for " + subject;
+                case Assertion -> "Assertion"; // no subject
             };
         } else {
             return "?";

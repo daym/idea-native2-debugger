@@ -92,11 +92,24 @@ public class BreakpointManager {
         try {
             var properties = (AdaCatchpointProperties) key.getProperties();
             if (properties.myException.isEmpty()) {
-                // TODO: Doesn't make a lot of sense to do that for catchHandlers.
-                options.add("-u");
+                switch (properties.myCatchType) {
+                    case Exception:
+                        options.add("-u");
+                        break;
+                    default:
+                        /* no -u, but OK */
+                        break;
+                }
             } else {
-                options.add("-e");
-                options.add(properties.myException);
+                switch (properties.myCatchType) {
+                    case Exception:
+                    case Handlers:
+                        options.add("-e");
+                        options.add(properties.myException);
+                        break;
+                    case Assertion:
+                        break;
+                }
             }
             if (!key.isEnabled()) {
                 options.add("-d");
@@ -104,6 +117,7 @@ public class BreakpointManager {
             var gdbResponse = switch (properties.myCatchType) {
                 case Exception -> myDebugProcess.catchException(options);
                 case Handlers -> myDebugProcess.catchHandlers(options);
+                case Assertion -> myDebugProcess.catchAssert(options);
             };
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
 

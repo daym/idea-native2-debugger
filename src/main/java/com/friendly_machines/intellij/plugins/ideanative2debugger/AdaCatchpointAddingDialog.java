@@ -39,7 +39,7 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
         setTitle(DebuggerBundle.message("exception.adding.title"));
         init();
         // TODO: On myBreakOnComboBox selecting index 2 (check getCatchpointType), disable myExceptionField
-
+        // TODO: If we had a gdb connected to the target, we could do -info-ada-exceptions and limit the possible exceptions in myExceptionField.
     }
 
     public Optional<AdaCatchpointCatchType> getCatchpointType() {

@@ -19,6 +19,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.AdaCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.ShlibCatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.WatchpointProperties;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.friendly_machines.intellij.plugins.ideanative2debugger.impl.ShlibCatchpointCatchType.Load;
 
 // Note: one line can map to multiple actual addrs! (but that's GDB's business)
 public class BreakpointManager {
@@ -152,6 +155,35 @@ public class BreakpointManager {
                 case Load -> myDebugProcess.catchLoad(options);
                 case Unload -> myDebugProcess.catchUnload(options);
             };
+            var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
+
+            myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.
+            return true;
+        } catch (GdbMiOperationException | ClassCastException | IOException e) { // TODO
+            // TODO: doesn't work: myDebugProcess.getSession().setBreakpointInvalid(key, "Unsupported breakpoint");
+            return false;
+        }
+    }
+
+    public boolean addWatchpoint(XBreakpoint<WatchpointProperties> key) throws InterruptedException {
+        var options = new ArrayList<String>();
+//        if (key.isTemporary()) // FIXME: MISSING!
+//            options.add("-t");
+        switch (key.getSuspendPolicy()) {
+            case NONE:
+                break;
+            // TODO: the others
+        }
+        // TODO: key.isLogMessage()
+        try {
+            var properties = key.getProperties();
+            // TODO: !key.isEnabled()
+            if (properties.myWatchReads && properties.myWatchWrites)
+                options.add("-a");
+            else if (properties.myWatchReads)
+                options.add("-r");
+            options.add(properties.myExpression);
+            var gdbResponse = myDebugProcess.breakWatch(options);
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
 
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt)); // Note: confuses breakpoints and catchpoints.

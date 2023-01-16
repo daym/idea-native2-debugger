@@ -32,6 +32,8 @@
             implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointType"/>
         <xdebugger.breakpointType
                 implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.ShlibCatchpointType"/>
+        <xdebugger.breakpointType
+                implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.WatchpointType"/>
         <xdebugger.attachDebuggerProvider
                 implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.AttachDebuggerProvider"/>
         <xdebugger.attachHostProvider implementation="com.friendly_machines.intellij.plugins.ideanative2debugger.AttachHostProvider">

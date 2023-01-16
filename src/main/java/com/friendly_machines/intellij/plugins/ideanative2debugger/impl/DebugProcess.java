@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.*;
 
 // TODO: All-stop mode https://sourceware.org/gdb/onlinedocs/gdb/All_002dStop-Mode.html#All_002dStop-Mode
-// TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-load, -catch-assert
+// TODO:  -break-condition, -break-list, -break-delete, -break-disable, -break-enable, -break-passcount, -break-watch, -catch-assert
 // TODO: -environment-cd, -environment-directory, -environment-pwd, -environment-path, -environment-pwd
 // TODO: -thread-info, -thread-list-ids, -thread-select
 // TODO: -stack-info-frame

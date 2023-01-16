@@ -10,4 +10,7 @@ public abstract class AdaCatchpointPropertiesHelper<T> extends XBreakpointProper
 
     @Attribute("exception")
     public String myException;
+
+    @Attribute("condition")
+    public String myCondition;
 }

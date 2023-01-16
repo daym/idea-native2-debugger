@@ -5,9 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AdaCatchpointProperties extends AdaCatchpointPropertiesHelper<AdaCatchpointProperties> {
-    public AdaCatchpointProperties(AdaCatchpointCatchType catchType, String regexp)  {
+    public AdaCatchpointProperties(AdaCatchpointCatchType catchType, String regexp, String condition)  {
         myCatchType = catchType;
         myException = regexp;
+        myCondition = condition;
     }
     public AdaCatchpointProperties() { // for serialization
     }
@@ -21,6 +22,7 @@ public class AdaCatchpointProperties extends AdaCatchpointPropertiesHelper<AdaCa
     public void loadState(@NotNull AdaCatchpointProperties state) {
         myCatchType = state.myCatchType;
         myException = state.myException;
+        myCondition = state.myCondition;
     }
 
     @Override

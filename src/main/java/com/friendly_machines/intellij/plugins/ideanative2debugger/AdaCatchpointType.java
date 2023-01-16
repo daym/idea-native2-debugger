@@ -55,7 +55,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
 
     @Override
     public AdaCatchpointProperties createProperties() {
-        return new AdaCatchpointProperties(AdaCatchpointCatchType.Exception, UNHANDLED_EXCEPTION);
+        return new AdaCatchpointProperties(AdaCatchpointCatchType.Exception, UNHANDLED_EXCEPTION, "");
     }
 
     @Override
@@ -71,7 +71,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
         }
 
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new AdaCatchpointProperties(dialog.getCatchpointType().get(), dialog.getException())));
+                .addBreakpoint(this, new AdaCatchpointProperties(dialog.getCatchpointType().get(), dialog.getException(), dialog.getCondition())));
     }
 
 //    @Override
@@ -87,7 +87,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
     }
 
     private static AdaCatchpointProperties createDefaultBreakpointProperties() {
-        var p = new AdaCatchpointProperties(AdaCatchpointCatchType.Exception, UNHANDLED_EXCEPTION);
+        var p = new AdaCatchpointProperties(AdaCatchpointCatchType.Exception, UNHANDLED_EXCEPTION, "");
         return p;
     }
 
@@ -102,6 +102,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
     @Override
     public XBreakpointCustomPropertiesPanel<XBreakpoint<AdaCatchpointProperties>> createCustomPropertiesPanel(@NotNull Project project
     ) {
+        // TODO: Show condition
         return null;
     }
 }

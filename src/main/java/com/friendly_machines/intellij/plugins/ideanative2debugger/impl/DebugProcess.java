@@ -83,7 +83,6 @@ Note: For breakpoints, we'd have the following unexposed commands:
     - -break-disable
     - -break-enable
     - -break-passcount
-    - -break-watch
 
 Note: For target management, we'd have the following unexposed commands:
     - -target-attach

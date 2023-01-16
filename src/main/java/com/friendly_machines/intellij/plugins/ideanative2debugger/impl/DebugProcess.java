@@ -347,6 +347,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-catch-handlers", options);
     }
 
+    public Map<String,?> catchAssert(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Ada
+        return gdbCall("-catch-assert", options);
+    }
+
     public Map<String,?> catchLoad(Iterable<String> options) throws GdbMiOperationException, IOException, InterruptedException { // Shlib
         return gdbCall("-catch-load", options);
     }

@@ -46,6 +46,8 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
                 return Optional.of(AdaCatchpointCatchType.Exception);
             case 1:
                 return Optional.of(AdaCatchpointCatchType.Handlers);
+            case 2:
+                return Optional.of(AdaCatchpointCatchType.Assertion);
             default:
                 return Optional.empty();
         }

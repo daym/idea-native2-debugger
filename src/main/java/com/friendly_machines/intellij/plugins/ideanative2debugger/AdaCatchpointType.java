@@ -33,7 +33,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
             var subject = (UNHANDLED_EXCEPTION.equals(properties.myException)) ? DebuggerBundle.message("debugger.exception.breakpoint.unhandled.exception") : properties.myException;
             return switch (properties.myCatchType) {
                 case Exception -> "Exception for " + subject;
-                case Handlers -> "Handler for " + subject;
+                case Handlers -> "Handlers for " + subject;
             };
         } else {
             return "?";

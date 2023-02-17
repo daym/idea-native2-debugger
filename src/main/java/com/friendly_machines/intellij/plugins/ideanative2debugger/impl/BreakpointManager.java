@@ -20,6 +20,7 @@ import com.friendly_machines.intellij.plugins.ideanative2debugger.AdaCatchpointP
 import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.ShlibCatchpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.WatchpointProperties;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
@@ -202,7 +203,7 @@ public class BreakpointManager {
             return false;
         }
 
-        //final VirtualFile file = sourcePosition.getFile();
+        final VirtualFile file = sourcePosition.getFile();
         //final Project project = myDebugProcess.getSession().getProject();
         final int lineNumber = sourcePosition.getLine();
         if (lineNumber == -1) {
@@ -235,11 +236,11 @@ public class BreakpointManager {
         // TODO: breakpoint.isLogStack()
         try {
             Map<String, ?> gdbResponse;
+            /* We do that ourselves in handleGdbMiExecAsyncOutput.
             if (key.isLogMessage()) {
-                gdbResponse = myDebugProcess.dprintfInsert(options, List.of(fileLineReference(key.getSourcePosition()), "Breakpointhit"));
-            } else {
-                gdbResponse = myDebugProcess.breakInsert(options, List.of(fileLineReference(key.getSourcePosition())));
-            }
+                gdbResponse = myDebugProcess.dprintfInsert(options, List.of(fileLineReference(key.getSourcePosition()), String.format("Breakpoint hit at %s:%s", file.toString(), lineNumber)));
+            }*/
+            gdbResponse = myDebugProcess.breakInsert(options, List.of(fileLineReference(key.getSourcePosition())));
             @SuppressWarnings("unchecked")
             var bkpt = (Map<String, Object>) gdbResponse.get("bkpt");
             myBreakpoints.add(new Breakpoint(myDebugProcess, key, bkpt));

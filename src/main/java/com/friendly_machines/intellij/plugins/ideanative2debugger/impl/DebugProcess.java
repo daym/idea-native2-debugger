@@ -29,9 +29,11 @@ import com.intellij.ui.content.ContentManagerListener;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XSourcePosition;
+import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.memory.component.InstancesTracker;
 import com.intellij.xdebugger.memory.component.MemoryViewManager;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
@@ -97,18 +99,21 @@ Note: For target management, we'd have the following unexposed commands:
     - -target-file-delete
 
 Note: For fixed/floating variable objects, we'd have the following unexposed commands:
-    - -var-create
-    - -var-delete
-    - -var-info-type
-    - -var-info-expression
-    - -var-info-path-expression
-    - -var-show-attributes
-    - -var-evaluate-expression
-    - -var-assign
-    - -var-update
-    - -var-set-frozen
-    - -var-set-update-range
-public XValueMarkerProvider<?,?> createValueMarkerProvider(); If debugger values have unique ids just return these ids from getMarker(XValue) method. Alternatively implement markValue(XValue) to store a value in some registry and implement unmarkValue(XValue, Object) to remove it from the registry. In such a case the getMarker(XValue) method can return null if the value isn't marked.
+    - -enable-pretty-printing
+    - -var-info-type name
+    - -var-info-num-children name
+    - -var-info-expression name
+    - -var-info-path-expression name
+    - -var-list-children [print-values] name [from to]
+    - -var-set-format name format-spec
+    - -var-show-format name
+    - -var-show-attributes name
+    - -var-evaluate-expression name
+    - -var-assign name expression [!]
+    - -var-update {name | "*"}  [!]
+    - -var-set-frozen name flag
+    - -var-set-update-range name from to
+    - -var-set-visualizer name visualizer
 
 Note: We'd have the following unexposed commands for symbol table lookup:
     - -symbol-info-functions
@@ -187,6 +192,22 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
+    // Return value can be null.
+    private String formatBreakpointLogMessage(XBreakpoint xBreakpoint, SuspendContext context) {
+        if (xBreakpoint.isLogMessage()) {
+            var builder = new StringBuilder();
+            builder.append(String.format("Breakpoint hit at %s", xBreakpoint.getSourcePosition()));
+            if (xBreakpoint.isLogStack()) {
+                builder.append("\n");
+                // TODO: Format nicer.
+                builder.append(context.toString());
+            }
+            return builder.toString();
+        } else {
+            return null;
+        }
+    }
+
     private void handleGdbMiExecAsyncOutput(String klass, Map<String, ?> attributes) throws IOException, InterruptedException {
         if (klass.equals("stopped")) {
             // TODO: running with thread-id (or "all"), stopped with thread-id or stopped (a list of ids or "all")
@@ -220,7 +241,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
                             Optional<Breakpoint> breakpointo = myBreakpointManager.getBreakpointByGdbNumber(bkptno);
                             if (breakpointo.isPresent()) {
                                 Breakpoint breakpoint = breakpointo.get();
-                                getSession().breakpointReached(breakpoint.getXBreakpoint(), "fancy message", context); // FIXME
+                                if (!getSession().breakpointReached(breakpoint.getXBreakpoint(), formatBreakpointLogMessage(breakpoint.getXBreakpoint(), context), context)) {
+                                    // Should not be suspended. So continue.
+                                    resume(context);
+                                    return;
+                                }
                             }
                         } else {
                             reportError("Unknown GDB breakpoint was hit");
@@ -832,6 +857,27 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         });
 
         return gdbCall("-data-list-register-values", options, List.of( includeHighlevelSource ? "1" : "0" ));
+    }
+
+    /**
+     *
+     * @param name The name to assign to the new var, or null to make it choose one
+     * @param frameAddr address of the frame expression is to be evaluated in, or null for current frame.
+     *                  TODO: Support "@" for a floating object
+     * @param expression expression, or "$"regname, or "*"addr
+     * @return {"name": ..., ...}
+     */
+    public Map<String, ?> varCreate(String name, Integer frameAddr, String expression) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-var-create", List.of(new String[]{
+                name != null ? name : "-",
+                frameAddr != null ? Integer.toString(frameAddr) : "*",
+                expression
+        }));
+    }
+    public Map<String, ?> varDestroy(boolean onlyDeleteChildren, String name) throws GdbMiOperationException, IOException, InterruptedException {
+        return gdbCall("-var-destroy", onlyDeleteChildren
+                ? List.of(new String[] { "-c", name } )
+                : List.of(new String[] { name } ));
     }
 
     @Override

@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.10.0"
+    id("org.jetbrains.intellij") version "1.13.3"
 }
 
 group = "com.friendly_machines.intellij.plugins"
@@ -22,10 +22,10 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.2.2") // 222.4167.29
+    version.set("2023.1") // ("2022.2.2") // 222.4167.29
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf("org.rust.lang:0.4.179.4903-222"))
+    plugins.set(listOf("org.rust.lang:0.4.191.5293-231"))
 }
 
 dependencies {
@@ -43,8 +43,8 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("222")
-        untilBuild.set("223.*")
+        sinceBuild.set("231")
+        untilBuild.set("231.*")
     }
 
     signPlugin {

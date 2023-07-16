@@ -1,13 +1,14 @@
 // Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the COPYING file.
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
+import com.friendly_machines.intellij.plugins.ideanative2debugger.BreakpointProperties;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.BreakpointType;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import org.jetbrains.annotations.NotNull;
 
-public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> {
+public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<BreakpointProperties>> {
     private final DebugProcess myDebugProcess;
 
     public BreakpointHandler(DebugProcess debugProcess, final Class<? extends BreakpointType> typeClass) {
@@ -16,7 +17,7 @@ public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreak
     }
 
     @Override
-    public void registerBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+    public void registerBreakpoint(@NotNull XLineBreakpoint<BreakpointProperties> breakpoint) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
         try {
             manager.addBreakpoint(breakpoint);
@@ -38,7 +39,7 @@ public class BreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreak
      *                   {@code temporary} is {@code true}
      */
     @Override
-    public void unregisterBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> key, final boolean temporary) {
+    public void unregisterBreakpoint(@NotNull XLineBreakpoint<BreakpointProperties> key, final boolean temporary) {
         final BreakpointManager manager = myDebugProcess.getBreakpointManager();
 //        if (temporary) {
 //            Optional<Breakpoint> breakpointo = manager.getBreakpoint(key);

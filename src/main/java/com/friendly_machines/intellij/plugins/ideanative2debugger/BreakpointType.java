@@ -13,10 +13,12 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
+import com.intellij.xdebugger.breakpoints.ui.XBreakpointCustomPropertiesPanel;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
+public class BreakpointType extends XLineBreakpointType<BreakpointProperties> {
     private final EditorsProvider myMyEditorsProvider1 = new EditorsProvider();
 
     public BreakpointType() {
@@ -49,7 +51,7 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     }
 
     @Override
-    public XDebuggerEditorsProvider getEditorsProvider(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, @NotNull Project project) {
+    public XDebuggerEditorsProvider getEditorsProvider(@NotNull XLineBreakpoint<BreakpointProperties> breakpoint, @NotNull Project project) {
         final XSourcePosition position = breakpoint.getSourcePosition();
         if (position == null) {
             return null;
@@ -64,7 +66,17 @@ public class BreakpointType extends XLineBreakpointType<XBreakpointProperties> {
     }
 
     @Override
-    public XBreakpointProperties createBreakpointProperties(@NotNull VirtualFile file, int line) {
-        return null;
+    public BreakpointProperties createBreakpointProperties(@NotNull VirtualFile file, int line) {
+        return new BreakpointProperties();
+    }
+
+    @Override
+    public @Nullable BreakpointProperties createProperties() {
+        return new BreakpointProperties();
+    }
+
+    @Override
+    public @Nullable XBreakpointCustomPropertiesPanel<XLineBreakpoint<BreakpointProperties>> createCustomPropertiesPanel(@NotNull Project project) {
+        return new BreakpointPropertiesPanel();
     }
 }

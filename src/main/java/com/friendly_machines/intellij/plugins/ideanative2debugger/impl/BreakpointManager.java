@@ -16,10 +16,7 @@
 
 package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.AdaCatchpointProperties;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.CxxCatchpointProperties;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.ShlibCatchpointProperties;
-import com.friendly_machines.intellij.plugins.ideanative2debugger.WatchpointProperties;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpoint;
@@ -195,7 +192,7 @@ public class BreakpointManager {
         }
     }
 
-    public boolean addBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> key) throws InterruptedException {
+    public boolean addBreakpoint(@NotNull XLineBreakpoint<BreakpointProperties> key) throws InterruptedException {
         // TODO: Just store our Breakpoint in the user data of KEY and then you don't need myBreakpoints in the first place.
         final XSourcePosition sourcePosition = key.getSourcePosition();
         if (sourcePosition == null || !sourcePosition.getFile().exists() || !sourcePosition.getFile().isValid()) {
@@ -212,8 +209,13 @@ public class BreakpointManager {
         }
 
         ArrayList<String> options = new ArrayList<>();
-        // TODO: "-h" for hardware breakpoint
-        // TODO: "-f" for creating a pending breakpoint if necessary
+        var properties = key.getProperties();
+        if (properties.myHardware) {
+            // TODO: Creating the hardware breakpoint can fail (there is only a small number of them--like two)
+            options.add("-h");
+        }
+
+        options.add("-f"); // TODO: Make a config setting.
         // TODO: "-i ignore-count"
         // TODO: "-p thread-id"
         // TODO: -break-passcount <tracepoint-id> <passcount>
@@ -232,7 +234,6 @@ public class BreakpointManager {
             break;
         // TODO: the others
         }
-        // TODO: key.getProperties().getCOUNT_FILTER();
         // TODO: breakpoint.isLogStack()
         try {
             Map<String, ?> gdbResponse;

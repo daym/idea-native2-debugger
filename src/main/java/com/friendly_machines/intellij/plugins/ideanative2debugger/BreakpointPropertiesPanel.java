@@ -11,25 +11,35 @@ import java.awt.*;
 
 public class BreakpointPropertiesPanel extends XBreakpointCustomPropertiesPanel<XLineBreakpoint<BreakpointProperties>> {
     private JCheckBox myHardwareCheckBox;
+    private JCheckBox myForceCheckBox;
 
     @Override
     public @NotNull JComponent getComponent() {
         // TODO: Use Bundle for translations.
         myHardwareCheckBox = new JCheckBox("Hardware breakpoint");
+        myForceCheckBox = new JCheckBox("Force breakpoint even if location is currently unknown");
         var mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(myHardwareCheckBox);
+        var box = Box.createVerticalBox();
+        mainPanel.add(box, BorderLayout.CENTER);
+        box.add(myHardwareCheckBox);
+        box.add(myForceCheckBox);
         return mainPanel;
     }
 
     @Override
     public void loadFrom(@NotNull XLineBreakpoint<BreakpointProperties> breakpoint) {
-        myHardwareCheckBox.setSelected(breakpoint.getProperties().myHardware);
+        var properties = breakpoint.getProperties();
+        myHardwareCheckBox.setSelected(properties.myHardware);
+        myForceCheckBox.setSelected(properties.myForce);
     }
 
     @Override
     public void saveTo(@NotNull XLineBreakpoint<BreakpointProperties> breakpoint) {
-        var changed = breakpoint.getProperties().myHardware != myHardwareCheckBox.isSelected();
-        breakpoint.getProperties().myHardware = myHardwareCheckBox.isSelected();
+        var properties = breakpoint.getProperties();
+        var changed = properties.myHardware != myHardwareCheckBox.isSelected() ||
+        properties.myForce != myForceCheckBox.isSelected();
+        properties.myHardware = myHardwareCheckBox.isSelected();
+        properties.myForce = myForceCheckBox.isSelected();
         if (changed) {
             ((XBreakpointBase) breakpoint).fireBreakpointChanged();
         }

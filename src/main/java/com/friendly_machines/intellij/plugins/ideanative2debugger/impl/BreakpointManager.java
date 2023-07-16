@@ -215,7 +215,9 @@ public class BreakpointManager {
             options.add("-h");
         }
 
-        options.add("-f"); // TODO: Make a config setting.
+        if (properties.myForce) {
+            options.add("-f");
+        }
         // TODO: "-i ignore-count"
         // TODO: "-p thread-id"
         // TODO: -break-passcount <tracepoint-id> <passcount>

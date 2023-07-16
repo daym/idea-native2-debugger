@@ -8,4 +8,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BreakpointPropertiesHelper<T> extends XBreakpointProperties<T> {
     @Attribute("hardware")
     public boolean myHardware;
+
+    @Attribute("force")
+    public boolean myForce;
 }

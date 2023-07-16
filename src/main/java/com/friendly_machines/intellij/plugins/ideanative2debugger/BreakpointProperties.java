@@ -12,13 +12,17 @@ public class BreakpointProperties extends BreakpointPropertiesHelper<BreakpointP
     @Override
     public void loadState(@NotNull BreakpointProperties state) {
         myHardware = state.myHardware;
+        myForce = state.myForce;
     }
     @Override
     public void noStateLoaded() {
         super.noStateLoaded();
         myHardware = false;
+        myForce = true;
     }
 
     public BreakpointProperties() {
+        myHardware = false;
+        myForce = true;
     }
 }

@@ -72,7 +72,7 @@ public class CxxCatchpointType extends XBreakpointType<XBreakpoint<CxxCatchpoint
         }
 
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new CxxCatchpointProperties(dialog.getCatchpointType().get(), dialog.getExceptionRegexp())));
+                .addBreakpoint(this, new CxxCatchpointProperties(dialog.getCatchpointType(), dialog.getExceptionRegexp())));
     }
 
 //    @Override

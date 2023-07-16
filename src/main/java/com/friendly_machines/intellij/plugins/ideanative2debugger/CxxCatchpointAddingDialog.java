@@ -21,10 +21,10 @@ public class CxxCatchpointAddingDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        if (getCatchpointType().isEmpty()) {
+        /*if (getCatchpointType().isEmpty()) {
             Messages.showErrorDialog(myPanel, DebuggerBundle.message("catchpoint.type.not.specified"));
             return;
-        }
+        }*/
         // TODO: validate regexp
         if (getExceptionRegexp().length() == 0) {
             Messages.showErrorDialog(myPanel, DebuggerBundle.message("exception.pattern.not.specified"));
@@ -43,16 +43,16 @@ public class CxxCatchpointAddingDialog extends DialogWrapper {
         init();
     }
 
-    public Optional<CxxCatchpointCatchType> getCatchpointType() {
+    public CxxCatchpointCatchType getCatchpointType() {
         switch (myBreakOnComboBox.getSelectedIndex()) {
             case 0:
-                return Optional.of(CxxCatchpointCatchType.Throw);
+                return CxxCatchpointCatchType.Throw;
             case 1:
-                return Optional.of(CxxCatchpointCatchType.Rethrow);
+                return CxxCatchpointCatchType.Rethrow;
             case 2:
-                return Optional.of(CxxCatchpointCatchType.Catch);
-            default:
-                return Optional.empty();
+                return CxxCatchpointCatchType.Catch;
+            default: // FIXME
+                return CxxCatchpointCatchType.Throw;
         }
     }
 }

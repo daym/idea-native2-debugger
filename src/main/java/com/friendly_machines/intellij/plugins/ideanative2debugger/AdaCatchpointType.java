@@ -71,7 +71,7 @@ public class AdaCatchpointType extends XBreakpointType<XBreakpoint<AdaCatchpoint
         }
 
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new AdaCatchpointProperties(dialog.getCatchpointType().get(), dialog.getException(), dialog.getCondition())));
+                .addBreakpoint(this, new AdaCatchpointProperties(dialog.getCatchpointType(), dialog.getException(), dialog.getCondition())));
     }
 
 //    @Override

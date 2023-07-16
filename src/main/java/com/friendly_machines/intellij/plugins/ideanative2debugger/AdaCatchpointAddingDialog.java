@@ -22,10 +22,10 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        if (getCatchpointType().isEmpty()) {
+        /*if (getCatchpointType().isEmpty()) {
             Messages.showErrorDialog(myPanel, DebuggerBundle.message("catchpoint.type.not.specified"));
             return;
-        }
+        }*/
         /*if (getException().length() == 0) OK for 'unknown exceptions' */
         super.doOKAction();
     }
@@ -42,16 +42,16 @@ public class AdaCatchpointAddingDialog extends DialogWrapper {
         // TODO: If we had a gdb connected to the target, we could do -info-ada-exceptions and limit the possible exceptions in myExceptionField.
     }
 
-    public Optional<AdaCatchpointCatchType> getCatchpointType() {
+    public AdaCatchpointCatchType getCatchpointType() {
         switch (myBreakOnComboBox.getSelectedIndex()) {
             case 0:
-                return Optional.of(AdaCatchpointCatchType.Exception);
+                return AdaCatchpointCatchType.Exception;
             case 1:
-                return Optional.of(AdaCatchpointCatchType.Handlers);
+                return AdaCatchpointCatchType.Handlers;
             case 2:
-                return Optional.of(AdaCatchpointCatchType.Assertion);
-            default:
-                return Optional.empty();
+                return AdaCatchpointCatchType.Assertion;
+            default: // FIXME
+                return AdaCatchpointCatchType.Exception;
         }
     }
     public String getCondition() {

@@ -14,11 +14,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MemoryView extends BorderLayoutPanel {
-    private static Pattern partRegex = Pattern.compile(".{1,8}", Pattern.DOTALL);
+    private static final Pattern partRegex = Pattern.compile(".{1,8}", Pattern.DOTALL);
     private final DebugProcess myProcess;
     private JTextField beginningAddressText;
     private JPanel panel1;
-    private JButton viewButton;
+    private JButton viewButton; 
     private JTextArea memoryText;
     private JPanel panel2;
 

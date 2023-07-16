@@ -474,7 +474,7 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         //System.err.println("EXEC RUN"); // timing problems? enable debug messages.
         // TODO: --all, --thread-group N
         // TODO: check "exec-run-start-option" in listFeatures() result
-        Map<String, ?> stringMap = gdbCall("-exec-run", List.of("--start"));// FIXME optional "--start"
+        Map<String, ?> stringMap = gdbCall("-exec-run", List.of());// FIXME optional "--start"
         if (!stringMap.isEmpty()) {
             reportMessage("GDB protocol changed, please update plugin", MessageType.INFO);
         }

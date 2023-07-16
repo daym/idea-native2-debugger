@@ -70,7 +70,7 @@ public class ShlibCatchpointType extends XBreakpointType<XBreakpoint<ShlibCatchp
         }
 
         return WriteAction.compute(() -> XDebuggerManager.getInstance(project).getBreakpointManager()
-                .addBreakpoint(this, new ShlibCatchpointProperties(dialog.getCatchpointType().get(), dialog.getLibraryNameRegexp())));
+                .addBreakpoint(this, new ShlibCatchpointProperties(dialog.getCatchpointType(), dialog.getLibraryNameRegexp())));
     }
 
 //    @Override

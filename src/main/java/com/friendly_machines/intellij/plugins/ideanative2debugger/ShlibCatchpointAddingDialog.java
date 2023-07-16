@@ -20,10 +20,10 @@ public class ShlibCatchpointAddingDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        if (getCatchpointType().isEmpty()) {
+        /*if (getCatchpointType().isEmpty()) {
             Messages.showErrorDialog(myPanel, DebuggerBundle.message("catchpoint.type.not.specified"));
             return;
-        }
+        }*/
         // TODO: validate regexp
         if (getLibraryNameRegexp().length() == 0) {
             Messages.showErrorDialog(myPanel, DebuggerBundle.message("library.name.pattern.not.specified"));
@@ -42,14 +42,14 @@ public class ShlibCatchpointAddingDialog extends DialogWrapper {
         init();
     }
 
-    public Optional<ShlibCatchpointCatchType> getCatchpointType() {
+    public ShlibCatchpointCatchType getCatchpointType() {
         switch (myBreakOnComboBox.getSelectedIndex()) {
             case 0:
-                return Optional.of(ShlibCatchpointCatchType.Load);
+                return ShlibCatchpointCatchType.Load;
             case 1:
-                return Optional.of(ShlibCatchpointCatchType.Unload);
-            default:
-                return Optional.empty();
+                return ShlibCatchpointCatchType.Unload;
+            default: // FIXME
+                return ShlibCatchpointCatchType.Load;
         }
     }
 }

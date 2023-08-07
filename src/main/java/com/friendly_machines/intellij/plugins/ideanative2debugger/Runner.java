@@ -4,6 +4,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProcess;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
+import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunnerSettings;
 import com.intellij.execution.executors.DefaultDebugExecutor;
@@ -62,8 +63,16 @@ public class Runner implements ProgramRunner<RunnerSettings> {
                     XDebugProcess start(final @NotNull XDebugSession session) throws ExecutionException {
                         ACTIVE.set(Boolean.TRUE); // FIXME
                         try {
-                            final RunProfileState c = (RunProfileState) runProfileState;
-                            return new DebugProcess(c, environment, Runner.this, session);
+                            //if (runProfileState instanceof RunProfileState) {
+                            if (runProfileState instanceof org.rust.cargo.runconfig.CargoRunState) {
+                                var state = (org.rust.cargo.runconfig.CargoRunState) runProfileState;
+                                // TODO: somehow stick gdb into "cargo run" command line.
+                                // alternatively, we can attach later. But that would be a race.
+                            }
+                            final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), Runner.this);
+
+                            assert executionResult != null;
+                            return new DebugProcess(environment, executionResult, session);
                         } catch (IOException e) {
                             e.printStackTrace();
                             throw new ExecutionException(e);

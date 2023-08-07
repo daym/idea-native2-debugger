@@ -634,11 +634,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         // TODO: -exec-arguments args
     }
 
-    public DebugProcess(RunProfileState runProfileState, ExecutionEnvironment environment, Runner runner, XDebugSession session) throws IOException, ExecutionException {
+    public DebugProcess(ExecutionEnvironment environment, final ExecutionResult executionResult, XDebugSession session) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);
         //session.setCurrentStackFrame();
-        final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), runner);
         //ExecutionConsole console = executionResult.getExecutionConsole();
         myProcessHandler = executionResult.getProcessHandler();
         myProcessHandler.putUserData(DEBUG_PROCESS_KEY, this);

@@ -10,7 +10,7 @@ Add `./build/distributions/idea-native2-debugger-1.0-SNAPSHOT.zip` to IntelliJ I
 
 # Running
 
-In order to run your program under the debugger for the first time, go to `Run` / `Edit configurations...`, then add a configuration using the `+` sign and choosing `Native2Debugger`. 
+In order to run your program under the debugger for the first time, go to `Run`, `Edit configurations...`, then add a configuration using the `+` sign and choosing `Native2Debugger`. 
 
 From then on, choose this configuration in order to make the plugin run your program under `gdb`.
 

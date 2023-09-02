@@ -6,7 +6,7 @@
 
 # Installation
 
-Add `./build/distributions/idea-native2-debugger-1.0-SNAPSHOT.zip` to IntelliJ IDEA plugins. To to that, press Ctrl-Alt-S, then go to `Plugins`, then click the gear icon and then go to `Install Plugin from Disk...`.
+Add `./build/distributions/idea-native2-debugger-1.0-SNAPSHOT.zip` to IntelliJ IDEA plugins. To to that, in IntelliJ IDEA, press Ctrl-Alt-S, then go to `Plugins`, then click the gear icon and then go to `Install Plugin from Disk...`.
 
 # Running
 

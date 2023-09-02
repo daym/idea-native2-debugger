@@ -16,4 +16,4 @@ From then on, choose this configuration in order to make the plugin run your pro
 
 Note that this currently does NOT build your project first, so make sure to build it when you want to.
 
-There are further settings available in Ctrl-Alt-S, `Build, Execution, Deployment`, `Native2 Debugger`. You probably don't need to change those--but you can.
+There are further settings available in Ctrl-Alt-S, `Build, Execution, Deployment`, `Native2 Debugger`. There are settings you can use to connect to a remote machine that you want to debug, and there is a setting to specify which gdb to use.

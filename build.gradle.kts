@@ -1,6 +1,7 @@
+
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.13.3"
+    id("org.jetbrains.intellij") version "1.15.0"
 }
 
 group = "com.friendly_machines.intellij.plugins"
@@ -10,14 +11,16 @@ repositories {
     mavenCentral()
 }
 
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.toString()))
-//        // Temporarily disabling use of JBR due to build exceptions: org.gradle.internal.resolve.ModuleVersionResolveException: Could not resolve com.jetbrains:jbre:jbr_jcef-17.0.4.1-windows-x64-b653.1
-//        //vendor.set(determineJvmVendor(defaultFallbackSpec = JvmVendorSpec.ADOPTOPENJDK))
-//        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
-//    }
-//}
+java {
+    toolchain {
+////        languageVersion.set(JavaLanguageVersion.of(JavaVersion.VERSION_17.toString()))
+////        //vendor.set(determineJvmVendor(defaultFallbackSpec = JvmVendorSpec.ADOPTOPENJDK))
+          languageVersion.set(JavaLanguageVersion.of(17))
+          vendor.set(JvmVendorSpec.matching("JetBrains s.r.o"))
+          // languageVersion = JavaLanguageVersion.of(17)
+          // vendor = JvmVendorSpec.JETBRAINS
+    }
+}
 
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
@@ -58,11 +61,12 @@ tasks {
     }
 
     runIde {
-        projectExecutable.set("java")
         autoReloadPlugins.set(true)
     }
-
+    runIdeForUiTests {
+    }
+    runIdePerformanceTest {
+    }
     buildSearchableOptions {
-        projectExecutable.set("java")
     }
 }

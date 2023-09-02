@@ -139,6 +139,13 @@ Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
 fi
 
+#if [ -z "$JAVA_HOME" ] ; then
+#	JAVA_HOME=$(dirname $(dirname $(readlink $(command -v java))))
+#	export JAVA_HOME
+#fi
+#JDK17="${JAVA_HOME}"
+#export JDK17
+
 # Increase the maximum file descriptors if we can.
 if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
     case $MAX_FD in #(
@@ -204,6 +211,12 @@ set -- \
         -classpath "$CLASSPATH" \
         org.gradle.wrapper.GradleWrapperMain \
         "$@"
+
+# Stop when "xargs" is not available.
+if ! command -v xargs >/dev/null 2>&1
+then
+    die "xargs is not available"
+fi
 
 # Use "xargs" to parse quoted args.
 #

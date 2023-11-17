@@ -643,17 +643,6 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //            e.printStackTrace();
 //        }
         // gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
-        if (this.myAttachTarget != null) {
-            try {
-                this.targetAttach(this.myAttachTarget);
-            } catch (GdbMiOperationException e) {
-                reportError("Could not attach to " + this.myAttachTarget, e);
-            }
-        } else try {
-            this.execArguments(myExecArguments);
-        } catch (GdbMiOperationException e) {
-            reportError("Could not set exec arguments to " + myExecArguments, e);
-        }
     }
 
     public DebugProcess(ExecutionEnvironment environment, final ExecutionResult executionResult, XDebugSession session, String[] execArguments, @Nullable String attachTarget) throws IOException, ExecutionException {
@@ -967,10 +956,23 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         myMiFilter.startReaderThread();
         setUpGdb(myEnvironment);
         getSession().initBreakpoints();
-        try {
-            execRun();
-        } catch (GdbMiOperationException e) {
-            reportError("exec-run failed", e);
+        if (myAttachTarget == null) {
+            try {
+                this.execArguments(myExecArguments);
+            } catch (GdbMiOperationException e) {
+                reportError("Could not set exec arguments to " + myExecArguments, e);
+            }
+            try {
+                execRun();
+            } catch (GdbMiOperationException e) {
+                reportError("exec-run failed", e);
+            }
+        } else {
+            try {
+                targetAttach(myAttachTarget);
+            } catch (GdbMiOperationException e) {
+                reportError("Could not attach to " + this.myAttachTarget, e);
+            }
         }
     }
 

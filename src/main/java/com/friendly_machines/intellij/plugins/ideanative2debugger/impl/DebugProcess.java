@@ -4,6 +4,7 @@ package com.friendly_machines.intellij.plugins.ideanative2debugger.impl;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.*;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
+import com.friendly_machines.intellij.plugins.ideanative2debugger.RunProfileState;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ExecutionConsole;
@@ -480,6 +481,11 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         }
     }
 
+    private void execArguments(String[] arguments) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-exec-arguments", List.of(arguments));
+        // No return value (empty attribute dict).
+    }
+
     private static boolean isFileExecutable(VirtualFile file) {
         if (file == null) {
             return false;
@@ -631,7 +637,19 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //            e.printStackTrace();
 //        }
         // gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
-        // TODO: -exec-arguments args
+
+        try {
+            var s = (RunProfileState) environment.getState();
+            var execArguments = s.getExecArguments();
+            try {
+                this.execArguments(execArguments);
+            } catch (GdbMiOperationException e) {
+                reportError("Could not set exec arguments to " + execArguments, e);
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            reportError("Could not get configuration");
+        }
     }
 
     public DebugProcess(ExecutionEnvironment environment, final ExecutionResult executionResult, XDebugSession session) throws IOException, ExecutionException {

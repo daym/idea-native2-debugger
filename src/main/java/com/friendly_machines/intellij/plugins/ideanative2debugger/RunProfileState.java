@@ -76,6 +76,15 @@ public class RunProfileState extends CommandLineState {
 
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
+        //var execArguments = myConfiguration.getExecArguments();
+
+//        if (execArguments.length > 0) {
+//            commandLine.addParameter("--args");
+//            commandLine.addParameter("dummy");
+//            for (var argument : execArguments) {
+//                commandLine.addParameter(argument);
+//            }
+//        }
 
         commandLine.setRedirectErrorStream(false);
         final OSProcessHandler osProcessHandler = new GdbOsProcessHandler(commandLine);
@@ -96,6 +105,10 @@ public class RunProfileState extends CommandLineState {
             console.attachToProcess(processHandler);
         }
         return new DefaultExecutionResult(console, processHandler, createActions(console, processHandler, executor));
+    }
+
+    public String @NotNull [] getExecArguments() {
+        return myConfiguration.getExecArguments();
     }
 
     @Override

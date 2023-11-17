@@ -9,6 +9,7 @@ import com.intellij.xdebugger.attach.LocalAttachHost;
 import com.intellij.xdebugger.attach.XAttachDebugger;
 import com.intellij.xdebugger.attach.XAttachDebuggerProvider;
 import com.intellij.xdebugger.attach.XAttachHost;
+import com.intellij.xdebugger.attach.XAttachPresentationGroup;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,5 +30,12 @@ public class AttachDebuggerProvider implements XAttachDebuggerProvider {
 //        }
 
         return result;
+    }
+
+    private static final AttachDebuggerAttachGroup ourAttachGroup = new AttachDebuggerAttachGroup();
+
+    @Override
+    public @NotNull XAttachPresentationGroup<ProcessInfo> getPresentationGroup() {
+        return ourAttachGroup;
     }
 }

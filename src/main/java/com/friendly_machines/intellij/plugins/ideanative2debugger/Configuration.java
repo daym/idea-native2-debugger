@@ -30,6 +30,7 @@ public class Configuration extends LocatableConfigurationBase
 
 
     private String[] myExecArguments = new String[0];
+    private String myAttachTarget = null;
 
     protected Configuration(@NotNull Project project, @NotNull ConfigurationFactory factory) {
         super(project, factory);
@@ -68,11 +69,20 @@ public class Configuration extends LocatableConfigurationBase
         return myExecArguments;
     }
 
+    public @Nullable String getAttachTarget() {
+        return myAttachTarget;
+    }
+
+    public void setAttachTarget(@Nullable String attachTarget) {
+        myAttachTarget = attachTarget;
+    }
+
     @Override
     public RunConfiguration clone() {
         final var result = (Configuration)super.clone();
         result.myExecArguments = new String[myExecArguments.length];
         System.arraycopy(myExecArguments, 0, result.myExecArguments, 0, myExecArguments.length);
+        result.myAttachTarget = myAttachTarget;
         return result;
     }
 
@@ -98,6 +108,10 @@ public class Configuration extends LocatableConfigurationBase
             }
             myExecArguments = execArguments.toArray(new String[0]);
         }
+        var attachTarget = element.getChild("attachTarget");
+        if (attachTarget != null) {
+            myAttachTarget = attachTarget.getText();
+        }
 
 //        if (jdkChoice != null) {
 //            myJdkChoice = JdkChoice.valueOf(jdkChoice.getAttributeValue("value"));
@@ -114,6 +128,11 @@ public class Configuration extends LocatableConfigurationBase
             final Element p = new Element("param");
             params.addContent(p);
             p.setText(arg);
+        }
+        if (myAttachTarget != null) {
+            var attachTarget = new Element("attachTarget");
+            attachTarget.setText(myAttachTarget);
+            element.addContent(attachTarget);
         }
 
 //        final Element choice = new Element("JdkChoice");

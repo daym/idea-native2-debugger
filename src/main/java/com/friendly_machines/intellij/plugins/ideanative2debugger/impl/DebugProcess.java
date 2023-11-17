@@ -34,7 +34,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.memory.component.InstancesTracker;
 import com.intellij.xdebugger.memory.component.MemoryViewManager;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
@@ -138,6 +137,9 @@ public class DebugProcess extends XDebugProcess implements Disposable {
     private final ExecutionConsole myExecutionConsole;
     private final GdbMiFilter myMiFilter;
     private final ExecutionEnvironment myEnvironment;
+    private final String[] myExecArguments;
+    private @Nullable String myAttachTarget = null;
+
     //private final OutputStream myChildIn;
 
     protected volatile boolean isGDBconnected = false;
@@ -471,6 +473,10 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         return gdbCall("-data-evaluate-expression", List.of("--thread", threadId, "--frame", frameId, expr));
     }
 
+    private void targetAttach(String attachTarget) throws GdbMiOperationException, IOException, InterruptedException {
+        gdbCall("-target-attach", List.of(attachTarget));
+    }
+
     private void execRun() throws GdbMiOperationException, IOException, InterruptedException {
         //System.err.println("EXEC RUN"); // timing problems? enable debug messages.
         // TODO: --all, --thread-group N
@@ -637,22 +643,20 @@ public class DebugProcess extends XDebugProcess implements Disposable {
 //            e.printStackTrace();
 //        }
         // gdbSend("-file-exec-and-symbols", new String[]{"/home/dannym/src/Oxide/main/amd-host-image-builder/target/debug/amd-host-image-builder"}, new String[0]);
-
-        try {
-            var s = (RunProfileState) environment.getState();
-            var execArguments = s.getExecArguments();
+        if (this.myAttachTarget != null) {
             try {
-                this.execArguments(execArguments);
+                this.targetAttach(this.myAttachTarget);
             } catch (GdbMiOperationException e) {
-                reportError("Could not set exec arguments to " + execArguments, e);
+                reportError("Could not attach to " + this.myAttachTarget, e);
             }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            reportError("Could not get configuration");
+        } else try {
+            this.execArguments(myExecArguments);
+        } catch (GdbMiOperationException e) {
+            reportError("Could not set exec arguments to " + myExecArguments, e);
         }
     }
 
-    public DebugProcess(ExecutionEnvironment environment, final ExecutionResult executionResult, XDebugSession session) throws IOException, ExecutionException {
+    public DebugProcess(ExecutionEnvironment environment, final ExecutionResult executionResult, XDebugSession session, String[] execArguments, @Nullable String attachTarget) throws IOException, ExecutionException {
         super(session);
         session.setPauseActionSupported(true);
         //session.setCurrentStackFrame();
@@ -663,6 +667,8 @@ public class DebugProcess extends XDebugProcess implements Disposable {
         myEditorsProvider = new EditorsProvider();
         myEnvironment = environment;
         myMiFilter = new GdbMiFilter(this, environment.getProject(), (GdbOsProcessHandler) myProcessHandler);
+        myExecArguments = execArguments;
+        myAttachTarget = attachTarget;
 
         Disposer.register(myExecutionConsole, this);
         //@Nullable OutputStream childIn = executionResult.getProcessHandler().getProcessInput();

@@ -23,7 +23,11 @@ public class AttachDebuggerProvider implements XAttachDebuggerProvider {
     @Override
     public @NotNull List<XAttachDebugger> getAvailableDebuggers(@NotNull Project project, @NotNull XAttachHost xAttachHost, @NotNull ProcessInfo processInfo, @NotNull UserDataHolder userDataHolder) {
         var result = new ArrayList<XAttachDebugger>();
-        result.add(new AttachDebugger(project, xAttachHost, processInfo, userDataHolder));
+//        if (processInfo.getExecutableCannonicalPath().isPresent() &&
+//                new File(processInfo.getExecutableCannonicalPath().get()).exists()) {
+            result.add(new AttachDebugger(project, xAttachHost, processInfo, userDataHolder));
+//        }
+
         return result;
     }
 }

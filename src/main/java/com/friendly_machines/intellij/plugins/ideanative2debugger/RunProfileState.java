@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class RunProfileState extends CommandLineState {
     private final Configuration myConfiguration;
@@ -76,14 +77,15 @@ public class RunProfileState extends CommandLineState {
 
         //commandLine.setWorkDirectory(workingDirectory);
         //charset = EncodingManager.getInstance().getDefaultCharset();
-        //var execArguments = myConfiguration.getExecArguments();
-
+//        var execArguments = myConfiguration.getExecArguments();
 //        if (execArguments.length > 0) {
 //            commandLine.addParameter("--args");
-//            commandLine.addParameter("dummy");
+//            //commandLine.addParameter("nope");
 //            for (var argument : execArguments) {
 //                commandLine.addParameter(argument);
 //            }
+//        } else {
+//            // TODO: "executable 47141"
 //        }
 
         commandLine.setRedirectErrorStream(false);
@@ -110,6 +112,9 @@ public class RunProfileState extends CommandLineState {
     public String @NotNull [] getExecArguments() {
         return myConfiguration.getExecArguments();
     }
+    public @Nullable String getAttachTarget() {
+        return myConfiguration.getAttachTarget();
+    }
 
     @Override
     protected AnAction @NotNull[] createActions(ConsoleView console, ProcessHandler processHandler, Executor executor) {
@@ -135,4 +140,5 @@ public class RunProfileState extends CommandLineState {
             }
         });
     }
+
 }

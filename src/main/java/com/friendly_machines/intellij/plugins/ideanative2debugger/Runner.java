@@ -38,7 +38,7 @@ public class Runner implements ProgramRunner<RunnerSettings> {
      * This makes sure the Debug mode is executed and not run mode
      *
      * @param executorId DefaultDebugExecutor.EXECUTOR_ID or Run executor
-     * @param profile The profile
+     * @param profile    The profile
      */
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
@@ -49,13 +49,6 @@ public class Runner implements ProgramRunner<RunnerSettings> {
     @Nullable
     protected RunContentDescriptor createContentDescriptor(com.intellij.execution.configurations.RunProfileState runProfileState, ExecutionEnvironment environment)
             throws ExecutionException {
-        //Executor executor = environment.getExecutor();
-        // could check STATE's stuff (like getParameters() etc)
-        //String debuggerPort = DebuggerUtils.getInstance().findAvailableDebugAddress(true);
-        //String remotePort = JDWP + debuggerPort;
-        //javaParameters.getVMParametersList().addParametersString(remotePort);
-        //RemoteConnection connection = new RemoteConnection(true, LOCALHOST, debuggerPort, false);
-        // Attaches the remote configuration to the VM and then starts it up
         XDebugSession debugSession =
                 XDebuggerManager.getInstance(environment.getProject()).startSession(environment, new XDebugProcessStarter() {
                     @Override
@@ -63,16 +56,23 @@ public class Runner implements ProgramRunner<RunnerSettings> {
                     XDebugProcess start(final @NotNull XDebugSession session) throws ExecutionException {
                         ACTIVE.set(Boolean.TRUE); // FIXME
                         try {
+                            var execArguments = new String[0];
+                            @Nullable String attachTarget = null;
                             //if (runProfileState instanceof RunProfileState) {
                             if (runProfileState instanceof org.rust.cargo.runconfig.CargoRunState) {
                                 var state = (org.rust.cargo.runconfig.CargoRunState) runProfileState;
-                                // TODO: somehow stick gdb into "cargo run" command line.
-                                // alternatively, we can attach later. But that would be a race.
+                                // TODO: Stick gdb into "cargo run" command line:
+                                // cargo --config "target.'cfg(unix)'.runner = 'gdb --args x'" run
+                                // TODO check how command line patches work state.prepareCommandLine()
+                            } else {
+                                var state = (RunProfileState) runProfileState;
+                                execArguments = state.getExecArguments();
+                                attachTarget = state.getAttachTarget();
                             }
                             final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), Runner.this);
 
                             assert executionResult != null;
-                            return new DebugProcess(environment, executionResult, session);
+                            return new DebugProcess(environment, executionResult, session, execArguments, attachTarget);
                         } catch (IOException e) {
                             e.printStackTrace();
                             throw new ExecutionException(e);

@@ -6,12 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Comparator;
-
-import static com.ibm.icu.text.PluralRules.Operand.v;
 
 public class ProjectDebugSettingsEditorComponent implements PanelWithAnchor {
     private final DefaultTableModel myArgs;

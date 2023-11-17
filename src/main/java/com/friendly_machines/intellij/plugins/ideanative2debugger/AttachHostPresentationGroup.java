@@ -22,12 +22,12 @@ public class AttachHostPresentationGroup implements XAttachPresentationGroup<Att
     }
 
     @Override
-    public @NotNull Icon getProcessIcon(@NotNull Project project, @NotNull AttachHost info, @NotNull UserDataHolder dataHolder) {
+    public @NotNull Icon getItemIcon(@NotNull Project project, @NotNull AttachHost info, @NotNull UserDataHolder dataHolder) {
         return AllIcons.Icons.Ide.MenuArrow;
     }
 
     @Override
-    public @NotNull @Nls String getProcessDisplayText(@NotNull Project project, @NotNull AttachHost info, @NotNull UserDataHolder dataHolder) {
+    public @NotNull @Nls String getItemDisplayText(@NotNull Project project, @NotNull AttachHost info, @NotNull UserDataHolder dataHolder) {
         return "Gdb/Mi-proxied host";
     }
 

@@ -9,6 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import static com.ibm.icu.text.PluralRules.Operand.v;
 
@@ -25,38 +26,28 @@ public class ProjectDebugSettingsEditorComponent implements PanelWithAnchor {
 
     public ProjectDebugSettingsEditorComponent(Project project) {
         myProject = project;
-        myArgs = new DefaultTableModel(new String[] { "Argument" }, 0);
+        myArgs = new DefaultTableModel(new String[]{"Argument"}, 0);
         table1.setModel(myArgs);
-        addBeforeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                int cursorRowIndex = table1.getSelectedRow();
-                if (cursorRowIndex != -1) {
-                    myArgs.insertRow(cursorRowIndex, new String[]{""}); // TODO map
-                } else {
-                    myArgs.addRow(new String[]{""});
-                }
+        addBeforeButton.addActionListener(actionEvent -> {
+            int cursorRowIndex = table1.getSelectionModel().getLeadSelectionIndex(); // TODO Anchor instead ?
+            if (cursorRowIndex != -1) {
+                var modelIndex = table1.convertRowIndexToModel(cursorRowIndex);
+                myArgs.insertRow(modelIndex, new String[]{""});
+            } else {
+                myArgs.addRow(new String[]{""});
             }
         });
-        addAfterwardsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                int cursorRowIndex = table1.getSelectedRow();
-                if (cursorRowIndex != -1) {
-                    myArgs.insertRow(table1.getSelectedRow() + 1, new String[]{""}); // TODO map
-                } else {
-                    myArgs.addRow(new String[]{""});
-                }
+        addAfterwardsButton.addActionListener(actionEvent -> {
+            int cursorRowIndex = table1.getSelectionModel().getLeadSelectionIndex(); // TODO Anchor instead ?
+            if (cursorRowIndex != -1 && cursorRowIndex < table1.getRowCount() - 1) {
+                var modelIndex = table1.convertRowIndexToModel(cursorRowIndex + 1);
+                myArgs.insertRow(modelIndex, new String[]{""});
+            } else {
+                myArgs.addRow(new String[]{""});
             }
         });
-        button2r.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                int selectedRowIndex = table1.getSelectedRow();
-                if (selectedRowIndex != -1) {
-                    myArgs.removeRow(selectedRowIndex);
-                }
-            }
+        button2r.addActionListener(actionEvent -> {
+            Arrays.stream(table1.getSelectedRows()).map(table1::convertRowIndexToModel).boxed().sorted(Comparator.reverseOrder()).forEach(myArgs::removeRow);
         });
 
     }
@@ -81,6 +72,6 @@ public class ProjectDebugSettingsEditorComponent implements PanelWithAnchor {
     }
 
     public void setExecArguments(String[] execArguments) {
-        myArgs.setDataVector(Arrays.stream(execArguments).map(v -> new String[] { v }).toArray(size -> new String[size][1]), new Object[] { 0 });
+        myArgs.setDataVector(Arrays.stream(execArguments).map(v -> new String[]{v}).toArray(size -> new String[size][1]), new Object[]{0});
     }
 }

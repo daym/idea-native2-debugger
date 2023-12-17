@@ -1,23 +1,14 @@
 package com.friendly_machines.intellij.plugins.ideanative2debugger;
 
-import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.DebugProcess;
 import com.friendly_machines.intellij.plugins.ideanative2debugger.impl.MemoryView;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
-import com.intellij.xdebugger.impl.DebuggerSupport;
-import com.intellij.xdebugger.impl.actions.DebuggerActionHandler;
-import com.intellij.xdebugger.impl.actions.XDebuggerActionBase;
-import com.intellij.xdebugger.impl.actions.XDebuggerSuspendedActionHandler;
 import com.intellij.xdebugger.impl.ui.DebuggerUIUtil;
 import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import com.intellij.xdebugger.memory.component.MemoryViewManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.debugger.DebugProcessImpl;
 
 public class ShowVariableInMemoryViewAction extends XDebuggerTreeActionBase {
     @Override

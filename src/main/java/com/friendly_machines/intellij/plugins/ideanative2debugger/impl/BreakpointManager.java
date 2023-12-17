@@ -225,7 +225,7 @@ public class BreakpointManager {
             options.add("-t");
         if (!key.isEnabled())
             options.add("-d");
-        @Nullable String condition = key.getCondition();
+        @Nullable String condition = key.getConditionExpression() != null ? key.getConditionExpression().getExpression() : null;
         if (condition != null) {
             options.add("-c");
             options.add(condition);

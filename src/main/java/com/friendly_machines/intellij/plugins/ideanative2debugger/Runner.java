@@ -8,17 +8,26 @@ import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunnerSettings;
 import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.filters.Filter;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+//import org.rust.cargo.toolchain.CargoCommandLine;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class Runner implements ProgramRunner<RunnerSettings> {
@@ -58,20 +67,11 @@ public class Runner implements ProgramRunner<RunnerSettings> {
                         try {
                             var execArguments = new String[0];
                             @Nullable String attachTarget = null;
-                            //if (runProfileState instanceof RunProfileState) {
-                            if (runProfileState instanceof org.rust.cargo.runconfig.CargoRunState) {
-                                var state = (org.rust.cargo.runconfig.CargoRunState) runProfileState;
-                                // TODO: Stick gdb into "cargo run" command line:
-                                // cargo --config "target.'cfg(unix)'.runner = 'gdb --args x'" run
-                                // TODO check how command line patches work state.prepareCommandLine()
-                            } else {
-                                var state = (RunProfileState) runProfileState;
-                                execArguments = state.getExecArguments();
-                                attachTarget = state.getAttachTarget();
-                            }
+                            var state = (RunProfileState) runProfileState;
+                            execArguments = state.getExecArguments();
+                            attachTarget = state.getAttachTarget();
                             final ExecutionResult executionResult = runProfileState.execute(environment.getExecutor(), Runner.this);
 
-                            assert executionResult != null;
                             return new DebugProcess(environment, executionResult, session, execArguments, attachTarget);
                         } catch (IOException e) {
                             e.printStackTrace();

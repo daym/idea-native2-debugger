@@ -24,6 +24,8 @@ import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class RunProfileState extends CommandLineState {
     private final Configuration myConfiguration;
     private final TextConsoleBuilder myBuilder;
@@ -33,6 +35,7 @@ public class RunProfileState extends CommandLineState {
         myConfiguration = configuration;
         myBuilder = builder;
     }
+
 
     @NotNull
     @Override
@@ -45,48 +48,11 @@ public class RunProfileState extends CommandLineState {
 //        }
 //        String slaveName = myPty.getSlaveName();
         // myPty.getMasterFD()
-        String gdbExecutableName = ProjectSettingsState.getInstance().gdbExecutableName;
-        if (gdbExecutableName == null || gdbExecutableName.equals("")) {
-            gdbExecutableName = "gdb";
+        List<String> args = ProjectSettingsState.getInstance().prepareCommandLine();
+        GeneralCommandLine commandLine = new GeneralCommandLine(args.get(0));
+        for (int i = 1; i < args.size(); ++i) {
+            commandLine.addParameter(args.get(i));
         }
-
-//        if (SystemInfo.isWindows) {
-//            GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath("wsl.exe"));
-//              commandLine.addParameter("gdbExecutableName"); // no window
-//        } else
-        //Pty: GeneralCommandLine commandLine = new PtyCommandLine(Arrays.stream(new String[] { PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName) }).toList());
-        GeneralCommandLine commandLine = new GeneralCommandLine(PathEnvironmentVariableUtil.findExecutableInWindowsPath(gdbExecutableName));
-        // If using wsl.exe gdb ...
-        //if (SystemInfo.isWindows) {
-        //    commandLine.addParameter(gdbExecutableName);
-        //}
-        commandLine.addParameter("--nw"); // no window
-        commandLine.addParameter("-q");
-        //commandLine.addParameter("-batch");
-        //commandLine.addParameter("-return-child-result");
-        // -d <sourcedir>
-        // -s <symbols>
-        // -cd=<dir>
-        // -f (stack frame special format)
-        // -tty=/dev/tty0
-
-        commandLine.addParameter("--interpreter=mi3");
-        // gdb needs either forward-slashes or doubly-escaped backslashes
-        //commandLine.addParameter("--tty=" + slaveName.replace("\\", "\\\\"));
-        //commandLine.addParameter("--eval-command=new-ui mi3 " + slaveName.replace("\\", "\\\\"));
-
-        //commandLine.setWorkDirectory(workingDirectory);
-        //charset = EncodingManager.getInstance().getDefaultCharset();
-//        var execArguments = myConfiguration.getExecArguments();
-//        if (execArguments.length > 0) {
-//            commandLine.addParameter("--args");
-//            //commandLine.addParameter("nope");
-//            for (var argument : execArguments) {
-//                commandLine.addParameter(argument);
-//            }
-//        } else {
-//            // TODO: "executable 47141"
-//        }
 
         commandLine.setRedirectErrorStream(false);
         final OSProcessHandler osProcessHandler = new GdbOsProcessHandler(commandLine);

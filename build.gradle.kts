@@ -25,10 +25,12 @@ java {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2023.1") // ("2022.2.2") // 222.4167.29
+    version.set("2023.3")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf("org.rust.lang:0.4.191.5293-231"))
+    // It's now incompatible
+    //plugins.set(listOf("org.rust.lang:0.4.191.5293-231"))
+
 }
 
 dependencies {
@@ -47,7 +49,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("231")
-        untilBuild.set("232.*")
+        untilBuild.set("233.*")
     }
 
     signPlugin {
